@@ -1,0 +1,18 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    { "src": "/home", "dest": "/" },
+    { "src": "/houseremovals", "dest": "/house-removals", "status": 301 },
+    { "src": "/office-relocations", "dest": "/office-removals", "status": 301 },
+    { "src": "/internationalrelocation", "dest": "/international-relocation", "status": 301 },
+    { "src": "/packingandunpackingservices", "dest": "/packing-services", "status": 301 },
+    { "src": "/luxurybelongings", "dest": "/luxury-removals", "status": 301 },
+    { "src": "/faq-s", "dest": "/faq", "status": 301 },
+    { "src": "/areaswecover", "dest": "/areas", "status": 301 },
+    { "src": "/request-a-quote", "dest": "/contact", "status": 301 },
+    { "src": "/book-online", "dest": "/contact", "status": 301 },
+    { "src": "/contact-1", "dest": "/contact", "status": 301 },
+    { "src": "/api/quote", "dest": "/api/quote.js" }
+  ]
+}
