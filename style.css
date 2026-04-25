@@ -4,7 +4,7 @@
    Fonts: Syne (headings) + DM Sans (body)
 ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap');
 
 /* ── VARIABLES ── */
 :root {
@@ -21,8 +21,8 @@
   --dark:       #1A1A2E;
   --muted:      #556070;
   --border:     #c8ddd8;
-  --ff-display: 'Syne', sans-serif;
-  --ff-body:    'DM Sans', sans-serif;
+  --ff-display: 'Montserrat', sans-serif;
+  --ff-body:    'Inter', sans-serif;
   --radius:     10px;
   --shadow:     0 4px 20px rgba(26,60,110,0.08);
   --shadow-md:  0 8px 32px rgba(26,60,110,0.12);
