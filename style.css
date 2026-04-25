@@ -394,3 +394,9 @@ p { font-size: 15px; line-height: 1.85; color: var(--muted); }
   .location-grid { grid-template-columns: repeat(2, 1fr); }
   .cta-actions { flex-direction: column; align-items: center; }
 }
+
+/* ── LOGO IMAGE ── */
+.nav-logo img { height: 44px; width: auto; display: block; }
+.nav-logo { text-decoration: none; display: flex; align-items: center; }
+#site-footer .nav-logo img { height: 40px; }
+@media (max-width: 768px) { .nav-logo img { height: 38px; } }
