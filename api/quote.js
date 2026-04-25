@@ -20,7 +20,7 @@ export default async function handler(req, res) {
 
   // ── 1. SUPABASE ──
   try {
-    const sbRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/leads`, {
+    const sbRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/relokates_quote_request`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
