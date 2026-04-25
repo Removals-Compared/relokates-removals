@@ -13,6 +13,8 @@
     { "src": "/request-a-quote", "dest": "/contact", "status": 301 },
     { "src": "/book-online", "dest": "/contact", "status": 301 },
     { "src": "/contact-1", "dest": "/contact", "status": 301 },
-    { "src": "/api/quote", "dest": "/api/quote.js" }
+    { "src": "/api/quote", "dest": "/api/quote.js" },
+    { "src": "/removals/(.*)", "dest": "/removals/$1" },
+    { "src": "/removals-to-dubai/(.*)", "dest": "/removals-to-dubai/$1" }
   ]
 }
