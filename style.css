@@ -709,3 +709,11 @@ p { font-size: 15px; line-height: 1.85; color: var(--muted); }
     gap: 16px !important;
   }
 }
+
+
+/* ── LOGO SIZE UPDATES ── */
+.nav-logo img { height: 54px !important; width: auto; display: block; }
+#site-footer img[src*="logo"] { height: 90px !important; width: auto; }
+@media (max-width: 768px) {
+  .nav-logo img { height: 46px !important; }
+}
