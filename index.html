@@ -14,6 +14,51 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+/* HERO SPLIT */
+.hero-split{display:grid;grid-template-columns:55% 45%;min-height:580px}
+.hero-left{background:linear-gradient(135deg,var(--teal) 0%,var(--teal-light) 60%,var(--cream) 100%);padding:72px 48px 72px 24px;display:flex;align-items:center}
+.hero-left-inner{max-width:580px;margin:0 auto}
+.hero-right{position:relative;overflow:hidden}
+.hero-right img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.hero-right::after{content:'';position:absolute;inset:0;background:linear-gradient(to right,var(--teal) 0%,transparent 20%)}
+/* ABOUT SPLIT */
+.about-split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.about-img{border-radius:16px;overflow:hidden;box-shadow:var(--shadow-md)}
+.about-img img{width:100%;height:440px;object-fit:cover;display:block}
+/* SERVICE IMAGE CARDS */
+.svc-photo-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform .2s,box-shadow .2s;text-decoration:none;display:block}
+.svc-photo-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+.svc-photo-card img{width:100%;height:170px;object-fit:cover;display:block}
+.svc-photo-body{padding:18px}
+.svc-photo-body h3{font-size:16px;color:var(--navy);margin-bottom:6px}
+.svc-photo-body p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:10px}
+/* PHOTO STRIP */
+.photo-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.photo-strip-item{border-radius:var(--radius);overflow:hidden;position:relative}
+.photo-strip-item img{width:100%;height:220px;object-fit:cover;display:block}
+.photo-strip-label{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(26,60,110,.88) 0%,transparent 100%);padding:16px;color:#fff;font-size:13px;font-weight:700;font-family:var(--ff-display)}
+/* DUBAI SPLIT */
+.dubai-photo-split{display:grid;grid-template-columns:1fr 1fr;min-height:340px}
+.dubai-photo-side{overflow:hidden}
+.dubai-photo-side img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
+.dubai-content-side{background:var(--navy);padding:48px 40px;display:flex;flex-direction:column;justify-content:center}
+/* RESPONSIVE */
+@media(max-width:960px){
+  .hero-split{grid-template-columns:1fr}
+  .hero-right{height:300px}
+  .hero-left{padding:48px 24px}
+  .about-split{grid-template-columns:1fr}
+  .about-img{display:none}
+  .photo-strip{grid-template-columns:1fr}
+  .dubai-photo-split{grid-template-columns:1fr}
+  .dubai-photo-side{height:220px}
+}
+@media(max-width:768px){
+  .hero-left{padding:40px 20px}
+  .svc-photo-card img{height:140px}
+}
+</style>
 </head>
 <body>
 
@@ -48,162 +93,206 @@
   <a class="mob-nav-link" href="/contact" style="color:var(--gold)">Get a Free Quote &#8594;</a>
 </div>
 
-<section class="hero" aria-label="Hero">
-  <div class="container">
-    <div class="hero-inner">
+<!-- HERO -->
+<section class="hero-split" aria-label="Hero">
+  <div class="hero-left">
+    <div class="hero-left-inner">
       <div class="hero-badge">&#9733; Trusted across 475 locations nationwide</div>
-      <h1>Professional removals across <em>London, Essex, Kent</em> and West Sussex</h1>
+      <h1 style="color:var(--navy);margin-bottom:18px">Professional removals across <em style="color:var(--gold);font-style:normal;border-bottom:3px solid var(--gold);padding-bottom:2px">London, Essex, Kent</em> and West Sussex</h1>
       <p class="hero-sub">Fully insured, fixed-price removal company trusted by families and businesses across the UK. House moves, office relocations, specialist packing, secure storage and a specialist London to Dubai international relocation service — all handled under one roof.</p>
       <div class="hero-actions">
         <a href="/contact" class="btn btn-primary btn-lg">Get a Free Quote</a>
         <a href="tel:07359724844" class="btn btn-secondary btn-lg">&#9990; 07359 724844</a>
       </div>
       <div class="hero-trust">
-        <div class="trust-item"><div class="trust-dot">&#10003;</div>Fully insured on every move</div>
-        <div class="trust-item"><div class="trust-dot">&#10003;</div>Fixed prices, no hidden charges</div>
+        <div class="trust-item"><div class="trust-dot">&#10003;</div>Fully insured</div>
+        <div class="trust-item"><div class="trust-dot">&#10003;</div>Fixed prices</div>
         <div class="trust-item"><div class="trust-dot">&#9733;</div>5-star rated</div>
-        <div class="trust-item"><div class="trust-dot">&#10003;</div>475 locations covered</div>
         <div class="trust-item"><div class="trust-dot">&#10003;</div>7 days a week</div>
       </div>
     </div>
+  </div>
+  <div class="hero-right">
+    <img src="/images/hero-home.jpg" alt="Happy couple in their new home after a successful move with Relokates" loading="eager" fetchpriority="high">
   </div>
 </section>
 
 <div class="gold-bar"></div>
 
-<div class="stats-bar" role="region" aria-label="Key statistics">
+<div class="stats-bar">
   <div class="container">
     <div class="stats-grid">
       <div class="stat-item"><div class="stat-num">475<span class="stat-accent">+</span></div><div class="stat-label">Locations covered</div></div>
       <div class="stat-item"><div class="stat-num" style="color:var(--gold)">100%</div><div class="stat-label">Fully insured</div></div>
-      <div class="stat-item"><div class="stat-num">5 <span class="stat-accent">&#9733;</span></div><div class="stat-label">Average Google rating</div></div>
+      <div class="stat-item"><div class="stat-num">5 <span class="stat-accent">&#9733;</span></div><div class="stat-label">Google rating</div></div>
       <div class="stat-item"><div class="stat-num" style="color:var(--gold)">7</div><div class="stat-label">Days a week</div></div>
     </div>
   </div>
 </div>
 
-<section class="section section-cream" aria-labelledby="intro-heading">
+<!-- ABOUT -->
+<section class="section section-cream">
   <div class="container">
-    <div class="section-eyebrow">Who we are</div>
-    <h2 class="section-title" id="intro-heading">The removal company families and businesses across the UK trust</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start">
+    <div class="about-split">
       <div>
-        <p>Relokates Removals was built on a single principle that has guided every one of our moves since we began: treat every customer's belongings as if they were our own, be completely honest about pricing, and do exactly what we say we are going to do.</p>
-        <p>We cover over 475 locations across London, Essex, Kent and West Sussex. Whether you are moving a studio flat in Grays, a large family home from Sevenoaks to Chichester, a professional office in Canary Wharf, or relocating your entire household from the UK to Dubai, Relokates manages every detail from the first call to the final box placed in your new property.</p>
-      </div>
-      <div>
-        <p>Our fully insured, fixed-price approach means you always know exactly what you are paying before moving day arrives. There are no hidden charges for stairs, parking delays, heavy items or extra time. What we quote is what you pay — every single time.</p>
-        <p>We are proud to offer one of the most comprehensive coverage networks of any independent removal company in the South East. Our 475 locations span all 33 London boroughs, over 65 towns in Essex, 80 locations across Kent and 55 locations in West Sussex.</p>
+        <div class="section-eyebrow">Who we are</div>
+        <h2 class="section-title">The removal company families and businesses trust</h2>
+        <p>Relokates Removals was built on a single principle: treat every customer's belongings as if they were our own, be completely honest about pricing, and do exactly what we say we are going to do.</p>
+        <p style="margin-top:14px">We cover over 475 locations across London, Essex, Kent and West Sussex. Whether you are moving a studio flat in Grays, a large family home from Sevenoaks to Chichester, a professional office in Canary Wharf, or relocating your entire household from the UK to Dubai, Relokates manages every detail from the first call to the final box.</p>
         <div class="trust-row" style="margin-top:24px">
           <div class="trust-badge"><div class="trust-badge-icon">&#128737;</div><div class="trust-badge-text"><strong>Fully Insured</strong><span>Every move, every time</span></div></div>
           <div class="trust-badge"><div class="trust-badge-icon">&#128183;</div><div class="trust-badge-text"><strong>Fixed Pricing</strong><span>No hidden charges</span></div></div>
-          <div class="trust-badge"><div class="trust-badge-icon">&#11088;</div><div class="trust-badge-text"><strong>5-Star Rated</strong><span>Hundreds of reviews</span></div></div>
+          <div class="trust-badge"><div class="trust-badge-icon">&#11088;</div><div class="trust-badge-text"><strong>5-Star Rated</strong><span>Verified reviews</span></div></div>
         </div>
+        <a href="/about" class="btn btn-secondary" style="margin-top:24px">More about us &#8594;</a>
+      </div>
+      <div class="about-img">
+        <img src="/images/about-couple.jpg" alt="Couple carrying boxes into their new home — Relokates house removal service">
       </div>
     </div>
   </div>
 </section>
 
-<section class="section" aria-labelledby="services-heading">
+<!-- SERVICES -->
+<section class="section">
   <div class="container">
     <div class="section-eyebrow">What we do</div>
-    <h2 class="section-title" id="services-heading">Removal services built around you</h2>
-    <p class="section-sub">Every move is different. Whether you are moving a studio flat in Grays or a six-bedroom home in Sevenoaks, our service is tailored to your situation, your timeline and your budget.</p>
-    <div class="services-grid">
-      <a href="/house-removals" class="svc-card"><div class="svc-icon">&#127968;</div><h3>House Removals</h3><p>Full residential moves with protective wrapping, careful loading and precise placement in your new home across 475 locations.</p><span class="svc-link">Full details &#8594;</span></a>
-      <a href="/office-removals" class="svc-card"><div class="svc-icon">&#127970;</div><h3>Office Removals</h3><p>Commercial relocations planned to zero downtime. IT equipment, server rooms and furniture. Evenings and weekends available.</p><span class="svc-link">Full details &#8594;</span></a>
-      <a href="/international-relocation" class="svc-card"><div class="svc-icon">&#127758;</div><h3>International &amp; Dubai</h3><p>Specialist London to Dubai corridor. Customs coordination, secure specialist shipping and full UAE destination support.</p><span class="svc-link">Full details &#8594;</span></a>
-      <a href="/packing-services" class="svc-card"><div class="svc-icon">&#128230;</div><h3>Packing Services</h3><p>Professional packing using premium double-walled boxes, bubble wrap and specialist covers. Full, part-pack or materials only.</p><span class="svc-link">Full details &#8594;</span></a>
-      <a href="/storage" class="svc-card"><div class="svc-icon">&#128274;</div><h3>Secure Storage</h3><p>Insured, monitored short and long-term storage. Perfect for completion gaps, renovation works or downsizing.</p><span class="svc-link">Full details &#8594;</span></a>
-      <a href="/man-and-van" class="svc-card"><div class="svc-icon">&#128654;</div><h3>Man and Van</h3><p>Flexible, fully insured man and van for smaller moves, student relocations and collections. Same-day often available.</p><span class="svc-link">Full details &#8594;</span></a>
-      <a href="/luxury-removals" class="svc-card"><div class="svc-icon">&#128081;</div><h3>Luxury Removals</h3><p>Fine art, grand pianos, antiques and high-value items. Specialist handling with bespoke crating and white-glove service.</p><span class="svc-link">Full details &#8594;</span></a>
-      <a href="/house-clearance" class="svc-card"><div class="svc-icon">&#127968;</div><h3>House Clearance</h3><p>Responsible, respectful clearance for downsizing, bereavement or property preparation for sale across all areas.</p><span class="svc-link">Full details &#8594;</span></a>
+    <h2 class="section-title">Removal services built around you</h2>
+    <p class="section-sub">From a studio flat in Grays to a six-bedroom home in Sevenoaks, from a Canary Wharf office to a London to Dubai international relocation — every service is tailored to your situation, timeline and budget.</p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
+      <a href="/house-removals" class="svc-photo-card">
+        <img src="/images/svc-house.jpg" alt="House removal service">
+        <div class="svc-photo-body"><h3>House Removals</h3><p>Full residential moves for every property size. Fixed price, fully insured across 475 locations.</p><span class="svc-link">Full details &#8594;</span></div>
+      </a>
+      <a href="/office-removals" class="svc-photo-card">
+        <img src="/images/svc-office.jpg" alt="Office removal van outside commercial building">
+        <div class="svc-photo-body"><h3>Office Removals</h3><p>Commercial relocations planned to zero downtime. Evening and weekend moves available.</p><span class="svc-link">Full details &#8594;</span></div>
+      </a>
+      <a href="/international-relocation" class="svc-photo-card">
+        <img src="/images/svc-dubai.jpg" alt="Couple relocated to Dubai — Relokates international removal service">
+        <div class="svc-photo-body"><h3>International &amp; Dubai</h3><p>London to Dubai specialists. Customs, shipping and UAE destination support end to end.</p><span class="svc-link">Full details &#8594;</span></div>
+      </a>
+      <a href="/packing-services" class="svc-photo-card">
+        <img src="/images/svc-packing.jpg" alt="Professional packing of delicate items">
+        <div class="svc-photo-body"><h3>Packing Services</h3><p>Full pack, part-pack or materials only. Premium boxes and specialist covers throughout.</p><span class="svc-link">Full details &#8594;</span></div>
+      </a>
+      <a href="/storage" class="svc-photo-card">
+        <img src="/images/svc-storage.jpg" alt="Secure storage facility">
+        <div class="svc-photo-body"><h3>Secure Storage</h3><p>Insured, monitored short and long-term storage. Perfect for completion gaps and renovation works.</p><span class="svc-link">Full details &#8594;</span></div>
+      </a>
+      <a href="/man-and-van" class="svc-photo-card">
+        <img src="/images/svc-van.jpg" alt="Removal van on the road">
+        <div class="svc-photo-body"><h3>Man and Van</h3><p>Flexible, fully insured for smaller moves and student relocations. Same-day often available.</p><span class="svc-link">Full details &#8594;</span></div>
+      </a>
+      <a href="/luxury-removals" class="svc-photo-card">
+        <img src="/images/svc-luxury.jpg" alt="Luxury bedroom furniture removal">
+        <div class="svc-photo-body"><h3>Luxury Removals</h3><p>White-glove service for fine art, grand pianos, antiques and high-value belongings.</p><span class="svc-link">Full details &#8594;</span></div>
+      </a>
+      <a href="/house-clearance" class="svc-photo-card">
+        <img src="/images/svc-clearance.jpg" alt="House clearance service">
+        <div class="svc-photo-body"><h3>House Clearance</h3><p>Responsible, respectful clearance for downsizing, bereavement and property preparation.</p><span class="svc-link">Full details &#8594;</span></div>
+      </a>
     </div>
   </div>
 </section>
 
-<section class="section section-cream" aria-labelledby="areas-heading">
+<!-- AREAS -->
+<section class="section section-cream">
   <div class="container">
     <div class="section-eyebrow">Where we work</div>
-    <h2 class="section-title" id="areas-heading">475 locations. One trusted removal company.</h2>
-    <p class="section-sub">We have a dedicated page for every single town and area we serve — with genuine local knowledge, local pricing context and area-specific advice for your move.</p>
+    <h2 class="section-title">475 locations. One trusted removal company.</h2>
+    <p class="section-sub">A dedicated page for every town and area we serve — with genuine local knowledge, local pricing and area-specific moving advice.</p>
     <div class="areas-grid">
-      <a href="/removals-london" class="area-card"><div class="area-icon">&#127966;</div><h3>London</h3><p>All 33 boroughs covered including Bromley, Bexley, Greenwich, Croydon, Tower Hamlets, Hackney, Camden and Westminster.</p><span class="area-count">33 boroughs</span></a>
-      <a href="/removals-essex" class="area-card"><div class="area-icon">&#127807;</div><h3>Essex</h3><p>Chelmsford, Basildon, Colchester, Southend-on-Sea, Grays, Brentwood, Harlow, Rayleigh, Billericay, Loughton and 55 more.</p><span class="area-count">65 locations</span></a>
-      <a href="/removals-kent" class="area-card"><div class="area-icon">&#127963;</div><h3>Kent</h3><p>Rochester, Maidstone, Canterbury, Gravesend, Dartford, Sevenoaks, Chatham, Gillingham, Tonbridge and 70 more Kent locations.</p><span class="area-count">80 locations</span></a>
-      <a href="/removals-west-sussex" class="area-card"><div class="area-icon">&#127754;</div><h3>West Sussex</h3><p>Chichester, Crawley, Horsham, Worthing, Bognor Regis, Littlehampton, Haywards Heath, East Grinstead and 46 more towns.</p><span class="area-count">55 locations</span></a>
+      <a href="/removals-london" class="area-card"><div class="area-icon">&#127966;</div><h3>London</h3><p>All 33 boroughs including Bromley, Bexley, Greenwich, Croydon, Tower Hamlets, Hackney, Camden and Westminster.</p><span class="area-count">33 boroughs</span></a>
+      <a href="/removals-essex" class="area-card"><div class="area-icon">&#127807;</div><h3>Essex</h3><p>Chelmsford, Basildon, Colchester, Southend-on-Sea, Grays, Brentwood, Harlow, Rayleigh and 57 more towns.</p><span class="area-count">65 locations</span></a>
+      <a href="/removals-kent" class="area-card"><div class="area-icon">&#127963;</div><h3>Kent</h3><p>Rochester, Maidstone, Canterbury, Gravesend, Dartford, Sevenoaks, Chatham, Tonbridge and 72 more.</p><span class="area-count">80 locations</span></a>
+      <a href="/removals-west-sussex" class="area-card"><div class="area-icon">&#127754;</div><h3>West Sussex</h3><p>Chichester, Crawley, Horsham, Worthing, Bognor Regis, Littlehampton, Haywards Heath and 48 more.</p><span class="area-count">55 locations</span></a>
     </div>
     <div style="text-align:center;margin-top:32px">
-      <a href="/areas" class="btn btn-secondary">View all 475 locations and find your area &#8594;</a>
+      <a href="/areas" class="btn btn-secondary">View all 475 locations &#8594;</a>
     </div>
   </div>
 </section>
 
-<div class="dubai-strip" role="region" aria-label="International removals Dubai">
+<!-- WHY US WITH PHOTOS -->
+<section class="section">
   <div class="container">
-    <div class="dubai-inner">
-      <div class="dubai-left">
-        <h3>Specialist London to Dubai international removal service</h3>
-        <p>Full customs coordination, secure specialist shipping and complete destination support in the UAE. Trusted by UK families, professionals and businesses making the move to Dubai.</p>
+    <div class="section-eyebrow">Why Relokates</div>
+    <h2 class="section-title">What makes us different</h2>
+    <div class="photo-strip">
+      <div class="photo-strip-item">
+        <img src="/images/strip-van.jpg" alt="Professionally loaded Relokates removal van">
+        <div class="photo-strip-label">Careful loading on every move</div>
       </div>
-      <a href="/international-relocation" class="btn btn-primary" style="flex-shrink:0">Find out more &#8594;</a>
+      <div class="photo-strip-item">
+        <img src="/images/strip-office.jpg" alt="Relokates professional office removal team">
+        <div class="photo-strip-label">Vetted, uniformed professionals</div>
+      </div>
+      <div class="photo-strip-item">
+        <img src="/images/strip-houses.jpg" alt="UK residential houses served by Relokates">
+        <div class="photo-strip-label">475 locations across the UK</div>
+      </div>
     </div>
+    <div class="why-grid">
+      <div class="why-card"><div class="why-top"><div class="why-icon-wrap">&#128737;</div><h4>Fully insured on every move</h4></div><p>Comprehensive goods-in-transit and public liability insurance active on every job. Proof of cover available before you book.</p></div>
+      <div class="why-card"><div class="why-top"><div class="why-icon-wrap">&#128183;</div><h4>Fixed prices, no hidden charges</h4></div><p>The quote we provide is the price you pay. No additions on moving day for stairs, parking delays or heavy items disclosed upfront.</p></div>
+      <div class="why-card"><div class="why-top"><div class="why-icon-wrap">&#11088;</div><h4>Consistently 5-star rated</h4></div><p>Families and businesses consistently rate Relokates 5 stars for care, punctuality and professionalism across all our coverage areas.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- DUBAI SPLIT WITH PHOTO -->
+<div class="dubai-photo-split">
+  <div class="dubai-photo-side">
+    <img src="/images/dubai-strip.jpg" alt="UK couple who relocated to Dubai with Relokates international removal service" loading="lazy">
+  </div>
+  <div class="dubai-content-side">
+    <div class="section-eyebrow" style="color:var(--teal)">International removals</div>
+    <h2 style="color:#fff;margin-bottom:16px;font-size:clamp(20px,2.5vw,30px)">Specialist London to Dubai removal service</h2>
+    <p style="color:rgba(255,255,255,0.65);font-size:15px;line-height:1.8;margin-bottom:28px">Full customs coordination, secure specialist shipping and complete destination support in the UAE. Trusted by hundreds of UK families and professionals making the move to Dubai.</p>
+    <a href="/international-relocation" class="btn btn-primary">Find out more &#8594;</a>
   </div>
 </div>
 
-<section class="section" aria-labelledby="why-heading">
-  <div class="container">
-    <div class="section-eyebrow">Why Relokates</div>
-    <h2 class="section-title" id="why-heading">What makes us different from every other removal company</h2>
-    <p class="section-sub">There are hundreds of removal companies to choose from. Here is why thousands of families and businesses across London, Essex, Kent and West Sussex choose Relokates.</p>
-    <div class="why-grid">
-      <div class="why-card"><div class="why-top"><div class="why-icon-wrap">&#128737;</div><h4>Fully insured on every single move</h4></div><p>Comprehensive goods-in-transit insurance covering the full replacement value of your belongings, plus full public liability insurance. Active on every job from a small man and van to a full international relocation.</p></div>
-      <div class="why-card"><div class="why-top"><div class="why-icon-wrap">&#128183;</div><h4>Fixed prices with absolutely no hidden charges</h4></div><p>When we provide a quote, that is the final price you pay. We do not add charges on moving day for stairs, parking delays, heavy items or additional time. What we quote is what you pay.</p></div>
-      <div class="why-card"><div class="why-top"><div class="why-icon-wrap">&#11088;</div><h4>Consistently 5-star rated across the UK</h4></div><p>Families and businesses across London, Essex, Kent and West Sussex consistently rate Relokates 5 stars for punctuality, care and professionalism. We invite every customer to leave an honest review.</p></div>
-      <div class="why-card"><div class="why-top"><div class="why-icon-wrap">&#128101;</div><h4>Vetted, trained removal professionals</h4></div><p>Every member of the Relokates team is background-checked and trained to our high standards. Our crew is uniformed, professional and courteous on every single job.</p></div>
-      <div class="why-card"><div class="why-top"><div class="why-icon-wrap">&#9200;</div><h4>Punctual, reliable and communicative</h4></div><p>We arrive when we say we will. Every move includes a confirmation call the day before, direct contact with your team on moving day, and a post-move follow up.</p></div>
-      <div class="why-card"><div class="why-top"><div class="why-icon-wrap">&#127758;</div><h4>Local expertise and international reach</h4></div><p>From a local Essex move to a complex London to Dubai international relocation, Relokates brings the same level of professionalism and care to every job we carry out.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="section section-cream" aria-labelledby="reviews-heading">
+<!-- REVIEWS -->
+<section class="section section-cream">
   <div class="container">
     <div class="section-eyebrow">Customer reviews</div>
-    <h2 class="section-title" id="reviews-heading">What our customers say about Relokates</h2>
+    <h2 class="section-title">What our customers say</h2>
     <div class="reviews-grid">
-      <div class="review-card"><div class="rv-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="rv-text">"Relokates moved our family from Chelmsford to Bromley and the entire experience was exceptional. They arrived on time, wrapped everything carefully, and not a single item was damaged. The price was exactly what they quoted — not a penny more."</p><div class="rv-author"><div class="rv-avatar">SJ</div><div><div class="rv-name">Sarah J.</div><div class="rv-loc">Chelmsford, Essex &#10003; Verified</div></div></div></div>
-      <div class="review-card"><div class="rv-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="rv-text">"We used Relokates for our office relocation in Canary Wharf. They worked through a Saturday night to avoid disrupting the business. Every piece of equipment arrived safely and was functioning by Monday morning. Truly professional."</p><div class="rv-author"><div class="rv-avatar">MT</div><div><div class="rv-name">Mark T.</div><div class="rv-loc">London, E14 &#10003; Verified</div></div></div></div>
-      <div class="review-card"><div class="rv-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="rv-text">"International move from London to Dubai. Relokates handled the packing, customs paperwork, shipping and delivery at the Dubai end. Everything arrived safely and on time. A genuinely stress-free experience from start to finish."</p><div class="rv-author"><div class="rv-avatar">AP</div><div><div class="rv-name">Aisha P.</div><div class="rv-loc">London to Dubai &#10003; Verified</div></div></div></div>
+      <div class="review-card"><div class="rv-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="rv-text">"Relokates moved our family from Chelmsford to Bromley and the experience was exceptional. They arrived on time, wrapped everything carefully and not a single item was damaged. The price was exactly what they quoted — not a penny more."</p><div class="rv-author"><div class="rv-avatar">SJ</div><div><div class="rv-name">Sarah J.</div><div class="rv-loc">Chelmsford, Essex &#10003; Verified</div></div></div></div>
+      <div class="review-card"><div class="rv-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="rv-text">"We used Relokates for our Canary Wharf office relocation. They worked overnight on a Saturday. Every piece of equipment arrived safely and was functioning by Monday morning. Truly professional service from start to finish."</p><div class="rv-author"><div class="rv-avatar">MT</div><div><div class="rv-name">Mark T.</div><div class="rv-loc">London, E14 &#10003; Verified</div></div></div></div>
+      <div class="review-card"><div class="rv-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><p class="rv-text">"International move from London to Dubai. Relokates handled packing, customs, shipping and delivery at the Dubai end. Everything arrived safely and on time. Genuinely stress-free from start to finish."</p><div class="rv-author"><div class="rv-avatar">AP</div><div><div class="rv-name">Aisha P.</div><div class="rv-loc">London to Dubai &#10003; Verified</div></div></div></div>
     </div>
   </div>
 </section>
 
-<section class="section" aria-labelledby="faq-heading">
+<!-- FAQ -->
+<section class="section">
   <div class="container">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start">
       <div>
         <div class="section-eyebrow">Common questions</div>
-        <h2 class="section-title" id="faq-heading">Frequently asked questions</h2>
-        <p class="section-sub">Everything you need to know about booking a removal with Relokates. Can't find your answer? Call us on <a href="tel:07359724844" style="color:var(--gold);font-weight:700">07359 724844</a>.</p>
+        <h2 class="section-title">Frequently asked questions</h2>
+        <p class="section-sub">Can't find your answer? Call us on <a href="tel:07359724844" style="color:var(--gold);font-weight:700">07359 724844</a> and we will answer any question directly.</p>
         <a href="/faq" class="btn btn-secondary" style="margin-top:8px">View all FAQs &#8594;</a>
       </div>
       <div>
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What areas does Relokates cover?<div class="faq-icon">+</div></button><div class="faq-a">Relokates covers over 475 locations across London, Essex, Kent and West Sussex. This includes all 33 London boroughs, towns across Essex such as Chelmsford, Basildon and Colchester, Kent towns including Maidstone, Canterbury and Gravesend, and West Sussex including Chichester, Crawley and Worthing.</div></div>
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Is Relokates fully insured?<div class="faq-icon">+</div></button><div class="faq-a">Yes. We carry comprehensive goods-in-transit insurance covering the full replacement value of your belongings during the move, as well as full public liability insurance. Both policies are active on every single removal we carry out.</div></div>
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Do you offer fixed-price quotes?<div class="faq-icon">+</div></button><div class="faq-a">Yes. Every quote from Relokates is a fixed price. The amount we quote is the amount you pay. There are no additions on moving day for stairs, parking delays, heavy items or extra time.</div></div>
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Do you do international removals to Dubai?<div class="faq-icon">+</div></button><div class="faq-a">Yes. Relokates is a specialist in the London to Dubai international removal corridor. We handle the complete process including professional packing, customs documentation, secure specialist shipping and destination support in Dubai.</div></div>
-        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How far in advance should I book?<div class="faq-icon">+</div></button><div class="faq-a">We recommend booking at least 4 to 6 weeks in advance for standard moves. During peak periods book 8 weeks ahead. For international moves to Dubai allow 8 to 12 weeks for customs and shipping coordination.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">What areas does Relokates cover?<div class="faq-icon">+</div></button><div class="faq-a">Relokates covers over 475 locations across London, Essex, Kent and West Sussex — including all 33 London boroughs and specialist international removals along the London to Dubai corridor.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Is Relokates fully insured?<div class="faq-icon">+</div></button><div class="faq-a">Yes. Comprehensive goods-in-transit and public liability insurance is active on every removal. Proof of insurance documents available on request before you book.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Do you offer fixed-price quotes?<div class="faq-icon">+</div></button><div class="faq-a">Yes. The amount we quote is the amount you pay. No additions on moving day for stairs, delays or heavy items. What we quote is what you pay — every time.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">Do you do international removals to Dubai?<div class="faq-icon">+</div></button><div class="faq-a">Yes. We specialise in the London to Dubai corridor — professional packing, customs documentation, secure shipping and Dubai destination support all included.</div></div>
+        <div class="faq-item"><button class="faq-q" onclick="toggleFaq(this)">How far in advance should I book?<div class="faq-icon">+</div></button><div class="faq-a">4 to 6 weeks for standard moves. During peak periods book 8 weeks ahead. For international Dubai moves allow 8 to 12 weeks for customs and shipping coordination.</div></div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="cta-band" role="region" aria-label="Call to action">
+<div class="cta-band">
   <div class="container">
     <div class="section-eyebrow" style="color:var(--navy);opacity:0.6">Get started today</div>
     <h2>Ready to book your removal with Relokates?</h2>
-    <p>Get your free, no-obligation quote today. We respond within 60 minutes during business hours, seven days a week. Fixed price guaranteed.</p>
+    <p>Get your free, no-obligation fixed-price quote. We respond within 60 minutes during business hours, seven days a week.</p>
     <div class="cta-actions">
       <a href="/contact" class="btn btn-primary btn-lg">Get a Free Quote</a>
       <a href="tel:07359724844" class="btn btn-secondary btn-lg">&#9990; 07359 724844</a>
@@ -221,7 +310,7 @@
         <p>Fully insured, fixed-price removal company covering 475 locations across London, Essex, Kent and West Sussex. Specialist London to Dubai international relocation service.</p>
         <div class="footer-contact-item">&#9990; <a href="tel:07359724844">07359 724844</a></div>
         <div class="footer-contact-item">&#9993; <a href="mailto:info@relokates.co.uk">info@relokates.co.uk</a></div>
-        <div class="footer-contact-item">&#128205; Serving London, Essex, Kent &amp; West Sussex</div>
+        <div class="footer-contact-item">&#128205; London, Essex, Kent &amp; West Sussex</div>
       </div>
       <div class="footer-col"><h4>Services</h4><ul><li><a href="/house-removals">House Removals</a></li><li><a href="/office-removals">Office Removals</a></li><li><a href="/international-relocation">International &amp; Dubai</a></li><li><a href="/packing-services">Packing Services</a></li><li><a href="/storage">Secure Storage</a></li><li><a href="/man-and-van">Man and Van</a></li><li><a href="/luxury-removals">Luxury Removals</a></li><li><a href="/house-clearance">House Clearance</a></li></ul></div>
       <div class="footer-col"><h4>Areas</h4><ul><li><a href="/removals-london">London Removals</a></li><li><a href="/removals-essex">Essex Removals</a></li><li><a href="/removals-kent">Kent Removals</a></li><li><a href="/removals-west-sussex">West Sussex Removals</a></li><li><a href="/removals-dubai">Dubai International</a></li><li><a href="/areas">All 475 locations</a></li></ul></div>
