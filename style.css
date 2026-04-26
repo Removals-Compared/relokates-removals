@@ -400,3 +400,312 @@ p { font-size: 15px; line-height: 1.85; color: var(--muted); }
 .nav-logo { text-decoration: none; display: flex; align-items: center; }
 #site-footer .nav-logo img { height: 40px; }
 @media (max-width: 768px) { .nav-logo img { height: 38px; } }
+
+
+/* ════════════════════════════════════════
+   MOBILE RESPONSIVENESS — COMPREHENSIVE FIX
+   ════════════════════════════════════════ */
+
+/* ── SERVICE CARDS — fix 4-col grid on mobile ── */
+@media (max-width: 1024px) {
+  div[style*="grid-template-columns:repeat(4,1fr)"],
+  div[style*="grid-template-columns: repeat(4, 1fr)"] {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 600px) {
+  div[style*="grid-template-columns:repeat(4,1fr)"],
+  div[style*="grid-template-columns: repeat(4, 1fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── SERVICE PAGE — prose + sidebar stack on mobile ── */
+@media (max-width: 900px) {
+  div[style*="grid-template-columns:1fr 1fr"][style*="align-items:start"],
+  div[style*="grid-template-columns: 1fr 1fr"][style*="align-items:start"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 32px !important;
+  }
+  /* Sidebar becomes full width and not sticky */
+  div[style*="position:sticky"],
+  div[style*="position: sticky"] {
+    position: static !important;
+  }
+}
+
+/* ── IMAGE 2-COL — stack on mobile ── */
+.img-2col {
+  grid-template-columns: 1fr !important;
+}
+@media (min-width: 600px) {
+  .img-2col {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
+
+/* ── PAGE HERO IMAGE — fix mobile height and text ── */
+@media (max-width: 768px) {
+  .page-hero-img {
+    min-height: 260px !important;
+  }
+  .page-hero-img h1 {
+    font-size: 24px !important;
+    line-height: 1.3 !important;
+  }
+  .page-hero-img p {
+    font-size: 14px !important;
+  }
+  .page-hero-img-content {
+    padding: 40px 0 !important;
+  }
+}
+
+/* ── CONTENT IMG TALL — reduce height on mobile ── */
+@media (max-width: 768px) {
+  .content-img-tall img {
+    height: 240px !important;
+  }
+}
+
+/* ── HERO SPLIT — fix on mobile ── */
+@media (max-width: 900px) {
+  .hero-split {
+    display: flex !important;
+    flex-direction: column-reverse !important;
+  }
+  .hero-right {
+    height: 240px !important;
+    width: 100% !important;
+  }
+  .hero-left {
+    padding: 40px 20px !important;
+  }
+  .hero-left-inner {
+    max-width: 100% !important;
+  }
+}
+
+/* ── ABOUT SPLIT — stack properly on mobile ── */
+@media (max-width: 900px) {
+  .about-split {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 32px !important;
+  }
+  .about-img {
+    display: none !important;
+  }
+}
+
+/* ── DUBAI PHOTO SPLIT — stack on mobile ── */
+@media (max-width: 900px) {
+  .dubai-photo-split {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .dubai-photo-side {
+    height: 220px !important;
+    width: 100% !important;
+  }
+  .dubai-content-side {
+    padding: 36px 24px !important;
+  }
+}
+
+/* ── FAQ GRID — stack on mobile ── */
+@media (max-width: 900px) {
+  div[style*="grid-template-columns:1fr 1fr"][style*="gap:56px"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 32px !important;
+  }
+}
+
+/* ── TRUST ROW — wrap on mobile ── */
+@media (max-width: 600px) {
+  .trust-row {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .trust-badge {
+    width: 100% !important;
+  }
+}
+
+/* ── PHOTO STRIP — single column on mobile ── */
+@media (max-width: 768px) {
+  .photo-strip {
+    grid-template-columns: 1fr !important;
+  }
+  .photo-strip-item img {
+    height: 200px !important;
+  }
+}
+
+/* ── STATS GRID — 2x2 on mobile ── */
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px !important;
+  }
+  .stat-item {
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+    padding: 12px 8px !important;
+  }
+}
+
+/* ── FOOTER GRID — stack on mobile ── */
+@media (max-width: 768px) {
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+}
+
+/* ── AREAS GRID — 1 col on mobile ── */
+@media (max-width: 600px) {
+  .areas-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── WHY GRID — 1 col on mobile ── */
+@media (max-width: 768px) {
+  .why-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── REVIEWS GRID — 1 col on mobile ── */
+@media (max-width: 768px) {
+  .reviews-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── LOCATION GRID — 2 col on mobile ── */
+@media (max-width: 600px) {
+  .location-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ── CTA BAND ACTIONS — stack on mobile ── */
+@media (max-width: 600px) {
+  .cta-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .cta-actions .btn {
+    text-align: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* ── HERO ACTIONS — stack on mobile ── */
+@media (max-width: 600px) {
+  .hero-actions {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .hero-actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* ── HERO TRUST — wrap on mobile ── */
+@media (max-width: 600px) {
+  .hero-trust {
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+  }
+}
+
+/* ── GLOBAL TYPOGRAPHY — improve readability on mobile ── */
+@media (max-width: 768px) {
+  h1 { font-size: clamp(24px, 6vw, 36px) !important; }
+  h2 { font-size: clamp(20px, 5vw, 28px) !important; }
+  .section { padding: 40px 0 !important; }
+  .section-sub { font-size: 14px !important; }
+  p { font-size: 14px !important; line-height: 1.75 !important; }
+  .prose p { font-size: 14px !important; }
+  .prose ul li { font-size: 14px !important; }
+}
+
+/* ── CONTACT PAGE — stack grid on mobile ── */
+@media (max-width: 900px) {
+  div[style*="grid-template-columns:1.4fr 1fr"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 32px !important;
+  }
+  div[style*="grid-template-columns:1fr 1fr"][style*="gap:16px"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── SIDEBAR CTA — full width on mobile ── */
+@media (max-width: 900px) {
+  div[style*="flex-direction:column;gap:20px"] {
+    gap: 16px !important;
+  }
+}
+
+/* ── NAV on mobile — ensure logo shows ── */
+@media (max-width: 768px) {
+  .nav-logo img {
+    height: 38px !important;
+  }
+}
+
+/* ── SECTION CONTAINER padding on mobile ── */
+@media (max-width: 600px) {
+  .container {
+    padding: 0 16px !important;
+  }
+}
+
+/* ── CLASS-BASED GRID FIXES (more reliable than attr selectors) ── */
+@media (max-width: 900px) {
+  .content-sidebar-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 32px !important;
+  }
+  .content-sidebar-grid > div[style*="position:sticky"],
+  .content-sidebar-grid > div[style*="position: sticky"] {
+    position: static !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .services-4col-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+@media (max-width: 500px) {
+  .services-4col-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── SERVICE CARD photo cards ── */
+@media (max-width: 500px) {
+  .svc-photo-card img {
+    height: 160px !important;
+  }
+}
+
+/* ── ABOUT page at-a-glance sidebar ── */
+@media (max-width: 900px) {
+  .content-sidebar-grid > div:last-child {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+}
