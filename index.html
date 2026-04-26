@@ -8,11 +8,27 @@
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.relokates.co.uk/">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":["LocalBusiness","MovingCompany"],"name":"Relokates Removals","telephone":"+447359724844","email":"info@relokates.co.uk","url":"https://www.relokates.co.uk/","address":{"@type":"PostalAddress","addressRegion":"Essex","addressCountry":"GB"}}</script>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2FXN3VMLGT"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-2FXN3VMLGT');</script>
+<script>
+// Defer analytics until after page load for better LCP
+window.addEventListener('load', function() {
+  var s = document.createElement('script');
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-2FXN3VMLGT';
+  s.async = true;
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', 'G-2FXN3VMLGT', {'send_page_view': true});
+});
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="/images/hero-home.webp" as="image" type="image/webp" fetchpriority="high">
+<link rel="preload" href="/images/logo.png" as="image">
+<link rel="dns-prefetch" href="https://fonts.googleapis.com">
+<link rel="dns-prefetch" href="https://www.googletagmanager.com">
 <link rel="stylesheet" href="/style.css">
 <style>
 /* HERO SPLIT */
@@ -113,7 +129,7 @@
     </div>
   </div>
   <div class="hero-right">
-    <img src="/images/hero-home.jpg" alt="Happy couple in their new home after a successful move with Relokates" loading="eager" fetchpriority="high">
+    <img width="1200" height="799" src="/images/hero-home.webp" alt="Happy couple in their new home after a successful move with Relokates" loading="eager" decoding="sync" fetchpriority="high">
   </div>
 </section>
 
@@ -147,7 +163,7 @@
         <a href="/about" class="btn btn-secondary" style="margin-top:24px">More about us &#8594;</a>
       </div>
       <div class="about-img">
-        <img src="/images/about-couple.jpg" alt="Couple carrying boxes into their new home. Relokates house removal service">
+        <img width="800" height="450" src="/images/about-couple.webp" alt="Couple carrying boxes into their new home. Relokates house removal service">
       </div>
     </div>
   </div>
@@ -161,35 +177,35 @@
     <p class="section-sub">From a studio flat in Grays to a six-bedroom home in Sevenoaks, from a Canary Wharf office to a London to Dubai international relocation, every service is tailored to your situation, timeline and budget.</p>
     <div class="services-4col-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px">
       <a href="/house-removals" class="svc-photo-card">
-        <img src="/images/svc-house.jpg" alt="House removal service">
+        <img width="700" height="394" src="/images/svc-house.webp" alt="House removal service">
         <div class="svc-photo-body"><h3>House Removals</h3><p>Full residential moves for every property size. Fixed price, fully insured across 475 locations.</p><span class="svc-link">Full details &#8594;</span></div>
       </a>
       <a href="/office-removals" class="svc-photo-card">
-        <img src="/images/svc-office.jpg" alt="Office removal van outside commercial building">
+        <img width="700" height="392" src="/images/svc-office.webp" alt="Office removal van outside commercial building">
         <div class="svc-photo-body"><h3>Office Removals</h3><p>Commercial relocations planned to zero downtime. Evening and weekend moves available.</p><span class="svc-link">Full details &#8594;</span></div>
       </a>
       <a href="/international-relocation" class="svc-photo-card">
-        <img src="/images/svc-dubai.jpg" alt="Couple relocated to Dubai. Relokates international removal service">
+        <img width="700" height="467" src="/images/svc-dubai.webp" alt="Couple relocated to Dubai. Relokates international removal service">
         <div class="svc-photo-body"><h3>International &amp; Dubai</h3><p>London to Dubai specialists. Customs, shipping and UAE destination support end to end.</p><span class="svc-link">Full details &#8594;</span></div>
       </a>
       <a href="/packing-services" class="svc-photo-card">
-        <img src="/images/svc-packing.jpg" alt="Professional packing of delicate items">
+        <img width="627" height="470" src="/images/svc-packing.webp" alt="Professional packing of delicate items">
         <div class="svc-photo-body"><h3>Packing Services</h3><p>Full pack, part-pack or materials only. Premium boxes and specialist covers throughout.</p><span class="svc-link">Full details &#8594;</span></div>
       </a>
       <a href="/storage" class="svc-photo-card">
-        <img src="/images/svc-storage.jpg" alt="Secure storage facility">
+        <img width="627" height="470" src="/images/svc-storage.webp" alt="Secure storage facility">
         <div class="svc-photo-body"><h3>Secure Storage</h3><p>Insured, monitored short and long-term storage. Perfect for completion gaps and renovation works.</p><span class="svc-link">Full details &#8594;</span></div>
       </a>
       <a href="/man-and-van" class="svc-photo-card">
-        <img src="/images/svc-van.jpg" alt="Removal van on the road">
+        <img width="700" height="467" src="/images/svc-van.webp" alt="Removal van on the road">
         <div class="svc-photo-body"><h3>Man and Van</h3><p>Flexible, fully insured for smaller moves and student relocations. Same-day often available.</p><span class="svc-link">Full details &#8594;</span></div>
       </a>
       <a href="/luxury-removals" class="svc-photo-card">
-        <img src="/images/svc-luxury.jpg" alt="Luxury bedroom furniture removal">
+        <img width="470" height="470" src="/images/svc-luxury.webp" alt="Luxury bedroom furniture removal">
         <div class="svc-photo-body"><h3>Luxury Removals</h3><p>White-glove service for fine art, grand pianos, antiques and high-value belongings.</p><span class="svc-link">Full details &#8594;</span></div>
       </a>
       <a href="/house-clearance" class="svc-photo-card">
-        <img src="/images/svc-clearance.jpg" alt="House clearance service">
+        <img width="612" height="408" src="/images/svc-clearance.webp" alt="House clearance service">
         <div class="svc-photo-body"><h3>House Clearance</h3><p>Responsible, respectful clearance for downsizing, bereavement and property preparation.</p><span class="svc-link">Full details &#8594;</span></div>
       </a>
     </div>
@@ -221,15 +237,15 @@
     <h2 class="section-title">What makes us different</h2>
     <div class="photo-strip">
       <div class="photo-strip-item">
-        <img src="/images/strip-van.jpg" alt="Professionally loaded Relokates removal van">
+        <img width="667" height="500" src="/images/strip-van.webp" alt="Professionally loaded Relokates removal van">
         <div class="photo-strip-label">Careful loading on every move</div>
       </div>
       <div class="photo-strip-item">
-        <img src="/images/strip-office.jpg" alt="Relokates professional office removal team">
+        <img width="700" height="369" src="/images/strip-office.webp" alt="Relokates professional office removal team">
         <div class="photo-strip-label">Vetted, uniformed professionals</div>
       </div>
       <div class="photo-strip-item">
-        <img src="/images/strip-houses.jpg" alt="UK residential houses served by Relokates">
+        <img width="333" height="500" src="/images/strip-houses.webp" alt="UK residential houses served by Relokates">
         <div class="photo-strip-label">475 locations across the UK</div>
       </div>
     </div>
@@ -244,7 +260,7 @@
 <!-- DUBAI SPLIT WITH PHOTO -->
 <div class="dubai-photo-split">
   <div class="dubai-photo-side">
-    <img src="/images/dubai-strip.jpg" alt="UK couple who relocated to Dubai with Relokates international removal service" loading="lazy">
+    <img width="990" height="660" src="/images/dubai-strip.webp" alt="UK couple who relocated to Dubai with Relokates international removal service" loading="lazy">
   </div>
   <div class="dubai-content-side">
     <div class="section-eyebrow" style="color:var(--teal)">International removals</div>
@@ -305,7 +321,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <a href="/" aria-label="Relokates Removals Home">
-          <img src="/images/logo-footer.png" alt="Relokates Removals" style="height:90px;width:auto;display:block;margin-bottom:14px">
+          <img src="/images/logo-dark.webp" alt="Relokates Removals" style="height:90px;width:auto;display:block;margin-bottom:14px">
         </a>
         <p>Fully insured, fixed-price removal company covering 475 locations across London, Essex, Kent and West Sussex. Specialist London to Dubai international relocation service.</p>
         <div class="footer-contact-item">&#9990; <a href="tel:07359724844">07359 724844</a></div>

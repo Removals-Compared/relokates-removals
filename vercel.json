@@ -1,20 +1,47 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Vary", "value": "Accept" }
+      ]
+    },
+    {
+      "source": "/style.css",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/script.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, stale-while-revalidate=86400" }
+      ]
+    }
+  ],
   "redirects": [
-    { "source": "/home", "destination": "/", "permanent": true },
-    { "source": "/houseremovals", "destination": "/house-removals", "permanent": true },
-    { "source": "/office-relocations", "destination": "/office-removals", "permanent": true },
-    { "source": "/internationalrelocation", "destination": "/international-relocation", "permanent": true },
-    { "source": "/packingandunpackingservices", "destination": "/packing-services", "permanent": true },
-    { "source": "/luxurybelongings", "destination": "/luxury-removals", "permanent": true },
-    { "source": "/faq-s", "destination": "/faq", "permanent": true },
-    { "source": "/areaswecover", "destination": "/areas", "permanent": true },
-    { "source": "/request-a-quote", "destination": "/contact", "permanent": true },
-    { "source": "/book-online", "destination": "/contact", "permanent": true },
-    { "source": "/contact-1", "destination": "/contact", "permanent": true }
+    { "source": "/removals-to-dubai", "destination": "/removals-dubai", "permanent": true }
   ],
   "rewrites": [
-    { "source": "/api/quote", "destination": "/api/quote.js" }
+    { "source": "/removals/:slug", "destination": "/removals/:slug.html" },
+    { "source": "/removals-to-dubai/:slug", "destination": "/removals-to-dubai/:slug.html" },
+    { "source": "/:path*", "destination": "/:path*.html" }
   ]
 }
