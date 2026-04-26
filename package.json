@@ -1,0 +1,11 @@
+{
+  "name": "relokates-removals",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "nodemailer": "^6.9.9"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
