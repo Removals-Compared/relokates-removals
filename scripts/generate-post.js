@@ -90,7 +90,9 @@ Requirements:
 - Include specific references to London, Essex, Kent and West Sussex throughout
 - Structure with clear H2 and H3 subheadings
 - Include practical, actionable advice throughout
-- Do NOT use em dashes (use hyphens or rewrite instead)
+- Do NOT use em dashes (the — character) anywhere. Use hyphens or rewrite the sentence instead
+- Do NOT use AI watermark phrases such as: "In conclusion", "It is worth noting", "It is important to note", "In today's world", "Dive into", "Delve into", "Leverage", "Unleash", "Game-changer", "Transformative", "Comprehensive guide", "Navigating", "In the realm of", "Bustling", "Vibrant community", "Tapestry", "Pivotal"
+- Write like a real human removal company owner — direct, practical, no corporate fluff
 - Do NOT mention competitors by name
 - Reference Relokates services naturally where relevant: house removals, office removals, packing services, storage, man and van, luxury removals, international relocation to Dubai
 - End with a clear call to action to call 07359 724844 or visit relokates.co.uk/contact
