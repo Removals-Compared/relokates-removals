@@ -1,0 +1,40 @@
+name: Relokates Weekly Blog Post
+on:
+  schedule:
+    - cron: '0 6 12 * *'
+  workflow_dispatch:
+    inputs:
+      week_override:
+        description: 'Override week number for testing'
+        required: false
+        default: ''
+jobs:
+  publish-blog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: npm install
+      - name: Generate blog post
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          MAKE_WEBHOOK_URL: ${{ secrets.MAKE_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WEEK_OVERRIDE: ${{ github.event.inputs.week_override }}
+        run: node scripts/generate-post.js
+      - name: Commit and push new blog post
+        run: |
+          git config --global user.name "Relokates Blog Bot"
+          git config --global user.email "info@relokates.co.uk"
+          git add blog/*.html scripts/state.json
+          git diff --staged --quiet || git commit -m "Auto-publish weekly blog post week $(cat scripts/current-week.txt)"
+          git push
