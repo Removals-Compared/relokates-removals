@@ -1,11 +1,10 @@
 {
-  "name": "relokates-removals",
+  "name": "relokates-blog-bot",
   "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "nodemailer": "^6.9.9"
+  "description": "Weekly blog auto-poster for Relokates Removals",
+  "main": "scripts/generate-post.js",
+  "scripts": {
+    "generate": "node scripts/generate-post.js"
   },
-  "engines": {
-    "node": "24.x"
-  }
+  "dependencies": {}
 }
