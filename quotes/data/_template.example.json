@@ -1,0 +1,51 @@
+{
+  "__how_to_use": [
+    "Copy this file to quotes/data/<quote-ref>.json and fill in the fields.",
+    "Then run: python3 scripts/generate-quote-pdf.py <quote-ref>",
+    "The PDF appears at quotes/Relokates-Quote-<ref>-<Customer-Name>.pdf.",
+    "Files matching quotes/data/*.json (except this one) and quotes/*.pdf are",
+    "gitignored to keep customer PII out of the repo."
+  ],
+  "ref": "QUOTE-REF-HERE",
+  "customer_ref": "INTERNAL-CUSTOMER-REF",
+  "date": "DD Month YYYY",
+  "valid_until": "DD Month YYYY",
+  "customer": {
+    "name": "Customer Full Name",
+    "email": "customer@example.com",
+    "phone": "07000 000 000"
+  },
+  "move": {
+    "date": "DD Month YYYY",
+    "type": "e.g. 1-bedroom home (approx. 500 cu ft)",
+    "distance": "e.g. 1 mile",
+    "category": "Small move | Medium move | Large move"
+  },
+  "from_addr": [
+    "Street line 1",
+    "Town",
+    "County",
+    "POSTCODE"
+  ],
+  "to_addr": [
+    "Street line 1",
+    "Town",
+    "County",
+    "POSTCODE"
+  ],
+  "inventory": [
+    "Item 1",
+    "Item 2",
+    "..."
+  ],
+  "costs": [
+    ["Labour (2-person crew)", "GBP 0.00"],
+    ["Vehicle, transport & fuel", "GBP 0.00"],
+    ["Furniture protection materials", "GBP 0.00"],
+    ["Goods-in-transit insurance", "Included"],
+    ["Public liability insurance", "Included"]
+  ],
+  "subtotal": "GBP 0.00",
+  "vat": "GBP 0.00",
+  "total": "GBP 0.00"
+}

@@ -1,0 +1,9 @@
+# macOS junk
+.DS_Store
+**/.DS_Store
+
+# Customer quote data and generated PDFs contain PII (names, emails,
+# phone numbers, addresses). Never commit these to a public repo.
+quotes/*.pdf
+quotes/data/*.json
+!quotes/data/_template.example.json
