@@ -281,8 +281,8 @@ def render_costs(c, y_top):
     draw_text(c, MARGIN + 14, y, "Subtotal", "Helvetica-Bold", 10, NAVY)
     draw_text_right(c, PAGE_W - MARGIN - 14, y, QUOTE["subtotal"], "Helvetica-Bold", 10, NAVY)
     y -= row_h
-    # VAT
-    draw_text(c, MARGIN + 14, y, "VAT (if applicable)", "Helvetica", 10, BLACK)
+    # VAT row - shows "Not applicable" or "Not charged" cleanly for non-VAT-registered businesses
+    draw_text(c, MARGIN + 14, y, "VAT", "Helvetica", 10, BLACK)
     draw_text_right(c, PAGE_W - MARGIN - 14, y, QUOTE["vat"], "Helvetica", 10, BLACK)
     y -= row_h
 
@@ -354,7 +354,7 @@ def render_footer(c):
     c.line(MARGIN, y_rule, PAGE_W - MARGIN, y_rule)
     lines = [
         ("Relokates Removals - Registered in England & Wales", "Helvetica-Bold", 8, MUTED),
-        ("Company Registration No.: [to be inserted]  |  VAT Registration No.: [to be inserted - if applicable]", "Helvetica", 7.5, MUTED),
+        ("Company Registration No.: 13441775  |  Not VAT registered", "Helvetica", 7.5, MUTED),
         ("Registered Address: [to be inserted]", "Helvetica", 7.5, MUTED),
         ("Phone: 07359 724844  |  Email: info@relokates.co.uk  |  Web: www.relokates.co.uk", "Helvetica", 7.5, MUTED),
     ]

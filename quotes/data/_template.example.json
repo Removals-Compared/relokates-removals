@@ -41,11 +41,10 @@
   "costs": [
     ["Labour (2-person crew)", "GBP 0.00"],
     ["Vehicle, transport & fuel", "GBP 0.00"],
-    ["Furniture protection materials", "GBP 0.00"],
     ["Goods-in-transit insurance", "Included"],
     ["Public liability insurance", "Included"]
   ],
   "subtotal": "GBP 0.00",
-  "vat": "GBP 0.00",
+  "vat": "Not applicable",
   "total": "GBP 0.00"
 }
