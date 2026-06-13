@@ -90,7 +90,18 @@
     { "source": "/removals-southwark", "destination": "/removals/south-london", "permanent": true },
     { "source": "/removals-tower-hamlets", "destination": "/removals/east-london", "permanent": true },
     { "source": "/removals-waltham-forest", "destination": "/removals/walthamstow", "permanent": true },
-    { "source": "/removals-westminster", "destination": "/removals/central-london", "permanent": true }
+    { "source": "/removals-westminster", "destination": "/removals/central-london", "permanent": true },
+    { "source": "/removals/ashington", "destination": "/removals/ashington-sussex", "permanent": true },
+    { "source": "/removals/canary-wharf", "destination": "/removals/canary-wharf-london", "permanent": true },
+    { "source": "/removals/plaistow", "destination": "/removals/plaistow-sussex", "permanent": true },
+    { "source": "/removals/shoreham", "destination": "/removals/shoreham-kent", "permanent": true },
+    { "source": "/removals/southbourne", "destination": "/removals/southbourne-sussex", "permanent": true },
+    { "source": "/removals/washington", "destination": "/removals/washington-sussex", "permanent": true },
+    { "source": "/removals/central", "destination": "/removals/central-london", "permanent": true },
+    { "source": "/removals/east", "destination": "/removals/east-london", "permanent": true },
+    { "source": "/removals/north", "destination": "/removals/north-london", "permanent": true },
+    { "source": "/removals/south", "destination": "/removals/south-london", "permanent": true },
+    { "source": "/removals/west", "destination": "/removals/west-london", "permanent": true }
   ],
   "rewrites": [
     { "source": "/removals/:slug", "destination": "/removals/:slug.html" },
