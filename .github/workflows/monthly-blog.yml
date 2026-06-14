@@ -35,6 +35,6 @@ jobs:
         run: |
           git config --global user.name "Relokates Blog Bot"
           git config --global user.email "info@relokates.co.uk"
-          git add blog/*.html scripts/state.json
+          git add blog/*.html scripts/state.json sitemap.xml
           git diff --staged --quiet || git commit -m "Auto-publish weekly blog post week $(cat scripts/current-week.txt)"
           git push

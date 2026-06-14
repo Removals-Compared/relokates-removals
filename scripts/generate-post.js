@@ -40,6 +40,10 @@ if (!post) {
   process.exit(0);
 }
 
+// Strip em-dashes and en-dashes from the title before we write it anywhere.
+// Belt-and-braces in case a future calendar entry or Claude reply
+// reintroduces them: we want all blog titles to be clean.
+post.title = (post.title || '').replace(/[\u2014\u2013]/g, '-').replace(/\s*\|\s*Relokates Removals(\s+Blog)?\s*$/, '');
 console.log(`Title: ${post.title}`);
 console.log(`Slug:  ${post.slug}`);
 console.log(`Category: ${post.category}`);
@@ -158,12 +162,12 @@ function buildHtmlPage(post, articleContent) {
 <html lang="en-GB">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${post.title} | Relokates Removals Blog</title>
+<title>${post.title}</title>
 <meta name="description" content="${post.title} - expert moving advice from Relokates Removals. Covering London, Essex, Kent and West Sussex. Call 07359 724844.">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
 <link rel="canonical" href="https://www.relokates.co.uk/blog/${post.slug}">
 <meta property="og:type" content="article">
-<meta property="og:title" content="${post.title} | Relokates Removals">
+<meta property="og:title" content="${post.title}">
 <meta property="og:url" content="https://www.relokates.co.uk/blog/${post.slug}">
 <meta property="og:site_name" content="Relokates Removals">
 <script type="application/ld+json">${schema}</script>
@@ -315,6 +319,23 @@ async function main() {
     fs.writeFileSync(outputPath, html, 'utf8');
     console.log(`Saved: blog/${post.slug}.html`);
     fs.writeFileSync(path.join(__dirname, 'current-week.txt'), String(thisWeek));
+
+    // Append the new post URL to sitemap.xml so Google sees it on the next crawl.
+    // Without this, monthly posts go unindexed for weeks.
+    try {
+      const sitemapPath = path.join(__dirname, '..', 'sitemap.xml');
+      let sm = fs.readFileSync(sitemapPath, 'utf8');
+      const newUrl = `https://www.relokates.co.uk/blog/${post.slug}`;
+      if (!sm.includes(newUrl)) {
+        const today = new Date().toISOString().slice(0, 10);
+        const block = `  <url>\n    <loc>${newUrl}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.6</priority>\n  </url>\n`;
+        sm = sm.replace('</urlset>', block + '</urlset>');
+        fs.writeFileSync(sitemapPath, sm, 'utf8');
+        console.log(`Added to sitemap: ${newUrl}`);
+      }
+    } catch (e) {
+      console.warn('Could not update sitemap.xml:', e.message);
+    }
 
     await triggerMakeWebhook(post);
 
