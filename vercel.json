@@ -106,7 +106,7 @@
   "rewrites": [
     { "source": "/admin", "destination": "/admin/index.html" },
     { "source": "/admin/dashboard", "destination": "/admin/dashboard.html" },
-    { "source": "/admin/quote/:id", "destination": "/admin/lead.html" },
+    { "source": "/admin/quote/:id", "destination": "/admin/lead" },
     { "source": "/removals/:slug", "destination": "/removals/:slug.html" },
     { "source": "/removals-to-dubai/:slug", "destination": "/removals-to-dubai/:slug.html" },
     { "source": "/:path*", "destination": "/:path*.html" }
