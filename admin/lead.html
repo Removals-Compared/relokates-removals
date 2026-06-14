@@ -102,6 +102,11 @@ button.lose:hover{background:#FCA5A5}
         <button class="win" data-status="won">Mark WON</button>
         <button class="lose" data-status="lost">Mark lost</button>
       </div>
+
+      <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="lose" id="deleteBtn" style="padding:10px 16px;font-size:13px">&#128465; Delete this quote</button>
+        <span class="muted" style="font-size:12px">Removes the customer and all their appointments from Supabase. Cannot be undone.</span>
+      </div>
     </div>
 
     <div class="card">
@@ -335,6 +340,28 @@ document.getElementById('valueSave').addEventListener('click', async () => {
       setTimeout(() => { statusEl.style.color = ''; }, 2000);
     }
   } finally { btn.disabled = false; }
+});
+
+// Delete quote
+document.getElementById('deleteBtn').addEventListener('click', async () => {
+  const cust = document.getElementById('customer');
+  const name = (cust.querySelector('dd')?.textContent || 'this customer').trim();
+  if (!confirm(`Delete "${name}" and all their appointments?\n\nThis cannot be undone.`)) return;
+  const btn = document.getElementById('deleteBtn');
+  btn.disabled = true; btn.textContent = 'Deleting...';
+  try {
+    const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), { method: 'DELETE' });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      alert('Delete failed: ' + (d.error || res.status));
+      btn.disabled = false; btn.textContent = '\u{1F5D1} Delete this quote';
+      return;
+    }
+    window.location.href = '/admin/dashboard';
+  } catch (e) {
+    alert('Network error during delete.');
+    btn.disabled = false; btn.textContent = '\u{1F5D1} Delete this quote';
+  }
 });
 
 // Booking forms

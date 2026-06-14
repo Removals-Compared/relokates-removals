@@ -1,5 +1,5 @@
 import { requireAuth } from '../_session.js';
-import { getQuote, updateQuote } from '../_db.js';
+import { getQuote, updateQuote, deleteQuote } from '../_db.js';
 
 const ALLOWED_STATUS = ['new', 'contacted', 'survey_booked', 'move_booked', 'won', 'lost'];
 
@@ -12,6 +12,10 @@ export default async function handler(req, res) {
       const quote = await getQuote(id);
       if (!quote) return res.status(404).json({ error: 'not found' });
       return res.status(200).json({ quote });
+    }
+    if (req.method === 'DELETE') {
+      await deleteQuote(id);
+      return res.status(200).json({ ok: true });
     }
     if (req.method === 'PATCH') {
       const { status, value } = req.body || {};

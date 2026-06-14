@@ -118,3 +118,27 @@ export async function updateAppointment(id, patch) {
   const rows = await res.json();
   return rows[0] || null;
 }
+
+// Delete a quote and any related appointments. Tolerates the
+// appointments table not existing.
+export async function deleteQuote(id) {
+  // First delete any appointments tied to this lead. If the table
+  // doesn't exist or the request errors, swallow it - we still
+  // want the quote deletion to proceed.
+  try {
+    await fetch(`${url(APPTS)}?lead_id=eq.${id}`, {
+      method: 'DELETE',
+      headers: headers({ Prefer: 'return=minimal' }),
+    });
+  } catch (_) { /* non-fatal */ }
+
+  const res = await fetch(`${url(QUOTES)}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: headers({ Prefer: 'return=minimal' }),
+  });
+  if (!res.ok) {
+    const msg = await res.text();
+    throw new Error(`supabase deleteQuote ${res.status}: ${msg.slice(0, 200)}`);
+  }
+  return { ok: true };
+}
