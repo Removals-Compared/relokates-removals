@@ -66,4 +66,5 @@ btn.textContent = 'Get My Free Quote →';
 window.addEventListener('scroll', function () {
 var nav = document.getElementById('site-nav');
 if (nav) nav.style.boxShadow = window.scrollY > 10 ? '0 2px 20px rgba(26,60,110,0.1)' : 'none';
-});
+});/* Auto-update the footer copyright year so it never goes stale. */
+document.querySelectorAll('.cy').forEach(function(el){ el.textContent = new Date().getFullYear(); });

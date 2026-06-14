@@ -273,7 +273,7 @@ function buildHtmlPage(post, articleContent) {
 
 <footer id="site-footer" role="contentinfo">
   <div class="container">
-    <p style="color:rgba(255,255,255,0.35);font-size:12px;text-align:center;padding:20px 0">&copy; 2026 Relokates Removals. All rights reserved. | <a href="/privacy-policy" style="color:rgba(255,255,255,0.35)">Privacy Policy</a></p>
+    <p style="color:rgba(255,255,255,0.35);font-size:12px;text-align:center;padding:20px 0">&copy; <span class="cy">2026</span> Relokates Removals. All rights reserved. | <a href="/privacy-policy" style="color:rgba(255,255,255,0.35)">Privacy Policy</a></p>
   </div>
 </footer>
 <script>function toggleMobile(){document.getElementById('mobile-overlay').classList.toggle('active')}</script>
