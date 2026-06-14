@@ -28,8 +28,6 @@
 .tag-survey_booked{background:#DDD6FE;color:#5B21B6}
 .tag-move_booked{background:#D1FAE5;color:#065F46}
 .tag-lost{background:#F1F5F9;color:#475569}
-.tag-cancelled{background:#FECACA;color:#991B1B}
-.tag-rescheduled{background:#FED7AA;color:#9A3412}
 label{display:block;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--navy);margin:12px 0 6px;font-weight:700}
 input,select,textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:Inter,sans-serif}
 textarea{min-height:80px;resize:vertical}
@@ -39,34 +37,20 @@ button.primary:hover{background:#A07F1E}
 button.primary:disabled{opacity:.5;cursor:not-allowed}
 button.ghost{background:transparent;color:var(--navy);border:1px solid var(--border);padding:8px 12px;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
 button.ghost:hover{border-color:var(--gold);color:var(--gold)}
-button.danger{background:#FEF2F2;color:#991B1B;border:1px solid #FCA5A5;padding:6px 10px;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:11px;cursor:pointer}
-button.danger:hover{background:#FCA5A5;color:#7F1D1D}
 .note{background:var(--cream);border-left:3px solid var(--gold);padding:12px 14px;border-radius:6px;margin-bottom:8px;font-size:14px}
 .note .meta{font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
 .appt{padding:14px 16px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
-.appt .head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.appt .head{display:flex;justify-content:space-between;align-items:center}
 .appt h4{font-family:Montserrat,sans-serif;color:var(--navy);margin:0;font-size:13px;letter-spacing:.5px;text-transform:uppercase}
 .appt .when{font-weight:700;color:var(--navy)}
 .appt .meta{font-size:12px;color:var(--muted);margin-top:4px}
 .appt.survey h4{color:#5B21B6}
 .appt.move h4{color:#065F46}
-.appt.cancelled{opacity:.6;text-decoration:line-through;text-decoration-color:#991B1B}
-.appt .actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .flash{padding:12px 14px;border-radius:8px;font-size:14px;margin-bottom:12px;display:none}
 .flash.ok{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;display:block}
 .flash.err{background:#FEF2F2;color:#991B1B;border:1px solid #FCA5A5;display:block}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .muted{color:var(--muted);font-size:13px}
-.recurring-box{background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:12px}
-.recurring-box .head{display:flex;align-items:center;gap:8px}
-.recurring-box label{margin:0;font-size:12px}
-.recurring-box .body{margin-top:10px;display:none}
-.recurring-box.open .body{display:block}
-.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:24px}
-.modal-bg.open{display:flex}
-.modal{background:#fff;border-radius:14px;padding:28px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-.modal h3{font-family:Montserrat,sans-serif;color:var(--navy);margin:0 0 16px;font-size:16px}
-.modal .footer{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
 @media(max-width:900px){.wrap{grid-template-columns:1fr;padding:16px;gap:16px}.row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -83,7 +67,7 @@ button.danger:hover{background:#FCA5A5;color:#7F1D1D}
 </div>
 
 <div class="wrap">
-  <!-- LEFT: customer + notes + appointments -->
+  <!-- LEFT: customer + notes -->
   <div>
     <div class="card">
       <h2>Customer details</h2>
@@ -114,8 +98,8 @@ button.danger:hover{background:#FCA5A5;color:#7F1D1D}
   <div>
     <div class="card">
       <h2>Book a survey</h2>
-      <p class="muted">Schedules a pre-move survey on info@relokates.co.uk's Google Calendar and emails + texts the customer.</p>
-      <form data-type="survey" data-form="survey">
+      <p class="muted">Schedules a pre-move survey on info@relokates.co.uk's Google Calendar and emails the customer.</p>
+      <form id="surveyForm" data-type="survey">
         <label>Date &amp; time</label>
         <input type="datetime-local" name="scheduled_for" required>
         <label>Duration (minutes)</label>
@@ -129,26 +113,6 @@ button.danger:hover{background:#FCA5A5;color:#7F1D1D}
         <input type="text" name="address" placeholder="Leave blank to use the collection address">
         <label>Notes for the calendar event</label>
         <textarea name="notes" placeholder="Access code, parking notes, special items..."></textarea>
-
-        <div class="recurring-box" data-recurring>
-          <div class="head">
-            <input type="checkbox" data-recurring-toggle style="width:auto"> <label>Make this recurring</label>
-          </div>
-          <div class="body">
-            <div class="row">
-              <div><label>Repeat</label>
-                <select name="recurring_pattern">
-                  <option value="weekly">Weekly</option>
-                  <option value="biweekly">Every 2 weeks</option>
-                  <option value="monthly">Monthly</option>
-                </select>
-              </div>
-              <div><label>Until</label><input type="date" name="recurring_until"></div>
-            </div>
-            <p class="muted" style="margin:8px 0 0">Only the first occurrence emails the customer - the rest are calendar events for your scheduling.</p>
-          </div>
-        </div>
-
         <div class="flash" id="surveyFlash"></div>
         <button class="primary" type="submit" style="margin-top:10px">Book survey</button>
       </form>
@@ -156,8 +120,8 @@ button.danger:hover{background:#FCA5A5;color:#7F1D1D}
 
     <div class="card">
       <h2>Book the moving date</h2>
-      <p class="muted">Locks in the move date on the calendar and sends the customer a confirmation by email + SMS.</p>
-      <form data-type="move" data-form="move">
+      <p class="muted">Locks in the move date on the calendar and sends the customer a move-confirmation email.</p>
+      <form id="moveForm" data-type="move">
         <div class="row">
           <div>
             <label>Date &amp; time</label>
@@ -178,26 +142,6 @@ button.danger:hover{background:#FCA5A5;color:#7F1D1D}
         <input type="text" name="address" placeholder="Leave blank to use the customer's 'moving from' address">
         <label>Notes for the calendar event</label>
         <textarea name="notes" placeholder="Crew size, vehicle requirements, packing..."></textarea>
-
-        <div class="recurring-box" data-recurring>
-          <div class="head">
-            <input type="checkbox" data-recurring-toggle style="width:auto"> <label>Make this recurring</label>
-          </div>
-          <div class="body">
-            <div class="row">
-              <div><label>Repeat</label>
-                <select name="recurring_pattern">
-                  <option value="weekly">Weekly</option>
-                  <option value="biweekly">Every 2 weeks</option>
-                  <option value="monthly">Monthly</option>
-                </select>
-              </div>
-              <div><label>Until</label><input type="date" name="recurring_until"></div>
-            </div>
-            <p class="muted" style="margin:8px 0 0">Useful for office relocations split across days, or recurring man-and-van runs.</p>
-          </div>
-        </div>
-
         <div class="flash" id="moveFlash"></div>
         <button class="primary" type="submit" style="margin-top:10px">Book move</button>
       </form>
@@ -205,33 +149,9 @@ button.danger:hover{background:#FCA5A5;color:#7F1D1D}
   </div>
 </div>
 
-<!-- Reschedule modal -->
-<div class="modal-bg" id="rescheduleModal">
-  <div class="modal">
-    <h3>Reschedule appointment</h3>
-    <form id="rescheduleForm">
-      <input type="hidden" name="appointment_id">
-      <label>New date &amp; time</label>
-      <input type="datetime-local" name="scheduled_for" required>
-      <label>Duration (minutes)</label>
-      <input type="number" name="duration_minutes" min="15" max="600" step="15">
-      <label>Address</label>
-      <input type="text" name="address">
-      <label>Notes</label>
-      <textarea name="notes"></textarea>
-      <div class="flash" id="rescheduleFlash"></div>
-      <div class="footer">
-        <button type="button" class="ghost" id="rescheduleCancel">Close</button>
-        <button class="primary" type="submit">Save and notify customer</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script>
 const id = window.location.pathname.split('/').pop();
 let quote = null;
-let apptIndex = {};  // id -> appointment
 
 document.getElementById('logoutBtn').addEventListener('click', async (e) => {
   e.preventDefault();
@@ -296,37 +216,23 @@ function renderNotes(notes) {
 
 function renderAppts(appts) {
   const el = document.getElementById('appts');
-  apptIndex = {};
   if (!appts.length) { el.innerHTML = '<p class="muted">No appointments booked yet.</p>'; return; }
   appts.sort((a, b) => new Date(a.scheduled_for) - new Date(b.scheduled_for));
-  el.innerHTML = appts.map(a => {
-    apptIndex[a.id] = a;
-    const status = a.status || 'booked';
-    const cancelled = status === 'cancelled';
-    return `
-      <div class="appt ${a.type}${cancelled ? ' cancelled' : ''}" data-appt="${a.id}">
-        <div class="head">
-          <h4>${a.type === 'survey' ? 'Survey' : 'Move'} <span class="tag tag-${status}" style="margin-left:6px">${status}</span></h4>
-          <span class="when">${fmt(a.scheduled_for)}</span>
-        </div>
-        <div class="meta">
-          ${a.duration_minutes ? a.duration_minutes + ' min &middot; ' : ''}
-          ${a.address ? esc(a.address) : 'No address set'}
-          ${a.email_sent ? ' &middot; email &check;' : ''}
-          ${a.sms_sent ? ' &middot; SMS &check;' : ''}
-          ${a.gcal_event_id ? ' &middot; calendar &check;' : ''}
-          ${a.recurring_id ? ' &middot; part of recurring series' : ''}
-        </div>
-        ${a.notes ? `<div class="meta" style="margin-top:6px;white-space:pre-wrap">${esc(a.notes)}</div>` : ''}
-        ${!cancelled ? `
-          <div class="actions">
-            <button class="ghost" data-action="reschedule" data-id="${a.id}">Reschedule</button>
-            <button class="danger" data-action="cancel" data-id="${a.id}">Cancel</button>
-          </div>
-        ` : ''}
+  el.innerHTML = appts.map(a => `
+    <div class="appt ${a.type}">
+      <div class="head">
+        <h4>${a.type === 'survey' ? 'Survey' : 'Move'}</h4>
+        <span class="when">${fmt(a.scheduled_for)}</span>
       </div>
-    `;
-  }).join('');
+      <div class="meta">
+        ${a.duration_minutes ? a.duration_minutes + ' min &middot; ' : ''}
+        ${a.address ? esc(a.address) : 'No address set'}
+        &middot; ${a.email_sent ? 'Email sent' : 'Email NOT sent'}
+        ${a.gcal_event_id ? '&middot; Calendar &check;' : '&middot; Calendar &cross;'}
+      </div>
+      ${a.notes ? `<div class="meta" style="margin-top:6px;white-space:pre-wrap">${esc(a.notes)}</div>` : ''}
+    </div>
+  `).join('');
 }
 
 // Note add
@@ -356,42 +262,35 @@ document.getElementById('noteBtn').addEventListener('click', async () => {
 // Status quick-update buttons
 document.querySelectorAll('button[data-status]').forEach(btn => {
   btn.addEventListener('click', async () => {
+    const status = btn.dataset.status;
     btn.disabled = true;
     try {
       await fetch('/api/admin/quote/' + encodeURIComponent(id), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: btn.dataset.status }),
+        body: JSON.stringify({ status }),
       });
       load();
     } finally { btn.disabled = false; }
   });
 });
 
-// Recurring boxes - toggle visibility
-document.querySelectorAll('[data-recurring-toggle]').forEach(toggle => {
-  toggle.addEventListener('change', () => {
-    toggle.closest('[data-recurring]').classList.toggle('open', toggle.checked);
-  });
-});
-
 // Survey + move booking forms
-function wireBookingForm(formEl, flashEl) {
-  formEl.addEventListener('submit', async (e) => {
+function wireForm(formId, flashId) {
+  const form = document.getElementById(formId);
+  const flash = document.getElementById(flashId);
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(formEl).entries());
-    const recurring = formEl.querySelector('[data-recurring-toggle]')?.checked;
+    const data = Object.fromEntries(new FormData(form).entries());
     const payload = {
       lead_id: id,
-      type: formEl.dataset.type,
+      type: form.dataset.type,
       scheduled_for: new Date(data.scheduled_for).toISOString(),
       duration_minutes: Number(data.duration_minutes) || 60,
       address: (data.address || '').trim() || null,
       notes: (data.notes || '').trim() || null,
-      recurring_pattern: recurring ? data.recurring_pattern : null,
-      recurring_until: recurring && data.recurring_until ? data.recurring_until : null,
     };
-    const btn = formEl.querySelector('button.primary');
+    const btn = form.querySelector('button.primary');
     btn.disabled = true; btn.textContent = 'Booking...';
     try {
       const res = await fetch('/api/admin/appointment', {
@@ -400,105 +299,25 @@ function wireBookingForm(formEl, flashEl) {
         body: JSON.stringify(payload),
       });
       const d = await res.json().catch(() => ({}));
-      if (!res.ok) { showFlash(flashEl, d.error || 'Booking failed', false); return; }
+      if (!res.ok) { showFlash(flash, d.error || 'Booking failed', false); return; }
       const probs = (d.errors || []).map(e => e.step).join(', ');
       if (probs) {
-        showFlash(flashEl, `Saved (${d.occurrences} occurrence${d.occurrences > 1 ? 's' : ''}) but these steps need attention: ${probs}`, false);
+        showFlash(flash, 'Saved, but these steps need attention: ' + probs, false);
       } else {
-        showFlash(flashEl, `Booked ${d.occurrences} occurrence${d.occurrences > 1 ? 's' : ''}. Customer notified.`, true);
+        showFlash(flash, 'Booked. Customer emailed and calendar event created.', true);
       }
-      formEl.reset();
-      formEl.querySelector('[data-recurring-toggle]')?.dispatchEvent(new Event('change'));
+      form.reset();
       load();
     } catch (e) {
-      showFlash(flashEl, 'Network error', false);
+      showFlash(flash, 'Network error', false);
     } finally {
       btn.disabled = false;
-      btn.textContent = formEl.dataset.type === 'survey' ? 'Book survey' : 'Book move';
+      btn.textContent = form.dataset.type === 'survey' ? 'Book survey' : 'Book move';
     }
   });
 }
-wireBookingForm(document.querySelector('[data-form="survey"]'), document.getElementById('surveyFlash'));
-wireBookingForm(document.querySelector('[data-form="move"]'), document.getElementById('moveFlash'));
-
-// Reschedule and cancel - delegated click handler
-document.getElementById('appts').addEventListener('click', async (e) => {
-  const btn = e.target.closest('button[data-action]');
-  if (!btn) return;
-  const apptId = btn.dataset.id;
-  const appt = apptIndex[apptId];
-  if (!appt) return;
-
-  if (btn.dataset.action === 'cancel') {
-    if (!confirm('Cancel this appointment? The Google Calendar event will be removed and the customer will be emailed and texted.')) return;
-    btn.disabled = true;
-    try {
-      const res = await fetch('/api/admin/appointment/' + apptId, { method: 'DELETE' });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        alert(d.error || 'Cancel failed');
-      } else {
-        load();
-      }
-    } finally { btn.disabled = false; }
-    return;
-  }
-
-  if (btn.dataset.action === 'reschedule') {
-    const f = document.getElementById('rescheduleForm');
-    f.appointment_id.value = apptId;
-    // Pre-fill with existing values.
-    const d = new Date(appt.scheduled_for);
-    const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-    f.scheduled_for.value = local;
-    f.duration_minutes.value = appt.duration_minutes || 60;
-    f.address.value = appt.address || '';
-    f.notes.value = appt.notes || '';
-    document.getElementById('rescheduleFlash').className = 'flash';
-    document.getElementById('rescheduleModal').classList.add('open');
-  }
-});
-
-document.getElementById('rescheduleCancel').addEventListener('click', () => {
-  document.getElementById('rescheduleModal').classList.remove('open');
-});
-document.getElementById('rescheduleModal').addEventListener('click', (e) => {
-  if (e.target.id === 'rescheduleModal') e.target.classList.remove('open');
-});
-
-document.getElementById('rescheduleForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const f = e.target;
-  const flash = document.getElementById('rescheduleFlash');
-  const apptId = f.appointment_id.value;
-  const payload = {
-    scheduled_for: new Date(f.scheduled_for.value).toISOString(),
-    duration_minutes: Number(f.duration_minutes.value) || undefined,
-    address: f.address.value.trim() || null,
-    notes: f.notes.value.trim() || null,
-  };
-  const btn = f.querySelector('button.primary');
-  btn.disabled = true; btn.textContent = 'Saving...';
-  try {
-    const res = await fetch('/api/admin/appointment/' + apptId, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    const d = await res.json().catch(() => ({}));
-    if (!res.ok) { showFlash(flash, d.error || 'Reschedule failed', false); return; }
-    const probs = (d.errors || []).map(e => e.step).join(', ');
-    showFlash(flash, probs ? `Saved, but these steps need attention: ${probs}` : 'Rescheduled. Customer notified.', !probs);
-    setTimeout(() => {
-      document.getElementById('rescheduleModal').classList.remove('open');
-      load();
-    }, probs ? 3000 : 1000);
-  } catch (e) {
-    showFlash(flash, 'Network error', false);
-  } finally {
-    btn.disabled = false; btn.textContent = 'Save and notify customer';
-  }
-});
+wireForm('surveyForm', 'surveyFlash');
+wireForm('moveForm', 'moveFlash');
 
 load();
 </script>
