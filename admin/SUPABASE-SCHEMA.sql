@@ -47,3 +47,39 @@ ALTER TABLE relokates_appointments ENABLE ROW LEVEL SECURITY;
 --
 -- Uncomment to apply:
 -- ALTER TABLE relokates_quote_request ENABLE ROW LEVEL SECURITY;
+
+-- ────────────────────────────────────────────────────────────
+--  v2 additions: 2FA, reschedule/cancel, recurring bookings
+-- ────────────────────────────────────────────────────────────
+
+-- 2FA login codes. Each successful password entry creates a row
+-- with a short-lived 6-digit code SMS'd to the admin's phone.
+CREATE TABLE IF NOT EXISTS relokates_login_codes (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  code_hash text NOT NULL,           -- SHA-256 of the 6-digit code, never the plain code
+  attempt_id text NOT NULL UNIQUE,   -- random opaque id put in the response cookie
+  expires_at timestamptz NOT NULL,
+  used boolean DEFAULT false,
+  attempts int DEFAULT 0,
+  ip text,
+  created_at timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS relokates_login_codes_expires_idx
+  ON relokates_login_codes (expires_at);
+ALTER TABLE relokates_login_codes ENABLE ROW LEVEL SECURITY;
+
+-- Appointments table - additions for reschedule, cancel, and
+-- recurring bookings. Idempotent - safe to re-run.
+ALTER TABLE relokates_appointments
+  ADD COLUMN IF NOT EXISTS status text DEFAULT 'booked'
+    CHECK (status IN ('booked', 'rescheduled', 'cancelled', 'completed')),
+  ADD COLUMN IF NOT EXISTS recurring_id uuid,
+  ADD COLUMN IF NOT EXISTS recurring_pattern text,   -- 'weekly', 'biweekly', 'monthly'
+  ADD COLUMN IF NOT EXISTS recurring_until date,
+  ADD COLUMN IF NOT EXISTS cancelled_at timestamptz,
+  ADD COLUMN IF NOT EXISTS sms_sent boolean DEFAULT false;
+
+CREATE INDEX IF NOT EXISTS relokates_appointments_status_idx
+  ON relokates_appointments (status);
+CREATE INDEX IF NOT EXISTS relokates_appointments_recurring_idx
+  ON relokates_appointments (recurring_id);

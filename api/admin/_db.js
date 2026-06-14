@@ -25,7 +25,6 @@ export async function listQuotes({ status, search, limit = 200 } = {}) {
   if (status && status !== 'all') params.set('status', `eq.${status}`);
   if (search) {
     const q = encodeURIComponent(`%${search}%`);
-    // PostgREST or-pattern: search name, email or phone.
     params.set('or', `(name.ilike.${q},email.ilike.${q},phone.ilike.${q})`);
   }
   const res = await fetch(`${url(QUOTES_TABLE)}?${params}`, { headers: headers() });
@@ -86,4 +85,34 @@ export async function updateAppointment(id, patch) {
   if (!res.ok) throw new Error(`supabase updateAppointment ${res.status}`);
   const rows = await res.json();
   return rows[0] || null;
+}
+
+export async function getAppointment(id) {
+  const res = await fetch(`${url(APPTS_TABLE)}?id=eq.${id}&select=*&limit=1`, { headers: headers() });
+  if (!res.ok) throw new Error(`supabase getAppointment ${res.status}`);
+  const rows = await res.json();
+  return rows[0] || null;
+}
+
+// Generate a series of scheduled timestamps from a starting point.
+// Patterns: weekly, biweekly, monthly. Stops at (and includes) the
+// last occurrence on or before untilDate.
+export function buildRecurringSeries({ startIso, pattern, untilDate, maxOccurrences = 52 }) {
+  const out = [new Date(startIso).toISOString()];
+  if (!pattern || !untilDate) return out;
+
+  const start = new Date(startIso);
+  const until = new Date(untilDate + 'T23:59:59');
+  for (let i = 1; i < maxOccurrences; i++) {
+    const next = new Date(start);
+    switch (pattern) {
+      case 'weekly':   next.setDate(start.getDate() + 7 * i); break;
+      case 'biweekly': next.setDate(start.getDate() + 14 * i); break;
+      case 'monthly':  next.setMonth(start.getMonth() + i); break;
+      default: return out;
+    }
+    if (next > until) break;
+    out.push(next.toISOString());
+  }
+  return out;
 }
