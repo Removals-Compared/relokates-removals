@@ -23,9 +23,14 @@ CREATE INDEX IF NOT EXISTS relokates_quote_request_status_idx
   ON relokates_quote_request (status);
 
 -- Bookings + surveys.
+-- Note: lead_id is intentionally NOT a foreign key reference because
+-- some installations of relokates_quote_request lack a primary-key
+-- constraint on id (Postgres requires the referenced column to have a
+-- unique/PK constraint). The admin code handles the relation in app
+-- logic so we don't need DB-level referential integrity.
 CREATE TABLE IF NOT EXISTS relokates_appointments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  lead_id bigint REFERENCES relokates_quote_request(id) ON DELETE CASCADE,
+  lead_id bigint NOT NULL,
   type text NOT NULL CHECK (type IN ('survey', 'move')),
   scheduled_for timestamptz NOT NULL,
   duration_minutes int NOT NULL DEFAULT 60,
