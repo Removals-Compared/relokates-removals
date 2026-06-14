@@ -31,7 +31,19 @@ CREATE INDEX IF NOT EXISTS relokates_appointments_lead_idx
 CREATE INDEX IF NOT EXISTS relokates_appointments_when_idx
   ON relokates_appointments (scheduled_for);
 
--- Optional but recommended: RLS off on these tables so the service
--- role key (already in Vercel env as SUPABASE_KEY) can read/write.
--- Public anon access is NOT granted here because the admin API is
--- the only consumer.
+-- Row Level Security: ON, with NO permissive policies.
+-- Effect:
+--   - service_role key (used by the Vercel admin API) bypasses RLS
+--     by default, so server-side reads/writes keep working.
+--   - anon key and authenticated key get 0 rows / cannot insert,
+--     even if leaked. Appointment data stays server-only.
+ALTER TABLE relokates_appointments ENABLE ROW LEVEL SECURITY;
+
+-- Optional: do the same for the existing quotes table if it
+-- currently has RLS off. The Vercel admin API will keep working
+-- because it uses the service_role key. The public quote-submit
+-- endpoint (api/quote.js) also uses the service_role key so it
+-- will keep working too.
+--
+-- Uncomment to apply:
+-- ALTER TABLE relokates_quote_request ENABLE ROW LEVEL SECURITY;
