@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quote Dashboard | Relokates Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1A3C6E;--gold:#B8932A;--cream:#F4F8F6;--teal:#A8C5BC;--muted:#556070;--border:#c8ddd8}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#F4F6FA;font-family:Inter,Arial,sans-serif;color:#1f2937;min-height:100vh}
+.bar{background:var(--navy);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.bar img{height:36px;width:auto}
+.bar .title{font-family:Montserrat,sans-serif;font-weight:700;letter-spacing:0.5px}
+.bar a.logout{color:rgba(255,255,255,.75);font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:6px}
+.bar a.logout:hover{color:#fff;border-color:#fff}
+.wrap{max-width:1280px;margin:0 auto;padding:24px}
+.controls{background:#fff;border-radius:12px;padding:16px 20px;display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.controls input,.controls select{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:Inter,sans-serif}
+.controls input{width:100%}
+.controls input:focus,.controls select:focus{outline:none;border-color:var(--gold)}
+table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+thead th{background:var(--cream);text-align:left;padding:14px 16px;font-family:Montserrat,sans-serif;font-size:12px;color:var(--navy);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+tbody td{padding:14px 16px;font-size:14px;border-bottom:1px solid #f0f3f8;vertical-align:top}
+tbody tr:hover{background:#FBFCFE;cursor:pointer}
+tbody tr:last-child td{border-bottom:none}
+.tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:99px;font-family:Montserrat,sans-serif}
+.tag-new{background:#E0F2FE;color:#075985}
+.tag-contacted{background:#FEF3C7;color:#92400E}
+.tag-survey_booked{background:#DDD6FE;color:#5B21B6}
+.tag-move_booked{background:#D1FAE5;color:#065F46}
+.tag-lost{background:#F1F5F9;color:#475569}
+.muted{color:var(--muted);font-size:12px}
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.stat{background:#fff;border-radius:10px;padding:16px;border:1px solid var(--border)}
+.stat .n{font-family:Montserrat,sans-serif;font-size:24px;font-weight:800;color:var(--navy)}
+.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.empty{padding:48px;text-align:center;color:var(--muted)}
+@media(max-width:900px){.stat-row{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr}thead{display:none}tbody td{display:block;border-bottom:none;padding:6px 16px}tbody tr{display:block;border-bottom:1px solid #f0f3f8;padding:12px 0}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div style="display:flex;align-items:center;gap:14px">
+    <img src="/images/logo.webp" alt="Relokates">
+    <span class="title">Admin / Quotes</span>
+  </div>
+  <a href="#" class="logout" id="logoutBtn">Sign out</a>
+</div>
+<div class="wrap">
+  <div class="stat-row" id="stats">
+    <div class="stat"><div class="n" data-stat="all">-</div><div class="l">All</div></div>
+    <div class="stat"><div class="n" data-stat="new">-</div><div class="l">New</div></div>
+    <div class="stat"><div class="n" data-stat="contacted">-</div><div class="l">Contacted</div></div>
+    <div class="stat"><div class="n" data-stat="survey_booked">-</div><div class="l">Survey booked</div></div>
+    <div class="stat"><div class="n" data-stat="move_booked">-</div><div class="l">Move booked</div></div>
+  </div>
+
+  <div class="controls">
+    <input type="search" id="search" placeholder="Search name, email or phone..." autocomplete="off">
+    <select id="filter">
+      <option value="all">All statuses</option>
+      <option value="new">New</option>
+      <option value="contacted">Contacted</option>
+      <option value="survey_booked">Survey booked</option>
+      <option value="move_booked">Move booked</option>
+      <option value="lost">Lost</option>
+    </select>
+    <button onclick="load()" style="padding:10px 18px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer">Refresh</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Received</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Service</th>
+        <th>From / To</th>
+        <th>Move date</th>
+        <th>Status</th>
+        <th>Appts</th>
+      </tr>
+    </thead>
+    <tbody id="rows">
+      <tr><td colspan="8" class="empty">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+let timer;
+const filterEl = document.getElementById('filter');
+const searchEl = document.getElementById('search');
+
+filterEl.addEventListener('change', load);
+searchEl.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(load, 300); });
+
+document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await fetch('/api/admin/login', { method: 'DELETE' });
+  window.location.href = '/admin';
+});
+
+function fmt(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function fmtDate(s) {
+  if (!s) return '-';
+  try {
+    const d = new Date(s);
+    if (isNaN(d)) return s;
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch { return s; }
+}
+function esc(s) { return String(s || '').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+
+async function load() {
+  const params = new URLSearchParams();
+  if (filterEl.value !== 'all') params.set('status', filterEl.value);
+  if (searchEl.value.trim()) params.set('search', searchEl.value.trim());
+
+  const tb = document.getElementById('rows');
+  tb.innerHTML = '<tr><td colspan="8" class="empty">Loading...</td></tr>';
+  try {
+    const res = await fetch('/api/admin/quotes?' + params);
+    if (res.status === 401) { window.location.href = '/admin'; return; }
+    const data = await res.json();
+    render(data.quotes || []);
+  } catch (e) {
+    tb.innerHTML = `<tr><td colspan="8" class="empty">Failed to load: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+function render(rows) {
+  // Stats
+  const stats = { all: rows.length, new: 0, contacted: 0, survey_booked: 0, move_booked: 0 };
+  rows.forEach(r => { if (stats[r.status] !== undefined) stats[r.status]++; });
+  document.querySelectorAll('[data-stat]').forEach(el => {
+    el.textContent = stats[el.getAttribute('data-stat')] || 0;
+  });
+
+  const tb = document.getElementById('rows');
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="8" class="empty">No quotes match.</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(r => {
+    const apptCount = Array.isArray(r.relokates_appointments) ? r.relokates_appointments.length : 0;
+    const status = r.status || 'new';
+    return `
+      <tr onclick="window.location.href='/admin/quote/${r.id}'">
+        <td><div>${fmt(r.created_at)}</div></td>
+        <td>
+          <div style="font-weight:600">${esc(r.name)}</div>
+          <div class="muted">${esc(r.email || '')}</div>
+        </td>
+        <td>${esc(r.phone || '-')}</td>
+        <td>${esc(r.service || '-')}</td>
+        <td>
+          <div>${esc(r.move_from || '-')}</div>
+          <div class="muted">to ${esc(r.move_to || '-')}</div>
+        </td>
+        <td>${fmtDate(r.move_date)}</td>
+        <td><span class="tag tag-${status}">${status.replace('_',' ')}</span></td>
+        <td>${apptCount || '-'}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+load();
+</script>
+</body>
+</html>
