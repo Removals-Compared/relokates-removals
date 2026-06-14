@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quote | Relokates Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1A3C6E;--gold:#B8932A;--cream:#F4F8F6;--teal:#A8C5BC;--muted:#556070;--border:#c8ddd8}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#F4F6FA;font-family:Inter,Arial,sans-serif;color:#1f2937;min-height:100vh}
+.bar{background:var(--navy);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.bar img{height:36px;width:auto}
+.bar .title{font-family:Montserrat,sans-serif;font-weight:700;letter-spacing:.5px}
+.bar a{color:rgba(255,255,255,.85);text-decoration:none}
+.bar a.back{font-size:13px;border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:6px}
+.wrap{max-width:1280px;margin:0 auto;padding:24px;display:grid;grid-template-columns:1.4fr 1fr;gap:24px}
+.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 6px rgba(0,0,0,.04);margin-bottom:24px}
+.card h2{font-family:Montserrat,sans-serif;font-size:14px;color:var(--navy);margin:0 0 16px;letter-spacing:1px;text-transform:uppercase}
+.detail-grid{display:grid;grid-template-columns:120px 1fr;gap:10px 16px;font-size:14px}
+.detail-grid dt{font-family:Montserrat,sans-serif;font-size:12px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;padding-top:2px}
+.detail-grid dd{margin:0;color:#1f2937;font-size:14px}
+.detail-grid a{color:var(--gold);text-decoration:none;font-weight:600}
+.tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:99px;font-family:Montserrat,sans-serif}
+.tag-new{background:#E0F2FE;color:#075985}
+.tag-contacted{background:#FEF3C7;color:#92400E}
+.tag-survey_booked{background:#DDD6FE;color:#5B21B6}
+.tag-move_booked{background:#D1FAE5;color:#065F46}
+.tag-won{background:#A7F3D0;color:#064E3B}
+.tag-lost{background:#F1F5F9;color:#475569}
+.value-row{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
+.value-row label{font-family:Montserrat,sans-serif;font-size:12px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin:0;font-weight:700;min-width:90px}
+.value-input{display:flex;align-items:center;gap:6px;flex:1}
+.value-input span{color:var(--gold);font-family:Montserrat,sans-serif;font-weight:800;font-size:18px}
+.value-input input{flex:1;max-width:140px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:16px;font-family:Inter,sans-serif;font-weight:600;color:var(--navy)}
+.value-input input:focus{outline:none;border-color:var(--gold)}
+label{display:block;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--navy);margin:12px 0 6px;font-weight:700}
+input,select,textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:Inter,sans-serif}
+textarea{min-height:80px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
+button.primary{background:var(--gold);color:#fff;border:none;padding:12px 18px;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+button.primary:hover{background:#A07F1E}
+button.primary:disabled{opacity:.5;cursor:not-allowed}
+button.ghost{background:transparent;color:var(--navy);border:1px solid var(--border);padding:8px 12px;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+button.ghost:hover{border-color:var(--gold);color:var(--gold)}
+button.win{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;padding:8px 12px;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+button.win:hover{background:#A7F3D0}
+button.lose{background:#FEF2F2;color:#991B1B;border:1px solid #FCA5A5;padding:8px 12px;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+button.lose:hover{background:#FCA5A5}
+.note{background:var(--cream);border-left:3px solid var(--gold);padding:12px 14px;border-radius:6px;margin-bottom:8px;font-size:14px}
+.note .meta{font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.appt{padding:14px 16px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+.appt .head{display:flex;justify-content:space-between;align-items:center}
+.appt h4{font-family:Montserrat,sans-serif;color:var(--navy);margin:0;font-size:13px;letter-spacing:.5px;text-transform:uppercase}
+.appt .when{font-weight:700;color:var(--navy)}
+.appt .meta{font-size:12px;color:var(--muted);margin-top:4px}
+.appt.survey h4{color:#5B21B6}
+.appt.move h4{color:#065F46}
+.flash{padding:12px 14px;border-radius:8px;font-size:14px;margin-bottom:12px;display:none}
+.flash.ok{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;display:block}
+.flash.err{background:#FEF2F2;color:#991B1B;border:1px solid #FCA5A5;display:block}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.muted{color:var(--muted);font-size:13px}
+.action-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+@media(max-width:900px){.wrap{grid-template-columns:1fr;padding:16px;gap:16px}.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div style="display:flex;align-items:center;gap:14px">
+    <img src="/images/logo.webp" alt="Relokates">
+    <span class="title">Quote</span>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <a href="/admin/dashboard" class="back">&larr; Dashboard</a>
+    <a href="#" id="logoutBtn" class="back">Sign out</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- LEFT: customer + notes -->
+  <div>
+    <div class="card">
+      <h2>Customer details</h2>
+      <dl class="detail-grid" id="customer">
+        <dt>Loading</dt><dd>...</dd>
+      </dl>
+
+      <div class="value-row">
+        <label>Job value</label>
+        <div class="value-input">
+          <span>£</span>
+          <input type="number" id="valueInput" min="0" step="1" placeholder="0">
+          <button class="ghost" id="valueSave">Save value</button>
+          <span class="muted" id="valueStatus" style="margin-left:4px"></span>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="ghost" data-status="contacted">Mark contacted</button>
+        <button class="win" data-status="won">Mark WON</button>
+        <button class="lose" data-status="lost">Mark lost</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Internal notes</h2>
+      <div id="notes"></div>
+      <div class="flash" id="noteFlash"></div>
+      <textarea id="noteText" placeholder="Add a note - call summary, special request, follow-up..."></textarea>
+      <button class="primary" id="noteBtn" style="margin-top:10px">Add note</button>
+    </div>
+
+    <div class="card">
+      <h2>Appointments &amp; bookings</h2>
+      <div id="appts"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: booking forms -->
+  <div>
+    <div class="card">
+      <h2>Book a survey</h2>
+      <p class="muted">Schedules a pre-move survey on info@relokates.co.uk's Google Calendar and emails the customer. Sets status to "survey booked".</p>
+      <form id="surveyForm" data-type="survey">
+        <label>Date &amp; time</label>
+        <input type="datetime-local" name="scheduled_for" required>
+        <label>Duration (minutes)</label>
+        <select name="duration_minutes">
+          <option value="30">30</option>
+          <option value="45" selected>45</option>
+          <option value="60">60</option>
+          <option value="90">90</option>
+        </select>
+        <label>Address</label>
+        <input type="text" name="address" placeholder="Leave blank to use collection address">
+        <label>Notes for the calendar event</label>
+        <textarea name="notes" placeholder="Access code, parking notes, special items..."></textarea>
+        <div class="flash" id="surveyFlash"></div>
+        <button class="primary" type="submit" style="margin-top:10px">Book survey</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Book the moving date</h2>
+      <p class="muted">Locks in the move date and sends the customer a confirmation. Sets status to "move booked".</p>
+      <form id="moveForm" data-type="move">
+        <div class="row">
+          <div><label>Date &amp; time</label><input type="datetime-local" name="scheduled_for" required></div>
+          <div><label>Duration (mins)</label>
+            <select name="duration_minutes">
+              <option value="120">2 hrs</option>
+              <option value="180">3 hrs</option>
+              <option value="240" selected>4 hrs</option>
+              <option value="360">6 hrs</option>
+              <option value="480">8 hrs</option>
+            </select>
+          </div>
+        </div>
+        <label>Collection address</label>
+        <input type="text" name="address" placeholder="Leave blank to use the customer's 'moving from' address">
+        <label>Notes for the calendar event</label>
+        <textarea name="notes" placeholder="Crew size, vehicle requirements, packing..."></textarea>
+        <div class="flash" id="moveFlash"></div>
+        <button class="primary" type="submit" style="margin-top:10px">Book move</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const id = window.location.pathname.split('/').pop();
+let quote = null;
+
+document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await fetch('/api/admin/login', { method: 'DELETE' });
+  window.location.href = '/admin';
+});
+
+function esc(s) { return String(s || '').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+function fmt(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+  catch { return iso; }
+}
+function fmtMoney(v) {
+  if (v === null || v === undefined || v === '') return '-';
+  const n = Number(v);
+  if (isNaN(n)) return '-';
+  return '£' + n.toLocaleString('en-GB');
+}
+function showFlash(el, msg, ok) {
+  el.textContent = msg;
+  el.className = 'flash ' + (ok ? 'ok' : 'err');
+}
+
+async function load() {
+  const res = await fetch('/api/admin/quote/' + encodeURIComponent(id));
+  if (res.status === 401) { window.location.href = '/admin'; return; }
+  if (!res.ok) {
+    document.getElementById('customer').innerHTML = '<dt>Error</dt><dd>Could not load this quote.</dd>';
+    return;
+  }
+  const data = await res.json();
+  quote = data.quote;
+  renderCustomer(quote);
+  renderNotes(quote.notes);
+  renderAppts(quote.relokates_appointments || []);
+}
+
+function renderCustomer(q) {
+  const c = document.getElementById('customer');
+  const status = q.status || 'new';
+  c.innerHTML = [
+    ['Status', `<span class="tag tag-${status}">${status.replace('_',' ')}</span>`],
+    ['Name', esc(q.name)],
+    ['Phone', q.phone ? `<a href="tel:${esc(q.phone)}">${esc(q.phone)}</a>` : '-'],
+    ['Email', q.email ? `<a href="mailto:${esc(q.email)}">${esc(q.email)}</a>` : '-'],
+    ['Service', esc(q.service || '-')],
+    ['Moving from', esc(q.move_from || '-')],
+    ['Moving to', esc(q.move_to || '-')],
+    ['Move date', esc(q.move_date || '-')],
+    ['Property', esc(q.property || '-')],
+    ['Source', esc(q.source || '-')],
+    ['Message', q.message ? `<div style="white-space:pre-wrap">${esc(q.message)}</div>` : '-'],
+    ['Submitted', fmt(q.created_at)],
+  ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+
+  // Hydrate the value editor.
+  document.getElementById('valueInput').value = q.value ?? '';
+  document.getElementById('valueStatus').textContent = q.value ? `current: ${fmtMoney(q.value)}` : '';
+}
+
+function renderNotes(notes) {
+  const el = document.getElementById('notes');
+  const arr = Array.isArray(notes) ? notes : [];
+  if (!arr.length) { el.innerHTML = '<p class="muted">No notes yet.</p>'; return; }
+  el.innerHTML = arr.slice().reverse().map(n => `
+    <div class="note">
+      <div class="meta">${fmt(n.at)}</div>
+      <div style="white-space:pre-wrap">${esc(n.text)}</div>
+    </div>
+  `).join('');
+}
+
+function renderAppts(appts) {
+  const el = document.getElementById('appts');
+  if (!appts.length) { el.innerHTML = '<p class="muted">No appointments booked yet.</p>'; return; }
+  appts.sort((a, b) => new Date(a.scheduled_for) - new Date(b.scheduled_for));
+  el.innerHTML = appts.map(a => `
+    <div class="appt ${a.type}">
+      <div class="head">
+        <h4>${a.type === 'survey' ? 'Survey' : 'Move'}</h4>
+        <span class="when">${fmt(a.scheduled_for)}</span>
+      </div>
+      <div class="meta">
+        ${a.duration_minutes ? a.duration_minutes + ' min &middot; ' : ''}
+        ${a.address ? esc(a.address) : 'No address set'}
+        &middot; ${a.email_sent ? 'email &check;' : 'email NOT sent'}
+        ${a.gcal_event_id ? ' &middot; calendar &check;' : ' &middot; calendar &cross;'}
+      </div>
+      ${a.notes ? `<div class="meta" style="margin-top:6px;white-space:pre-wrap">${esc(a.notes)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// Note add
+document.getElementById('noteBtn').addEventListener('click', async () => {
+  const text = document.getElementById('noteText').value.trim();
+  const flash = document.getElementById('noteFlash');
+  if (!text) { showFlash(flash, 'Note cannot be empty.', false); return; }
+  try {
+    const res = await fetch('/api/admin/note', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lead_id: id, text }),
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      showFlash(flash, d.error || 'Failed to add note', false);
+      return;
+    }
+    document.getElementById('noteText').value = '';
+    showFlash(flash, 'Note saved.', true);
+    load();
+  } catch (e) {
+    showFlash(flash, 'Network error', false);
+  }
+});
+
+// Status buttons (contacted, won, lost)
+document.querySelectorAll('button[data-status]').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const status = btn.dataset.status;
+    if ((status === 'won' || status === 'lost') && !confirm(`Mark this quote as ${status.toUpperCase()}?`)) return;
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error || 'Failed to update status');
+      } else {
+        load();
+      }
+    } finally { btn.disabled = false; }
+  });
+});
+
+// Value save
+document.getElementById('valueSave').addEventListener('click', async () => {
+  const v = document.getElementById('valueInput').value;
+  const statusEl = document.getElementById('valueStatus');
+  const btn = document.getElementById('valueSave');
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: v === '' ? null : Number(v) }),
+    });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      statusEl.textContent = 'Save failed';
+      statusEl.style.color = '#991B1B';
+    } else {
+      const d = await res.json();
+      statusEl.textContent = d.quote && d.quote.value ? `saved: ${fmtMoney(d.quote.value)}` : 'cleared';
+      statusEl.style.color = '#065F46';
+      setTimeout(() => { statusEl.style.color = ''; }, 2000);
+    }
+  } finally { btn.disabled = false; }
+});
+
+// Booking forms
+function wireForm(formId, flashId) {
+  const form = document.getElementById(formId);
+  const flash = document.getElementById(flashId);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form).entries());
+    const payload = {
+      lead_id: id,
+      type: form.dataset.type,
+      scheduled_for: new Date(data.scheduled_for).toISOString(),
+      duration_minutes: Number(data.duration_minutes) || 60,
+      address: (data.address || '').trim() || null,
+      notes: (data.notes || '').trim() || null,
+    };
+    const btn = form.querySelector('button.primary');
+    btn.disabled = true; btn.textContent = 'Booking...';
+    try {
+      const res = await fetch('/api/admin/appointment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { showFlash(flash, d.error || 'Booking failed', false); return; }
+      const probs = (d.errors || []).map(e => e.step).join(', ');
+      if (probs) {
+        showFlash(flash, 'Saved, but these steps need attention: ' + probs, false);
+      } else {
+        showFlash(flash, 'Booked. Customer notified.', true);
+      }
+      form.reset();
+      load();
+    } catch (e) {
+      showFlash(flash, 'Network error', false);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = form.dataset.type === 'survey' ? 'Book survey' : 'Book move';
+    }
+  });
+}
+wireForm('surveyForm', 'surveyFlash');
+wireForm('moveForm', 'moveFlash');
+
+load();
+</script>
+</body>
+</html>

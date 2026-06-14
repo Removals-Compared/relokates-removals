@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quote Dashboard | Relokates Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1A3C6E;--gold:#B8932A;--cream:#F4F8F6;--teal:#A8C5BC;--muted:#556070;--border:#c8ddd8}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#F4F6FA;font-family:Inter,Arial,sans-serif;color:#1f2937;min-height:100vh}
+.bar{background:var(--navy);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.bar img{height:36px;width:auto}
+.bar .title{font-family:Montserrat,sans-serif;font-weight:700;letter-spacing:0.5px}
+.bar a.logout{color:rgba(255,255,255,.75);font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:6px}
+.bar a.logout:hover{color:#fff;border-color:#fff}
+.wrap{max-width:1280px;margin:0 auto;padding:24px}
+.controls{background:#fff;border-radius:12px;padding:16px 20px;display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.controls input,.controls select{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:Inter,sans-serif}
+.controls input{width:100%}
+.controls input:focus,.controls select:focus{outline:none;border-color:var(--gold)}
+table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+thead th{background:var(--cream);text-align:left;padding:14px 16px;font-family:Montserrat,sans-serif;font-size:12px;color:var(--navy);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+thead th.right{text-align:right}
+tbody td{padding:14px 16px;font-size:14px;border-bottom:1px solid #f0f3f8;vertical-align:top}
+tbody td.right{text-align:right;font-family:Montserrat,sans-serif;font-weight:700;color:var(--navy)}
+tbody tr:hover{background:#FBFCFE;cursor:pointer}
+tbody tr:last-child td{border-bottom:none}
+.tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:99px;font-family:Montserrat,sans-serif}
+.tag-new{background:#E0F2FE;color:#075985}
+.tag-contacted{background:#FEF3C7;color:#92400E}
+.tag-survey_booked{background:#DDD6FE;color:#5B21B6}
+.tag-move_booked{background:#D1FAE5;color:#065F46}
+.tag-won{background:#A7F3D0;color:#064E3B}
+.tag-lost{background:#F1F5F9;color:#475569}
+.muted{color:var(--muted);font-size:12px}
+.stat-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
+.stat{background:#fff;border-radius:10px;padding:16px;border:1px solid var(--border)}
+.stat .n{font-family:Montserrat,sans-serif;font-size:24px;font-weight:800;color:var(--navy)}
+.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.stat-won .n{color:#065F46}
+.empty{padding:48px;text-align:center;color:var(--muted)}
+button.add{padding:10px 18px;background:var(--gold);color:#fff;border:none;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+button.add:hover{background:#A07F1E}
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:24px}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:28px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow-y:auto}
+.modal h3{font-family:Montserrat,sans-serif;color:var(--navy);margin:0 0 4px;font-size:18px}
+.modal p.muted{color:var(--muted);font-size:13px;margin:0 0 16px}
+.modal label{display:block;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--navy);margin:12px 0 6px;font-weight:700}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:Inter,sans-serif;box-sizing:border-box}
+.modal textarea{min-height:60px;resize:vertical}
+.modal input:focus,.modal select:focus,.modal textarea:focus{outline:none;border-color:var(--gold)}
+.modal .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal .footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.modal button.primary{background:var(--gold);color:#fff;border:none;padding:12px 18px;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+.modal button.primary:hover{background:#A07F1E}
+.modal button.primary:disabled{opacity:.5;cursor:not-allowed}
+.modal button.ghost{background:transparent;color:var(--navy);border:1px solid var(--border);padding:12px 18px;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
+.flash{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:12px;display:none}
+.flash.ok{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;display:block}
+.flash.err{background:#FEF2F2;color:#991B1B;border:1px solid #FCA5A5;display:block}
+@media(max-width:900px){.stat-row{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr}thead{display:none}tbody td{display:block;border-bottom:none;padding:6px 16px}tbody tr{display:block;border-bottom:1px solid #f0f3f8;padding:12px 0}.modal .row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div style="display:flex;align-items:center;gap:14px">
+    <img src="/images/logo.webp" alt="Relokates">
+    <span class="title">Admin / Quotes</span>
+  </div>
+  <a href="#" class="logout" id="logoutBtn">Sign out</a>
+</div>
+<div class="wrap">
+  <div class="stat-row" id="stats">
+    <div class="stat"><div class="n" data-stat="all">-</div><div class="l">All</div></div>
+    <div class="stat"><div class="n" data-stat="new">-</div><div class="l">New</div></div>
+    <div class="stat"><div class="n" data-stat="contacted">-</div><div class="l">Contacted</div></div>
+    <div class="stat"><div class="n" data-stat="survey_booked">-</div><div class="l">Survey booked</div></div>
+    <div class="stat"><div class="n" data-stat="move_booked">-</div><div class="l">Move booked</div></div>
+    <div class="stat stat-won"><div class="n" data-stat="won">-</div><div class="l">Won</div></div>
+  </div>
+
+  <div class="controls">
+    <input type="search" id="search" placeholder="Search name, email or phone..." autocomplete="off">
+    <select id="filter">
+      <option value="all" selected>All statuses</option>
+      <option value="new">New</option>
+      <option value="contacted">Contacted</option>
+      <option value="survey_booked">Survey booked</option>
+      <option value="move_booked">Move booked</option>
+      <option value="won">Won</option>
+      <option value="lost">Lost</option>
+    </select>
+    <button onclick="load()" style="padding:10px 18px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer">Refresh</button>
+    <button class="add" id="addBtn">+ Add customer</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Received</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Service</th>
+        <th>From / To</th>
+        <th>Move date</th>
+        <th>Status</th>
+        <th class="right">Value</th>
+      </tr>
+    </thead>
+    <tbody id="rows">
+      <tr><td colspan="8" class="empty">Loading...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add customer modal -->
+<div class="modal-bg" id="addModal">
+  <div class="modal">
+    <h3>Add a customer</h3>
+    <p class="muted">For customers who called or walked in instead of using the public form. Creates a new quote with status "new".</p>
+    <form id="addForm">
+      <div class="row">
+        <div><label>Name *</label><input type="text" name="name" required></div>
+        <div><label>Phone</label><input type="tel" name="phone" placeholder="07700 000000"></div>
+      </div>
+      <label>Email</label>
+      <input type="email" name="email" placeholder="customer@example.com">
+      <p class="muted" style="margin:4px 0 0">Phone OR email is required.</p>
+
+      <label>Service</label>
+      <select name="service">
+        <option value="">Choose a service</option>
+        <option value="House Removal">House Removal</option>
+        <option value="Office Removal">Office Removal</option>
+        <option value="International Removal - Dubai">International Removal - Dubai</option>
+        <option value="International Removal - Other">International Removal - Other</option>
+        <option value="Packing Service">Packing Service</option>
+        <option value="Man and Van">Man and Van</option>
+        <option value="Secure Storage">Secure Storage</option>
+        <option value="Luxury Removals">Luxury Removals</option>
+        <option value="House Clearance">House Clearance</option>
+      </select>
+
+      <div class="row">
+        <div><label>Moving from</label><input type="text" name="move_from" placeholder="e.g. Chelmsford CM1"></div>
+        <div><label>Moving to</label><input type="text" name="move_to" placeholder="e.g. Bromley BR1"></div>
+      </div>
+      <div class="row">
+        <div><label>Preferred move date</label><input type="date" name="move_date"></div>
+        <div><label>Property type</label>
+          <select name="property">
+            <option value="">Choose</option>
+            <option value="Studio / 1-bed flat">Studio / 1-bed flat</option>
+            <option value="2-bed flat">2-bed flat</option>
+            <option value="3-bed house">3-bed house</option>
+            <option value="4-bed house">4-bed house</option>
+            <option value="5+ bed house">5+ bed house</option>
+            <option value="Office">Office</option>
+            <option value="Storage">Storage</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Quoted value (GBP)</label>
+      <input type="number" name="value" min="0" step="1" placeholder="e.g. 850">
+
+      <label>Notes / message</label>
+      <textarea name="message" placeholder="What did they ask for? Special items, access notes..."></textarea>
+
+      <div class="flash" id="addFlash"></div>
+      <div class="footer">
+        <button type="button" class="ghost" id="addCancel">Close</button>
+        <button class="primary" type="submit" id="addSubmit">Add customer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+let timer;
+const filterEl = document.getElementById('filter');
+const searchEl = document.getElementById('search');
+
+filterEl.addEventListener('change', load);
+searchEl.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(load, 300); });
+
+document.getElementById('logoutBtn').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await fetch('/api/admin/login', { method: 'DELETE' });
+  window.location.href = '/admin';
+});
+
+function fmt(iso) {
+  if (!iso) return '-';
+  return new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+function fmtDate(s) {
+  if (!s) return '-';
+  try {
+    const d = new Date(s);
+    if (isNaN(d)) return s;
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch { return s; }
+}
+function fmtMoney(v) {
+  if (v === null || v === undefined || v === '') return '-';
+  const n = Number(v);
+  if (isNaN(n)) return '-';
+  return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+function esc(s) { return String(s || '').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
+
+async function load() {
+  const params = new URLSearchParams();
+  if (filterEl.value !== 'all') params.set('status', filterEl.value);
+  if (searchEl.value.trim()) params.set('search', searchEl.value.trim());
+  const tb = document.getElementById('rows');
+  tb.innerHTML = '<tr><td colspan="8" class="empty">Loading...</td></tr>';
+  try {
+    const res = await fetch('/api/admin/quotes?' + params);
+    if (res.status === 401) { window.location.href = '/admin'; return; }
+    const data = await res.json();
+    render(data.quotes || []);
+  } catch (e) {
+    tb.innerHTML = `<tr><td colspan="8" class="empty">Failed to load: ${esc(e.message)}</td></tr>`;
+  }
+}
+
+function render(rows) {
+  const stats = { all: rows.length, new: 0, contacted: 0, survey_booked: 0, move_booked: 0, won: 0 };
+  rows.forEach(r => { if (stats[r.status] !== undefined) stats[r.status]++; });
+  document.querySelectorAll('[data-stat]').forEach(el => {
+    el.textContent = stats[el.getAttribute('data-stat')] ?? 0;
+  });
+  const tb = document.getElementById('rows');
+  if (!rows.length) {
+    tb.innerHTML = '<tr><td colspan="8" class="empty">No quotes match the current filter.</td></tr>';
+    return;
+  }
+  tb.innerHTML = rows.map(r => {
+    const status = r.status || 'new';
+    return `
+      <tr onclick="window.location.href='/admin/quote/${r.id}'">
+        <td>${fmt(r.created_at)}</td>
+        <td>
+          <div style="font-weight:600">${esc(r.name)}</div>
+          <div class="muted">${esc(r.email || '')}</div>
+        </td>
+        <td>${esc(r.phone || '-')}</td>
+        <td>${esc(r.service || '-')}</td>
+        <td>
+          <div>${esc(r.move_from || '-')}</div>
+          <div class="muted">to ${esc(r.move_to || '-')}</div>
+        </td>
+        <td>${fmtDate(r.move_date)}</td>
+        <td><span class="tag tag-${status}">${status.replace('_',' ')}</span></td>
+        <td class="right">${fmtMoney(r.value)}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Add customer modal
+const addModal = document.getElementById('addModal');
+const addFlash = document.getElementById('addFlash');
+const addSubmit = document.getElementById('addSubmit');
+document.getElementById('addBtn').addEventListener('click', () => {
+  document.getElementById('addForm').reset();
+  addFlash.className = 'flash';
+  addModal.classList.add('open');
+});
+document.getElementById('addCancel').addEventListener('click', () => addModal.classList.remove('open'));
+addModal.addEventListener('click', (e) => { if (e.target.id === 'addModal') addModal.classList.remove('open'); });
+
+document.getElementById('addForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries());
+  if (!data.phone && !data.email) {
+    addFlash.textContent = 'Phone OR email is required.';
+    addFlash.className = 'flash err';
+    return;
+  }
+  addSubmit.disabled = true; addSubmit.textContent = 'Adding...';
+  try {
+    const res = await fetch('/api/admin/customer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      addFlash.textContent = d.error || 'Failed to add customer';
+      addFlash.className = 'flash err';
+      return;
+    }
+    addFlash.textContent = 'Customer added.';
+    addFlash.className = 'flash ok';
+    setTimeout(() => {
+      if (d.quote && d.quote.id) {
+        window.location.href = '/admin/quote/' + d.quote.id;
+      } else {
+        addModal.classList.remove('open');
+        load();
+      }
+    }, 600);
+  } catch (err) {
+    addFlash.textContent = 'Network error - try again.';
+    addFlash.className = 'flash err';
+  } finally {
+    addSubmit.disabled = false; addSubmit.textContent = 'Add customer';
+  }
+});
+
+load();
+</script>
+</body>
+</html>
