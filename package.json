@@ -6,7 +6,5 @@
   "scripts": {
     "generate": "node scripts/generate-post.js"
   },
-  "dependencies": {
-    "nodemailer": "^6.9.14"
-  }
+  "dependencies": {}
 }

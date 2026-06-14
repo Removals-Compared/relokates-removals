@@ -2,8 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /quotes/
-Disallow: /admin
-Disallow: /admin/
 
 # Auto-discovery of every indexable URL.
 Sitemap: https://www.relokates.co.uk/sitemap.xml
