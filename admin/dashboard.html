@@ -100,9 +100,18 @@ button.add:hover{background:#A07F1E}
     <button class="add" id="addBtn">+ Add customer</button>
   </div>
 
+  <div id="bulkBar" style="display:none;background:#fff8e6;border:1px solid #f0d97d;border-radius:8px;padding:10px 14px;margin:14px 0;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div style="font-size:13px;color:#4a3a00"><strong id="bulkCount">0</strong> quote(s) selected</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" id="bulkClear" style="padding:8px 14px;background:#fff;color:#1A3C6E;border:1px solid #1A3C6E;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer">Clear selection</button>
+      <button type="button" id="bulkDelete" style="padding:8px 14px;background:#b00020;color:#fff;border:none;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#128465; Delete selected</button>
+    </div>
+  </div>
+
   <table>
     <thead>
       <tr>
+        <th style="width:32px"><input type="checkbox" id="selectAll" title="Select all"></th>
         <th>Received</th>
         <th>Name</th>
         <th>Phone</th>
@@ -115,7 +124,7 @@ button.add:hover{background:#A07F1E}
       </tr>
     </thead>
     <tbody id="rows">
-      <tr><td colspan="9" class="empty">Loading...</td></tr>
+      <tr><td colspan="10" class="empty">Loading...</td></tr>
     </tbody>
   </table>
 </div>
@@ -222,14 +231,14 @@ async function load() {
   if (filterEl.value !== 'all') params.set('status', filterEl.value);
   if (searchEl.value.trim()) params.set('search', searchEl.value.trim());
   const tb = document.getElementById('rows');
-  tb.innerHTML = '<tr><td colspan="8" class="empty">Loading...</td></tr>';
+  tb.innerHTML = '<tr><td colspan="10" class="empty">Loading...</td></tr>';
   try {
     const res = await fetch('/api/admin/quotes?' + params);
     if (res.status === 401) { window.location.href = '/admin'; return; }
     const data = await res.json();
     render(data.quotes || []);
   } catch (e) {
-    tb.innerHTML = `<tr><td colspan="8" class="empty">Failed to load: ${esc(e.message)}</td></tr>`;
+    tb.innerHTML = `<tr><td colspan="10" class="empty">Failed to load: ${esc(e.message)}</td></tr>`;
   }
 }
 
@@ -241,13 +250,15 @@ function render(rows) {
   });
   const tb = document.getElementById('rows');
   if (!rows.length) {
-    tb.innerHTML = '<tr><td colspan="9" class="empty">No quotes match the current filter.</td></tr>';
+    tb.innerHTML = '<tr><td colspan="10" class="empty">No quotes match the current filter.</td></tr>';
+    updateBulkBar();
     return;
   }
   tb.innerHTML = rows.map(r => {
     const status = r.status || 'new';
     return `
       <tr data-id="${r.id}" data-name="${esc(r.name)}">
+        <td class="sel-cell"><input type="checkbox" class="row-sel" data-id="${r.id}" data-name="${esc(r.name)}"></td>
         <td>${fmt(r.created_at)}</td>
         <td>
           <div style="font-weight:600">${esc(r.name)}</div>
@@ -266,10 +277,70 @@ function render(rows) {
       </tr>
     `;
   }).join('');
+  document.getElementById('selectAll').checked = false;
+  updateBulkBar();
 }
+
+function selectedIds() {
+  return Array.from(document.querySelectorAll('.row-sel:checked')).map(el => ({
+    id: el.dataset.id, name: el.dataset.name
+  }));
+}
+function updateBulkBar() {
+  const sel = selectedIds();
+  const bar = document.getElementById('bulkBar');
+  bar.style.display = sel.length ? 'flex' : 'none';
+  document.getElementById('bulkCount').textContent = sel.length;
+  const all = document.querySelectorAll('.row-sel');
+  const sa = document.getElementById('selectAll');
+  if (!all.length) { sa.checked = false; sa.indeterminate = false; return; }
+  if (sel.length === 0) { sa.checked = false; sa.indeterminate = false; }
+  else if (sel.length === all.length) { sa.checked = true; sa.indeterminate = false; }
+  else { sa.checked = false; sa.indeterminate = true; }
+}
+
+document.getElementById('selectAll').addEventListener('change', (e) => {
+  document.querySelectorAll('.row-sel').forEach(el => { el.checked = e.target.checked; });
+  updateBulkBar();
+});
+
+document.getElementById('bulkClear').addEventListener('click', () => {
+  document.querySelectorAll('.row-sel').forEach(el => { el.checked = false; });
+  updateBulkBar();
+});
+
+document.getElementById('bulkDelete').addEventListener('click', async () => {
+  const sel = selectedIds();
+  if (!sel.length) return;
+  const preview = sel.slice(0, 5).map(s => '• ' + s.name).join('\n');
+  const extra = sel.length > 5 ? `\n• ...and ${sel.length - 5} more` : '';
+  if (!confirm(`Delete ${sel.length} quote(s) and all their appointments?\n\n${preview}${extra}\n\nThis cannot be undone.`)) return;
+  const btn = document.getElementById('bulkDelete');
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  const results = await Promise.allSettled(sel.map(s =>
+    fetch('/api/admin/quote/' + encodeURIComponent(s.id), { method: 'DELETE' })
+      .then(r => r.ok ? { ok: true, id: s.id } : r.json().catch(() => ({})).then(d => ({ ok: false, id: s.id, error: d.error || r.status })))
+  ));
+  const failed = results.filter(r => r.status === 'fulfilled' && !r.value.ok).map(r => r.value);
+  const errored = results.filter(r => r.status === 'rejected').length;
+  btn.disabled = false;
+  btn.textContent = originalText;
+  if (failed.length || errored) {
+    alert(`Deleted ${sel.length - failed.length - errored} of ${sel.length}. ${failed.length + errored} failed.`);
+  }
+  load();
+});
 
 // Click-to-open AND click-to-delete with proper event handling.
 document.getElementById('rows').addEventListener('click', async (e) => {
+  // Checkbox clicks stay on the row, don't navigate
+  if (e.target.closest('.row-sel') || e.target.closest('.sel-cell')) {
+    if (e.target.classList && e.target.classList.contains('row-sel')) {
+      updateBulkBar();
+    }
+    return;
+  }
   const tr = e.target.closest('tr[data-id]');
   if (!tr) return;
   const id = tr.dataset.id;
