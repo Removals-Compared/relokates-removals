@@ -2,6 +2,7 @@ import { requireAuth } from '../_session.js';
 import { getQuote, updateQuote, deleteQuote } from '../_db.js';
 
 const ALLOWED_STATUS = ['new', 'contacted', 'survey_booked', 'move_booked', 'won', 'lost'];
+const EDITABLE_TEXT_FIELDS = ['name', 'phone', 'email', 'service', 'move_from', 'move_to', 'move_date', 'property', 'message'];
 
 export default async function handler(req, res) {
   if (!requireAuth(req, res)) return;
@@ -18,7 +19,8 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
     if (req.method === 'PATCH') {
-      const { status, value } = req.body || {};
+      const body = req.body || {};
+      const { status, value } = body;
       const patch = {};
       if (status !== undefined) {
         if (!ALLOWED_STATUS.includes(status)) {
@@ -32,6 +34,22 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'invalid value' });
         }
         patch.value = n;
+      }
+      for (const field of EDITABLE_TEXT_FIELDS) {
+        if (body[field] === undefined) continue;
+        const raw = body[field];
+        if (raw === null || raw === '') {
+          patch[field] = null;
+          continue;
+        }
+        const s = String(raw).trim();
+        if (s.length > 2000) {
+          return res.status(400).json({ error: `${field} too long` });
+        }
+        if (field === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(s)) {
+          return res.status(400).json({ error: 'invalid email' });
+        }
+        patch[field] = s;
       }
       if (!Object.keys(patch).length) return res.status(400).json({ error: 'no fields to update' });
       const updated = await updateQuote(id, patch);

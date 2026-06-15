@@ -82,10 +82,32 @@ button.lose:hover{background:#FCA5A5}
   <!-- LEFT: customer + notes -->
   <div>
     <div class="card">
-      <h2>Customer details</h2>
-      <dl class="detail-grid" id="customer">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <h2 style="margin:0">Customer details</h2>
+        <button class="ghost" id="editBtn" type="button" style="padding:6px 14px;font-size:13px">&#9998; Edit</button>
+      </div>
+      <dl class="detail-grid" id="customer" style="margin-top:12px">
         <dt>Loading</dt><dd>...</dd>
       </dl>
+      <form id="editForm" style="display:none;margin-top:14px;display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div><label>Name</label><input type="text" name="name" required></div>
+          <div><label>Phone</label><input type="text" name="phone"></div>
+          <div><label>Email</label><input type="email" name="email"></div>
+          <div><label>Service</label><input type="text" name="service" placeholder="House Removal, Office Removal..."></div>
+          <div><label>Moving from</label><input type="text" name="move_from" placeholder="Postcode or address"></div>
+          <div><label>Moving to</label><input type="text" name="move_to" placeholder="Postcode or address"></div>
+          <div><label>Move date</label><input type="text" name="move_date" placeholder="YYYY-MM-DD or text"></div>
+          <div><label>Property</label><input type="text" name="property" placeholder="2 bed flat, 4 bed house..."></div>
+        </div>
+        <label style="margin-top:10px">Message / notes</label>
+        <textarea name="message" rows="3" placeholder="Any context from the customer..."></textarea>
+        <div class="flash" id="editFlash"></div>
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <button class="primary" type="submit" id="editSave">Save changes</button>
+          <button class="ghost" type="button" id="editCancel">Cancel</button>
+        </div>
+      </form>
 
       <div class="value-row">
         <label>Job value</label>
@@ -361,6 +383,57 @@ document.getElementById('deleteBtn').addEventListener('click', async () => {
   } catch (e) {
     alert('Network error during delete.');
     btn.disabled = false; btn.textContent = '\u{1F5D1} Delete this quote';
+  }
+});
+
+// Edit customer details
+const EDIT_FIELDS = ['name','phone','email','service','move_from','move_to','move_date','property','message'];
+const editBtn = document.getElementById('editBtn');
+const editForm = document.getElementById('editForm');
+const customerDl = document.getElementById('customer');
+const editCancel = document.getElementById('editCancel');
+const editFlash = document.getElementById('editFlash');
+
+function setEditMode(on) {
+  customerDl.style.display = on ? 'none' : '';
+  editForm.style.display = on ? 'block' : 'none';
+  editBtn.textContent = on ? '✕ Close editor' : '✎ Edit';
+  editFlash.textContent = '';
+  editFlash.className = 'flash';
+  if (on) {
+    for (const f of EDIT_FIELDS) {
+      const el = editForm.elements[f];
+      if (el) el.value = (quote && quote[f] != null) ? quote[f] : '';
+    }
+  }
+}
+editBtn.addEventListener('click', () => setEditMode(editForm.style.display !== 'block'));
+editCancel.addEventListener('click', () => setEditMode(false));
+editForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(editForm).entries());
+  const payload = {};
+  for (const f of EDIT_FIELDS) {
+    const v = (data[f] || '').trim();
+    payload[f] = v === '' ? null : v;
+  }
+  const btn = document.getElementById('editSave');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) { showFlash(editFlash, d.error || 'Save failed', false); return; }
+    showFlash(editFlash, 'Saved.', true);
+    await load();
+    setTimeout(() => setEditMode(false), 600);
+  } catch (err) {
+    showFlash(editFlash, 'Network error', false);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save changes';
   }
 });
 
