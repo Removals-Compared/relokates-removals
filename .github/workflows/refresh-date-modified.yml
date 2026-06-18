@@ -17,10 +17,10 @@ concurrency:
 
 jobs:
   refresh:
-    # Skip this workflow when its own commit triggered the push, to avoid
-    # an infinite loop. The script's commit subject starts with the marker
-    # we filter on.
-    if: ${{ !startsWith(github.event.head_commit.message, 'chore: refresh dateModified') }}
+    # Loop prevention: the bot's own commits include "[skip ci]" in their
+    # subject. GitHub Actions natively skips workflow runs for any push
+    # whose head commit message contains [skip ci], so the bot can never
+    # trigger itself. No if: clause needed.
     runs-on: ubuntu-latest
     permissions:
       contents: write
