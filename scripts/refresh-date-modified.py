@@ -30,11 +30,22 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Commits that touched many files but did not change visible content.
-# Add new sweep hashes here when they happen.
+# Subject-line markers identifying commits whose only effect was sitewide
+# boilerplate (schema, footer, etc). The script auto-excludes any commit
+# whose subject line starts with one of these prefixes, so its own past
+# commits and other sweep commits never poison the dateModified field.
+BOILERPLATE_SUBJECT_PREFIXES = (
+    "chore: refresh dateModified",
+    "chore(geo): refresh dateModified",
+    "geo: dateModified now reflects",
+)
+
+# Specific commit hashes to exclude in addition to subject matching.
+# Add a hash here if you do a sitewide sweep with a non-matching subject.
 BOILERPLATE_COMMITS = {
     "bfddd39",  # geo: scale AI optimisation to all 719 pages
     "d30d0dd",  # geo: AI search optimisation (Tier 1 + Tier 2)
+    "7de7182",  # geo: dateModified initial refresh (one-off)
 }
 
 # Match the dateModified inside the Speakable WebPage JSON-LD we inject.
@@ -49,9 +60,10 @@ def last_meaningful_date(path: str) -> str | None:
     boilerplate sweeps, in which case we leave its date alone).
     """
     rel = os.path.relpath(path, REPO)
-    # Ask git for up to 50 recent commits on this file with hash + date.
+    # Ask git for up to 50 recent commits on this file with hash + date + subject.
+    # %x09 is a tab, used as a field separator.
     result = subprocess.run(
-        ["git", "log", "--format=%h %cs", "-n", "50", "--", rel],
+        ["git", "log", "--format=%h%x09%cs%x09%s", "-n", "50", "--", rel],
         cwd=REPO,
         capture_output=True,
         text=True,
@@ -60,12 +72,15 @@ def last_meaningful_date(path: str) -> str | None:
     if result.returncode != 0:
         return None
     for line in result.stdout.splitlines():
-        parts = line.strip().split(maxsplit=1)
-        if len(parts) != 2:
+        parts = line.split("\t", 2)
+        if len(parts) < 3:
             continue
-        commit_hash, date_str = parts
-        if commit_hash[:7] not in BOILERPLATE_COMMITS:
-            return date_str
+        commit_hash, date_str, subject = parts
+        if commit_hash[:7] in BOILERPLATE_COMMITS:
+            continue
+        if subject.startswith(BOILERPLATE_SUBJECT_PREFIXES):
+            continue
+        return date_str
     return None
 
 
