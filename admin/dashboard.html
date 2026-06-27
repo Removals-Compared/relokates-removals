@@ -36,7 +36,10 @@ tbody tr:last-child td{border-bottom:none}
 .tag-lost{background:#F1F5F9;color:#475569}
 .muted{color:var(--muted);font-size:12px}
 .stat-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
-.stat{background:#fff;border-radius:10px;padding:16px;border:1px solid var(--border)}
+.stat{background:#fff;border-radius:10px;padding:16px;border:1px solid var(--border);cursor:pointer;transition:border-color .12s,box-shadow .12s,transform .12s;user-select:none}
+.stat:hover{border-color:var(--navy);box-shadow:0 2px 10px rgba(0,0,0,.07);transform:translateY(-1px)}
+.stat:focus-visible{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,42,92,.25)}
+.stat.active{border-color:var(--navy);box-shadow:inset 0 0 0 2px var(--navy)}
 .stat .n{font-family:Montserrat,sans-serif;font-size:24px;font-weight:800;color:var(--navy)}
 .stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600}
 .stat-won .n{color:#065F46}
@@ -77,12 +80,12 @@ button.add:hover{background:#A07F1E}
 </div>
 <div class="wrap">
   <div class="stat-row" id="stats">
-    <div class="stat"><div class="n" data-stat="all">-</div><div class="l">All</div></div>
-    <div class="stat"><div class="n" data-stat="new">-</div><div class="l">New</div></div>
-    <div class="stat"><div class="n" data-stat="contacted">-</div><div class="l">Contacted</div></div>
-    <div class="stat"><div class="n" data-stat="survey_booked">-</div><div class="l">Survey booked</div></div>
-    <div class="stat"><div class="n" data-stat="move_booked">-</div><div class="l">Move booked</div></div>
-    <div class="stat stat-won"><div class="n" data-stat="won">-</div><div class="l">Won</div></div>
+    <div class="stat active" data-filter="all" role="button" tabindex="0" aria-label="Show all quotes"><div class="n" data-stat="all">-</div><div class="l">All</div></div>
+    <div class="stat" data-filter="new" role="button" tabindex="0" aria-label="Show new quotes"><div class="n" data-stat="new">-</div><div class="l">New</div></div>
+    <div class="stat" data-filter="contacted" role="button" tabindex="0" aria-label="Show contacted quotes"><div class="n" data-stat="contacted">-</div><div class="l">Contacted</div></div>
+    <div class="stat" data-filter="survey_booked" role="button" tabindex="0" aria-label="Show survey booked quotes"><div class="n" data-stat="survey_booked">-</div><div class="l">Survey booked</div></div>
+    <div class="stat" data-filter="move_booked" role="button" tabindex="0" aria-label="Show move booked quotes"><div class="n" data-stat="move_booked">-</div><div class="l">Move booked</div></div>
+    <div class="stat stat-won" data-filter="won" role="button" tabindex="0" aria-label="Show won quotes"><div class="n" data-stat="won">-</div><div class="l">Won</div></div>
   </div>
 
   <div class="controls">
@@ -197,8 +200,17 @@ let timer;
 const filterEl = document.getElementById('filter');
 const searchEl = document.getElementById('search');
 
-filterEl.addEventListener('change', load);
+filterEl.addEventListener('change', () => { setActiveCard(filterEl.value); load(); });
 searchEl.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(load, 300); });
+
+// Stat cards act as status filters
+function setActiveCard(val) {
+  document.querySelectorAll('.stat').forEach(c => c.classList.toggle('active', c.dataset.filter === val));
+}
+document.querySelectorAll('.stat').forEach(card => {
+  card.addEventListener('click', () => { filterEl.value = card.dataset.filter; setActiveCard(card.dataset.filter); load(); });
+  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
+});
 
 document.getElementById('logoutBtn').addEventListener('click', async (e) => {
   e.preventDefault();
@@ -243,11 +255,15 @@ async function load() {
 }
 
 function render(rows) {
-  const stats = { all: rows.length, new: 0, contacted: 0, survey_booked: 0, move_booked: 0, won: 0 };
-  rows.forEach(r => { if (stats[r.status] !== undefined) stats[r.status]++; });
-  document.querySelectorAll('[data-stat]').forEach(el => {
-    el.textContent = stats[el.getAttribute('data-stat')] ?? 0;
-  });
+  // Only refresh the dashboard totals on a clean, unfiltered load so the
+  // card counts keep showing true totals while a status filter is active.
+  if (filterEl.value === 'all' && !searchEl.value.trim()) {
+    const stats = { all: rows.length, new: 0, contacted: 0, survey_booked: 0, move_booked: 0, won: 0 };
+    rows.forEach(r => { if (stats[r.status] !== undefined) stats[r.status]++; });
+    document.querySelectorAll('[data-stat]').forEach(el => {
+      el.textContent = stats[el.getAttribute('data-stat')] ?? 0;
+    });
+  }
   const tb = document.getElementById('rows');
   if (!rows.length) {
     tb.innerHTML = '<tr><td colspan="10" class="empty">No quotes match the current filter.</td></tr>';
