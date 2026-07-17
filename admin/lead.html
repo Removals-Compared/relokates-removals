@@ -27,6 +27,7 @@
 .tag-contacted{background:#FEF3C7;color:#92400E}
 .tag-survey_booked{background:#DDD6FE;color:#5B21B6}
 .tag-move_booked{background:#D1FAE5;color:#065F46}
+.tag-quote_sent{background:#e0e7ff;color:#4338ca}
 .tag-won{background:#A7F3D0;color:#064E3B}
 .tag-lost{background:#F1F5F9;color:#475569}
 .value-row{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
@@ -119,8 +120,14 @@ button.lose:hover{background:#FCA5A5}
         </div>
       </div>
 
+      <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
+        <a id="quoteDocBtn" class="primary" href="#" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:12px 20px">&#128196; Generate quote document</a>
+        <span class="muted" style="font-size:12px;margin-left:8px">Opens a print-ready, emailable quote in a new tab.</span>
+      </div>
+
       <div class="action-row">
         <button class="ghost" data-status="contacted">Mark contacted</button>
+        <button class="ghost" data-status="quote_sent">Mark quote sent</button>
         <button class="win" data-status="won">Mark WON</button>
         <button class="lose" data-status="lost">Mark lost</button>
       </div>
@@ -199,6 +206,8 @@ button.lose:hover{background:#FCA5A5}
 <script>
 const id = window.location.pathname.split('/').pop();
 let quote = null;
+
+document.getElementById('quoteDocBtn').href = '/admin/quote-doc?id=' + encodeURIComponent(id);
 
 document.getElementById('logoutBtn').addEventListener('click', async (e) => {
   e.preventDefault();

@@ -32,10 +32,11 @@ tbody tr:last-child td{border-bottom:none}
 .tag-contacted{background:#FEF3C7;color:#92400E}
 .tag-survey_booked{background:#DDD6FE;color:#5B21B6}
 .tag-move_booked{background:#D1FAE5;color:#065F46}
+.tag-quote_sent{background:#e0e7ff;color:#4338ca}
 .tag-won{background:#A7F3D0;color:#064E3B}
 .tag-lost{background:#F1F5F9;color:#475569}
 .muted{color:var(--muted);font-size:12px}
-.stat-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px}
+.stat-row{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-bottom:20px}
 .stat{background:#fff;border-radius:10px;padding:16px;border:1px solid var(--border);cursor:pointer;transition:border-color .12s,box-shadow .12s,transform .12s;user-select:none}
 .stat:hover{border-color:var(--navy);box-shadow:0 2px 10px rgba(0,0,0,.07);transform:translateY(-1px)}
 .stat:focus-visible{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,42,92,.25)}
@@ -85,6 +86,7 @@ button.add:hover{background:#A07F1E}
     <div class="stat" data-filter="contacted" role="button" tabindex="0" aria-label="Show contacted quotes"><div class="n" data-stat="contacted">-</div><div class="l">Contacted</div></div>
     <div class="stat" data-filter="survey_booked" role="button" tabindex="0" aria-label="Show survey booked quotes"><div class="n" data-stat="survey_booked">-</div><div class="l">Survey booked</div></div>
     <div class="stat" data-filter="move_booked" role="button" tabindex="0" aria-label="Show move booked quotes"><div class="n" data-stat="move_booked">-</div><div class="l">Move booked</div></div>
+    <div class="stat" data-filter="quote_sent" role="button" tabindex="0" aria-label="Show quote sent quotes"><div class="n" data-stat="quote_sent">-</div><div class="l">Quote sent</div></div>
     <div class="stat stat-won" data-filter="won" role="button" tabindex="0" aria-label="Show won quotes"><div class="n" data-stat="won">-</div><div class="l">Won</div></div>
   </div>
 
@@ -96,6 +98,7 @@ button.add:hover{background:#A07F1E}
       <option value="contacted">Contacted</option>
       <option value="survey_booked">Survey booked</option>
       <option value="move_booked">Move booked</option>
+      <option value="quote_sent">Quote sent</option>
       <option value="won">Won</option>
       <option value="lost">Lost</option>
     </select>
@@ -238,6 +241,28 @@ function fmtMoney(v) {
 }
 function esc(s) { return String(s || '').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
 
+// Pipeline ordering: new at the top, then move booked (soonest first),
+// survey booked, prospecting, quote sent, contacted, won, lost.
+const STATUS_RANK = { new:0, move_booked:1, survey_booked:2, prospecting:3,
+                      quote_sent:4, contacted:5, won:6, lost:7 };
+function rank(r) { return STATUS_RANK[r.status] ?? 0; }
+function moveTime(r) {
+  const t = r.move_date ? new Date(r.move_date).getTime() : NaN;
+  return isNaN(t) ? Infinity : t; // missing/invalid dates sort last
+}
+// Array.sort is stable, so the fetched newest-first order is preserved within
+// each status group unless a secondary key applies.
+function sortByPipeline(rows) {
+  return rows.slice().sort((a, b) => {
+    const d = rank(a) - rank(b);
+    if (d !== 0) return d;
+    if (a.status === 'move_booked' && b.status === 'move_booked') {
+      return moveTime(a) - moveTime(b); // next job first within move booked
+    }
+    return 0;
+  });
+}
+
 async function load() {
   const params = new URLSearchParams();
   if (filterEl.value !== 'all') params.set('status', filterEl.value);
@@ -255,10 +280,11 @@ async function load() {
 }
 
 function render(rows) {
+  rows = sortByPipeline(rows);
   // Only refresh the dashboard totals on a clean, unfiltered load so the
   // card counts keep showing true totals while a status filter is active.
   if (filterEl.value === 'all' && !searchEl.value.trim()) {
-    const stats = { all: rows.length, new: 0, contacted: 0, survey_booked: 0, move_booked: 0, won: 0 };
+    const stats = { all: rows.length, new: 0, contacted: 0, survey_booked: 0, move_booked: 0, quote_sent: 0, won: 0 };
     rows.forEach(r => { if (stats[r.status] !== undefined) stats[r.status]++; });
     document.querySelectorAll('[data-stat]').forEach(el => {
       el.textContent = stats[el.getAttribute('data-stat')] ?? 0;

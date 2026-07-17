@@ -1,7 +1,7 @@
 import { requireAuth } from '../_session.js';
 import { getQuote, updateQuote, deleteQuote } from '../_db.js';
 
-const ALLOWED_STATUS = ['new', 'contacted', 'survey_booked', 'move_booked', 'won', 'lost'];
+const ALLOWED_STATUS = ['new', 'contacted', 'survey_booked', 'move_booked', 'quote_sent', 'won', 'lost'];
 const EDITABLE_TEXT_FIELDS = ['name', 'phone', 'email', 'service', 'move_from', 'move_to', 'move_date', 'property', 'message'];
 
 export default async function handler(req, res) {
