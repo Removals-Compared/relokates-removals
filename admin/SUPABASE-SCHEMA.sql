@@ -49,3 +49,25 @@ CREATE INDEX IF NOT EXISTS relokates_appointments_when_idx
 
 -- RLS ON for appointments only (admin uses service_role which bypasses).
 ALTER TABLE relokates_appointments ENABLE ROW LEVEL SECURITY;
+
+-- ── Call-back reminders ─────────────────────────────────────
+-- Powers the "Call ..." chips on the dashboard and the callback box on the
+-- lead page. When gcal is configured a "Call <name>" event is added so
+-- Google alerts you at the chosen time.
+CREATE TABLE IF NOT EXISTS reminders (
+  id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  lead_id       bigint NOT NULL,
+  remind_on     date NOT NULL,        -- YYYY-MM-DD
+  remind_time   text,                 -- HH:MM (local UK time)
+  note          text,
+  gcal_event_id text,                 -- the "Call ..." Google Calendar event
+  sent          boolean DEFAULT false,
+  sent_at       timestamptz,
+  created_at    timestamptz DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS reminders_lead_idx ON reminders (lead_id);
+CREATE INDEX IF NOT EXISTS reminders_due_idx  ON reminders (remind_on, sent);
+
+-- Same access model as appointments (admin key bypasses RLS).
+ALTER TABLE reminders ENABLE ROW LEVEL SECURITY;

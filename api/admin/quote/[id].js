@@ -1,7 +1,7 @@
 import { requireAuth } from '../_session.js';
-import { getQuote, updateQuote, deleteQuote } from '../_db.js';
+import { getQuote, updateQuote, deleteQuote, fetchRemindersByLeadIds } from '../_db.js';
 
-const ALLOWED_STATUS = ['new', 'contacted', 'survey_booked', 'move_booked', 'quote_sent', 'won', 'lost'];
+const ALLOWED_STATUS = ['new', 'contacted', 'survey_booked', 'move_booked', 'quote_sent', 'prospecting', 'won', 'lost'];
 const EDITABLE_TEXT_FIELDS = ['name', 'phone', 'email', 'service', 'move_from', 'move_to', 'move_date', 'property', 'message'];
 
 export default async function handler(req, res) {
@@ -12,7 +12,8 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const quote = await getQuote(id);
       if (!quote) return res.status(404).json({ error: 'not found' });
-      return res.status(200).json({ quote });
+      const reminders = await fetchRemindersByLeadIds([id]);
+      return res.status(200).json({ quote, reminders });
     }
     if (req.method === 'DELETE') {
       await deleteQuote(id);

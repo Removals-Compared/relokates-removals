@@ -8,6 +8,7 @@
 
 const QUOTES = 'relokates_quote_request';
 const APPTS = 'relokates_appointments';
+const REMINDERS = 'reminders';
 
 function url(path) {
   return `${process.env.SUPABASE_URL}/rest/v1/${path}`;
@@ -141,4 +142,72 @@ export async function deleteQuote(id) {
     throw new Error(`supabase deleteQuote ${res.status}: ${msg.slice(0, 200)}`);
   }
   return { ok: true };
+}
+
+// ── Call reminders ──────────────────────────────────────────
+// Backed by the `reminders` table (see admin/SUPABASE-SCHEMA.sql). All read
+// helpers swallow errors so the dashboard/lead page still load on a fresh
+// schema where the table does not exist yet.
+
+export async function createReminder(row) {
+  const res = await fetch(url(REMINDERS), {
+    method: 'POST',
+    headers: headers({ Prefer: 'return=representation' }),
+    body: JSON.stringify(row),
+  });
+  if (!res.ok) throw new Error(`supabase createReminder ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const rows = await res.json();
+  return rows[0] || null;
+}
+
+export async function updateReminder(id, patch) {
+  const res = await fetch(`${url(REMINDERS)}?id=eq.${id}`, {
+    method: 'PATCH',
+    headers: headers({ Prefer: 'return=representation' }),
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) throw new Error(`supabase updateReminder ${res.status}`);
+  const rows = await res.json();
+  return rows[0] || null;
+}
+
+export async function fetchReminder(id) {
+  const res = await fetch(`${url(REMINDERS)}?id=eq.${id}&select=*&limit=1`, { headers: headers() });
+  if (!res.ok) throw new Error(`supabase fetchReminder ${res.status}`);
+  const rows = await res.json();
+  return rows[0] || null;
+}
+
+export async function deleteReminder(id) {
+  const res = await fetch(`${url(REMINDERS)}?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: headers({ Prefer: 'return=minimal' }),
+  });
+  if (!res.ok) throw new Error(`supabase deleteReminder ${res.status}`);
+  return { ok: true };
+}
+
+// Reminders for one or more leads (for the lead page). Tolerates a missing table.
+export async function fetchRemindersByLeadIds(ids) {
+  try {
+    const list = (ids || []).map(i => Number(i)).filter(n => !Number.isNaN(n)).join(',');
+    if (!list) return [];
+    const res = await fetch(`${url(REMINDERS)}?lead_id=in.(${list})&select=*&order=remind_on.asc`, { headers: headers() });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (_) {
+    return [];
+  }
+}
+
+// All un-sent reminders, earliest first (for the dashboard call-back chips).
+// Tolerates a missing table so the dashboard still loads on a fresh schema.
+export async function fetchPendingReminders() {
+  try {
+    const res = await fetch(`${url(REMINDERS)}?sent=eq.false&select=lead_id,remind_on,remind_time,note&order=remind_on.asc`, { headers: headers() });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (_) {
+    return [];
+  }
 }

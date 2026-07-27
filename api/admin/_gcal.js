@@ -74,3 +74,54 @@ export function buildAppointmentEvent({ type, scheduledFor, durationMinutes = 60
     reminders: { useDefault: true },
   };
 }
+
+function plus30(hhmm) {
+  const [h, m] = String(hhmm).split(':').map(Number);
+  const total = (h * 60 + m + 30) % (24 * 60);
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+}
+
+// Creates a "Call <name>" event so Google alerts you at the chosen time.
+// Returns the event id (used to delete the event later). Throws if gcal
+// is not configured - callers treat that as non-fatal.
+export async function createReminderEvent({ quote, date, time, note }) {
+  const token = await getAccessToken();
+  const name = (quote && quote.name) || 'Customer';
+  const desc = [];
+  if (quote) {
+    if (quote.phone) desc.push(`Phone: ${quote.phone}`);
+    if (quote.email) desc.push(`Email: ${quote.email}`);
+    if (quote.service) desc.push(`Service: ${quote.service}`);
+  }
+  if (note) desc.push(`Note: ${note}`);
+  const body = {
+    summary: `Call ${name}`,
+    description: desc.join('\n'),
+    start: { dateTime: `${date}T${time}:00`, timeZone: 'Europe/London' },
+    end:   { dateTime: `${date}T${plus30(time)}:00`, timeZone: 'Europe/London' },
+    reminders: { useDefault: false, overrides: [
+      { method: 'popup', minutes: 0 },
+      { method: 'email', minutes: 0 },
+    ] },
+  };
+  const res = await fetch(`${CAL_BASE}/calendars/${encodeURIComponent(CAL_ID)}/events`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`gcal createReminderEvent ${res.status}: ${await res.text()}`);
+  return (await res.json()).id;
+}
+
+export async function deleteEvent(eventId) {
+  if (!eventId) return true;
+  const token = await getAccessToken();
+  const res = await fetch(`${CAL_BASE}/calendars/${encodeURIComponent(CAL_ID)}/events/${encodeURIComponent(eventId)}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok && res.status !== 410 && res.status !== 404) {
+    throw new Error(`gcal deleteEvent ${res.status}: ${await res.text()}`);
+  }
+  return true;
+}
