@@ -28,7 +28,11 @@
 .tag-survey_booked{background:#DDD6FE;color:#5B21B6}
 .tag-move_booked{background:#D1FAE5;color:#065F46}
 .tag-quote_sent{background:#e0e7ff;color:#4338ca}
+.tag-prospecting{background:#ccfbf1;color:#0f766e}
 .tag-won{background:#A7F3D0;color:#064E3B}
+.rem{padding:12px 14px;border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:8px;margin-bottom:8px}
+.rem .when{font-weight:700;color:var(--navy);font-size:14px}
+.rem .meta{font-size:12px;color:var(--muted);margin-top:3px}
 .tag-lost{background:#F1F5F9;color:#475569}
 .value-row{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
 .value-row label{font-family:Montserrat,sans-serif;font-size:12px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin:0;font-weight:700;min-width:90px}
@@ -128,7 +132,8 @@ button.lose:hover{background:#FCA5A5}
       <div class="action-row">
         <button class="ghost" data-status="contacted">Mark contacted</button>
         <button class="ghost" data-status="quote_sent">Mark quote sent</button>
-        <button class="win" data-status="won">Mark WON</button>
+        <button class="ghost" data-status="prospecting">Mark prospecting</button>
+        <button class="win" data-status="won">Mark completed</button>
         <button class="lose" data-status="lost">Mark lost</button>
       </div>
 
@@ -200,6 +205,20 @@ button.lose:hover{background:#FCA5A5}
         <button class="primary" type="submit" style="margin-top:10px">Book move</button>
       </form>
     </div>
+
+    <div class="card">
+      <h2>Call reminders</h2>
+      <div id="reminders"></div>
+      <div class="row">
+        <div><label>Date</label><input type="date" id="remDate"></div>
+        <div><label>Time</label><input type="time" id="remTime" value="09:30"></div>
+      </div>
+      <label>Note (optional)</label>
+      <input type="text" id="remNote" placeholder="e.g. Ring to lock in the date">
+      <div class="flash" id="remFlash"></div>
+      <button class="primary" id="remSet" style="margin-top:10px">Set reminder</button>
+      <p class="muted" style="font-size:12px;margin-top:8px">Adds a "Call" event to Google Calendar and alerts you at that time.</p>
+    </div>
   </div>
 </div>
 
@@ -244,13 +263,38 @@ async function load() {
   renderCustomer(quote);
   renderNotes(quote.notes);
   renderAppts(quote.relokates_appointments || []);
+  renderReminders(data.reminders || []);
+}
+
+function renderReminders(list) {
+  const el = document.getElementById('reminders');
+  const arr = Array.isArray(list) ? list : [];
+  if (!arr.length) { el.innerHTML = '<p class="muted">No reminders set.</p>'; return; }
+  const today = new Date().toISOString().slice(0, 10);
+  el.innerHTML = arr.map(r => `
+    <div class="rem">
+      <div class="when">&#128222; Call ${fmt(r.remind_on)}${r.remind_time ? ' at ' + esc(r.remind_time) : ''}</div>
+      <div class="meta">${r.note ? esc(r.note) : 'Call reminder'} &middot; ${r.gcal_event_id ? '&#128197; on calendar' : (r.remind_on <= today ? 'due' : 'pending')}</div>
+      <button class="lose" data-rem-del="${esc(r.id)}" style="margin-top:8px;padding:6px 12px;font-size:12px">Delete</button>
+    </div>
+  `).join('');
+  el.querySelectorAll('[data-rem-del]').forEach(b => {
+    b.addEventListener('click', async () => {
+      if (!confirm('Delete this reminder?')) return;
+      try {
+        const r = await fetch('/api/admin/reminder?id=' + encodeURIComponent(b.dataset.remDel), { method: 'DELETE' });
+        if (r.status === 401) { window.location.href = '/admin'; return; }
+        if (r.ok) load();
+      } catch (_) {}
+    });
+  });
 }
 
 function renderCustomer(q) {
   const c = document.getElementById('customer');
   const status = q.status || 'new';
   c.innerHTML = [
-    ['Status', `<span class="tag tag-${status}">${status.replace('_',' ')}</span>`],
+    ['Status', `<span class="tag tag-${status}">${status === 'won' ? 'Completed' : status.replace('_',' ')}</span>`],
     ['Name', esc(q.name)],
     ['Phone', q.phone ? `<a href="tel:${esc(q.phone)}">${esc(q.phone)}</a>` : '-'],
     ['Email', q.email ? `<a href="mailto:${esc(q.email)}">${esc(q.email)}</a>` : '-'],
@@ -489,6 +533,35 @@ function wireForm(formId, flashId) {
 }
 wireForm('surveyForm', 'surveyFlash');
 wireForm('moveForm', 'moveFlash');
+
+// Call reminder
+document.getElementById('remSet').addEventListener('click', async () => {
+  const remind_on = document.getElementById('remDate').value;
+  const remind_time = document.getElementById('remTime').value || '09:30';
+  const note = document.getElementById('remNote').value.trim();
+  const flash = document.getElementById('remFlash');
+  if (!remind_on) { showFlash(flash, 'Please pick a date.', false); return; }
+  const btn = document.getElementById('remSet');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    const res = await fetch('/api/admin/reminder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lead_id: id, remind_on, remind_time, note }),
+    });
+    if (res.status === 401) { window.location.href = '/admin'; return; }
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) { showFlash(flash, d.error || 'Could not set reminder', false); return; }
+    const gcalWarn = (d.errors || []).some(e => e.step === 'gcal');
+    showFlash(flash, gcalWarn ? 'Saved. (Could not add to Google Calendar.)' : 'Reminder set and added to your calendar.', !gcalWarn);
+    document.getElementById('remNote').value = '';
+    load();
+  } catch (e) {
+    showFlash(flash, 'Network error', false);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Set reminder';
+  }
+});
 
 load();
 </script>

@@ -16,40 +16,67 @@
 .bar a.logout{color:rgba(255,255,255,.75);font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:6px}
 .bar a.logout:hover{color:#fff;border-color:#fff}
 .wrap{max-width:1280px;margin:0 auto;padding:24px}
-.controls{background:#fff;border-radius:12px;padding:16px 20px;display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;margin-bottom:20px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
-.controls input,.controls select{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:Inter,sans-serif}
-.controls input{width:100%}
-.controls input:focus,.controls select:focus{outline:none;border-color:var(--gold)}
-table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.04)}
-thead th{background:var(--cream);text-align:left;padding:14px 16px;font-family:Montserrat,sans-serif;font-size:12px;color:var(--navy);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border)}
-thead th.right{text-align:right}
-tbody td{padding:14px 16px;font-size:14px;border-bottom:1px solid #f0f3f8;vertical-align:top}
-tbody td.right{text-align:right;font-family:Montserrat,sans-serif;font-weight:700;color:var(--navy)}
-tbody tr:hover{background:#FBFCFE;cursor:pointer}
-tbody tr:last-child td{border-bottom:none}
-.tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:99px;font-family:Montserrat,sans-serif}
-.tag-new{background:#E0F2FE;color:#075985}
-.tag-contacted{background:#FEF3C7;color:#92400E}
-.tag-survey_booked{background:#DDD6FE;color:#5B21B6}
-.tag-move_booked{background:#D1FAE5;color:#065F46}
-.tag-quote_sent{background:#e0e7ff;color:#4338ca}
-.tag-won{background:#A7F3D0;color:#064E3B}
-.tag-lost{background:#F1F5F9;color:#475569}
-.muted{color:var(--muted);font-size:12px}
-.stat-row{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;margin-bottom:20px}
-.stat{background:#fff;border-radius:10px;padding:16px;border:1px solid var(--border);cursor:pointer;transition:border-color .12s,box-shadow .12s,transform .12s;user-select:none}
-.stat:hover{border-color:var(--navy);box-shadow:0 2px 10px rgba(0,0,0,.07);transform:translateY(-1px)}
-.stat:focus-visible{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(13,42,92,.25)}
-.stat.active{border-color:var(--navy);box-shadow:inset 0 0 0 2px var(--navy)}
+
+/* stat cards */
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 18px;cursor:pointer;min-width:118px;flex:1;transition:border-color .12s,box-shadow .12s;user-select:none}
+.stat:hover{border-color:var(--navy)}
+.stat:focus-visible{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,60,110,.2)}
+.stat.active{border-color:var(--gold);box-shadow:0 0 0 2px rgba(184,147,42,.2)}
 .stat .n{font-family:Montserrat,sans-serif;font-size:24px;font-weight:800;color:var(--navy)}
-.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:600}
-.stat-won .n{color:#065F46}
-.empty{padding:48px;text-align:center;color:var(--muted)}
+.stat.s-won .n{color:#065F46}
+.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-top:2px}
+
+.controls{background:#fff;border-radius:12px;padding:16px 20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:16px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.controls input[type=search]{flex:1;min-width:220px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:Inter,sans-serif}
+.controls select{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:Inter,sans-serif}
+.controls input:focus,.controls select:focus{outline:none;border-color:var(--gold)}
+.btn{padding:10px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:13px;font-family:Montserrat,sans-serif;font-weight:700;color:var(--navy)}
+.btn.navy{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.gold{background:var(--gold);color:#fff;border-color:var(--gold)}
+.btn.gold:hover{background:#A07F1E}
+.btn.red{background:#b00020;color:#fff;border-color:#b00020}
+
+.bulkbar{display:none;align-items:center;gap:14px;background:#fff8e6;border:1px solid #f0d97d;border-left:4px solid var(--gold);border-radius:10px;padding:10px 16px;margin-bottom:12px;flex-wrap:wrap}
+.bulkbar.open{display:flex}
+.bulkbar .cnt{font-weight:700;color:var(--navy);font-size:13px}
+
+table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+thead th{background:var(--cream);text-align:left;padding:13px 14px;font-family:Montserrat,sans-serif;font-size:12px;color:var(--navy);letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+thead th.right{text-align:right}
+thead th.cb-col{width:34px;text-align:center}
+tbody td{padding:13px 14px;font-size:14px;border-bottom:1px solid #f0f3f8;vertical-align:top}
+tbody td.right{text-align:right;font-family:Montserrat,sans-serif;font-weight:700;color:var(--navy)}
+tbody td.cb-col{text-align:center}
+tbody tr:hover{background:#FBFCFE;cursor:pointer}
+tbody tr.selected{background:#fff8ef !important}
+tbody tr:last-child td{border-bottom:none}
+.sub{color:var(--muted);font-size:12px}
+#rows input[type=checkbox]{width:16px;height:16px;cursor:pointer}
+
+.tel-link{color:var(--gold);text-decoration:none;font-weight:700;white-space:nowrap}
+.tel-link:hover{text-decoration:underline}
+.tel-icon{display:none}
+
+.pill{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:99px;font-family:Montserrat,sans-serif;white-space:nowrap}
+.pill.new{background:#E0F2FE;color:#075985}
+.pill.contacted{background:#FEF3C7;color:#92400E}
+.pill.quote_sent{background:#e0e7ff;color:#4338ca}
+.pill.prospecting{background:#ccfbf1;color:#0f766e}
+.pill.survey_booked{background:#DDD6FE;color:#5B21B6}
+.pill.move_booked{background:#D1FAE5;color:#065F46}
+.pill.won{background:#A7F3D0;color:#064E3B}
+.pill.lost{background:#F1F5F9;color:#475569}
+
+.rem-badge{display:inline-block;margin-top:5px;font-size:11px;font-weight:700;color:#0f766e;background:#f0fdfa;border:1px solid #99f6e4;border-radius:6px;padding:2px 8px}
+.rem-badge.due{color:#b91c1c;background:#fef2f2;border-color:#fecaca}
+
 button.del{background:transparent;color:#9CA3AF;border:none;border-radius:6px;padding:6px 8px;cursor:pointer;font-size:16px;line-height:1;transition:all .12s}
 button.del:hover{background:#FEF2F2;color:#991B1B}
 td.actions{text-align:right;padding:8px 12px !important}
-button.add{padding:10px 18px;background:var(--gold);color:#fff;border:none;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
-button.add:hover{background:#A07F1E}
+.empty{padding:48px;text-align:center;color:var(--muted)}
+
+/* modal */
 .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:24px}
 .modal-bg.open{display:flex}
 .modal{background:#fff;border-radius:14px;padding:28px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow-y:auto}
@@ -61,14 +88,27 @@ button.add:hover{background:#A07F1E}
 .modal input:focus,.modal select:focus,.modal textarea:focus{outline:none;border-color:var(--gold)}
 .modal .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .modal .footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
-.modal button.primary{background:var(--gold);color:#fff;border:none;padding:12px 18px;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
-.modal button.primary:hover{background:#A07F1E}
-.modal button.primary:disabled{opacity:.5;cursor:not-allowed}
-.modal button.ghost{background:transparent;color:var(--navy);border:1px solid var(--border);padding:12px 18px;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
 .flash{padding:10px 14px;border-radius:8px;font-size:13px;margin-top:12px;display:none}
 .flash.ok{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;display:block}
 .flash.err{background:#FEF2F2;color:#991B1B;border:1px solid #FCA5A5;display:block}
-@media(max-width:900px){.stat-row{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr}thead{display:none}tbody td{display:block;border-bottom:none;padding:6px 16px}tbody tr{display:block;border-bottom:1px solid #f0f3f8;padding:12px 0}.modal .row{grid-template-columns:1fr}}
+
+@media(max-width:760px){
+  .wrap{padding:14px 12px}
+  .stats{flex-wrap:nowrap;overflow-x:auto;gap:8px;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  .stat{min-width:96px;flex:0 0 auto;padding:10px 12px}
+  .stat .n{font-size:20px}
+  .controls input[type=search]{min-width:0;width:100%;flex:1 0 100%}
+  thead th,tbody td{padding:9px 6px;font-size:12.5px}
+  .tel-num{display:none}
+  .tel-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#fff7ec;color:var(--gold)}
+  th:nth-child(6),td:nth-child(6){text-align:center;width:46px}
+  /* keep Name, Status, Move date, Phone, delete; tap row for the rest */
+  th:nth-child(1),td:nth-child(1),
+  th:nth-child(5),td:nth-child(5),
+  th:nth-child(7),td:nth-child(7),
+  th:nth-child(8),td:nth-child(8),
+  th:nth-child(9),td:nth-child(9){display:none}
+}
 </style>
 </head>
 <body>
@@ -79,59 +119,49 @@ button.add:hover{background:#A07F1E}
   </div>
   <a href="#" class="logout" id="logoutBtn">Sign out</a>
 </div>
+
 <div class="wrap">
-  <div class="stat-row" id="stats">
-    <div class="stat active" data-filter="all" role="button" tabindex="0" aria-label="Show all quotes"><div class="n" data-stat="all">-</div><div class="l">All</div></div>
-    <div class="stat" data-filter="new" role="button" tabindex="0" aria-label="Show new quotes"><div class="n" data-stat="new">-</div><div class="l">New</div></div>
-    <div class="stat" data-filter="contacted" role="button" tabindex="0" aria-label="Show contacted quotes"><div class="n" data-stat="contacted">-</div><div class="l">Contacted</div></div>
-    <div class="stat" data-filter="survey_booked" role="button" tabindex="0" aria-label="Show survey booked quotes"><div class="n" data-stat="survey_booked">-</div><div class="l">Survey booked</div></div>
-    <div class="stat" data-filter="move_booked" role="button" tabindex="0" aria-label="Show move booked quotes"><div class="n" data-stat="move_booked">-</div><div class="l">Move booked</div></div>
-    <div class="stat" data-filter="quote_sent" role="button" tabindex="0" aria-label="Show quote sent quotes"><div class="n" data-stat="quote_sent">-</div><div class="l">Quote sent</div></div>
-    <div class="stat stat-won" data-filter="won" role="button" tabindex="0" aria-label="Show won quotes"><div class="n" data-stat="won">-</div><div class="l">Won</div></div>
-  </div>
+  <div class="stats" id="stats"></div>
 
   <div class="controls">
-    <input type="search" id="search" placeholder="Search name, email or phone..." autocomplete="off">
+    <input type="search" id="search" placeholder="Search name, email or phone...">
     <select id="filter">
       <option value="all" selected>All statuses</option>
       <option value="new">New</option>
       <option value="contacted">Contacted</option>
+      <option value="quote_sent">Quote Sent</option>
+      <option value="prospecting">Prospecting</option>
       <option value="survey_booked">Survey booked</option>
       <option value="move_booked">Move booked</option>
-      <option value="quote_sent">Quote sent</option>
-      <option value="won">Won</option>
+      <option value="won">Completed</option>
       <option value="lost">Lost</option>
     </select>
-    <button onclick="load()" style="padding:10px 18px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer">Refresh</button>
-    <button class="add" id="addBtn">+ Add customer</button>
+    <button class="btn navy" id="refreshBtn">Refresh</button>
+    <button class="btn gold" id="addBtn">+ Add customer</button>
   </div>
 
-  <div id="bulkBar" style="display:none;background:#fff8e6;border:1px solid #f0d97d;border-radius:8px;padding:10px 14px;margin:14px 0;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-    <div style="font-size:13px;color:#4a3a00"><strong id="bulkCount">0</strong> quote(s) selected</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button type="button" id="bulkClear" style="padding:8px 14px;background:#fff;color:#1A3C6E;border:1px solid #1A3C6E;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer">Clear selection</button>
-      <button type="button" id="bulkDelete" style="padding:8px 14px;background:#b00020;color:#fff;border:none;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer">&#128465; Delete selected</button>
-    </div>
+  <div class="bulkbar" id="bulkBar">
+    <span class="cnt"><strong id="bulkCount">0</strong> selected</span>
+    <button class="btn" id="bulkClear">Clear</button>
+    <button class="btn red" id="bulkDelete">&#128465; Delete selected</button>
   </div>
 
   <table>
     <thead>
       <tr>
-        <th style="width:32px"><input type="checkbox" id="selectAll" title="Select all"></th>
-        <th>Received</th>
+        <th class="cb-col"><input type="checkbox" id="selectAll" title="Select all"></th>
         <th>Name</th>
+        <th>Status</th>
+        <th>Move date</th>
+        <th>Received</th>
         <th>Phone</th>
         <th>Service</th>
         <th>From / To</th>
-        <th>Move date</th>
-        <th>Status</th>
         <th class="right">Value</th>
         <th></th>
       </tr>
     </thead>
-    <tbody id="rows">
-      <tr><td colspan="10" class="empty">Loading...</td></tr>
-    </tbody>
+    <tbody id="rows"><tr><td colspan="10" class="empty">Loading...</td></tr></tbody>
   </table>
 </div>
 
@@ -148,7 +178,6 @@ button.add:hover{background:#A07F1E}
       <label>Email</label>
       <input type="email" name="email" placeholder="customer@example.com">
       <p class="muted" style="margin:4px 0 0">Phone OR email is required.</p>
-
       <label>Service</label>
       <select name="service">
         <option value="">Choose a service</option>
@@ -162,7 +191,6 @@ button.add:hover{background:#A07F1E}
         <option value="Luxury Removals">Luxury Removals</option>
         <option value="House Clearance">House Clearance</option>
       </select>
-
       <div class="row">
         <div><label>Moving from</label><input type="text" name="move_from" placeholder="e.g. Chelmsford CM1"></div>
         <div><label>Moving to</label><input type="text" name="move_to" placeholder="e.g. Bromley BR1"></div>
@@ -182,286 +210,218 @@ button.add:hover{background:#A07F1E}
           </select>
         </div>
       </div>
-
       <label>Quoted value (GBP)</label>
       <input type="number" name="value" min="0" step="1" placeholder="e.g. 850">
-
       <label>Notes / message</label>
       <textarea name="message" placeholder="What did they ask for? Special items, access notes..."></textarea>
-
       <div class="flash" id="addFlash"></div>
       <div class="footer">
-        <button type="button" class="ghost" id="addCancel">Close</button>
-        <button class="primary" type="submit" id="addSubmit">Add customer</button>
+        <button type="button" class="btn" id="addCancel">Close</button>
+        <button class="btn gold" type="submit" id="addSubmit">Add customer</button>
       </div>
     </form>
   </div>
 </div>
 
 <script>
-let timer;
-const filterEl = document.getElementById('filter');
-const searchEl = document.getElementById('search');
+// Stat cards, in dashboard order. "won" is shown as Completed.
+const STATUSES = [
+  ['all','All'], ['new','New'], ['contacted','Contacted'], ['quote_sent','Quote Sent'],
+  ['prospecting','Prospecting'], ['survey_booked','Survey booked'], ['move_booked','Move booked'], ['won','Completed'],
+];
+const labelFor = (s) => ({
+  new:'New', contacted:'Contacted', quote_sent:'Quote Sent', prospecting:'Prospecting',
+  survey_booked:'Survey booked', move_booked:'Move booked', won:'Completed', lost:'Lost',
+}[s] || s || 'New');
 
-filterEl.addEventListener('change', () => { setActiveCard(filterEl.value); load(); });
-searchEl.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(load, 300); });
-
-// Stat cards act as status filters
-function setActiveCard(val) {
-  document.querySelectorAll('.stat').forEach(c => c.classList.toggle('active', c.dataset.filter === val));
-}
-document.querySelectorAll('.stat').forEach(card => {
-  card.addEventListener('click', () => { filterEl.value = card.dataset.filter; setActiveCard(card.dataset.filter); load(); });
-  card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
-});
-
-document.getElementById('logoutBtn').addEventListener('click', async (e) => {
-  e.preventDefault();
-  await fetch('/api/admin/login', { method: 'DELETE' });
-  window.location.href = '/admin';
-});
-
-function fmt(iso) {
-  if (!iso) return '-';
-  return new Date(iso).toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-}
-function fmtDate(s) {
-  if (!s) return '-';
-  try {
-    const d = new Date(s);
-    if (isNaN(d)) return s;
-    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  } catch { return s; }
-}
-function fmtMoney(v) {
-  if (v === null || v === undefined || v === '') return '-';
-  const n = Number(v);
-  if (isNaN(n)) return '-';
-  return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-}
-function esc(s) { return String(s || '').replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])); }
-
-// Pipeline ordering: new at the top, then move booked (soonest first),
-// survey booked, prospecting, quote sent, contacted, won, lost.
-const STATUS_RANK = { new:0, move_booked:1, survey_booked:2, prospecting:3,
-                      quote_sent:4, contacted:5, won:6, lost:7 };
-function rank(r) { return STATUS_RANK[r.status] ?? 0; }
-function moveTime(r) {
-  const t = r.move_date ? new Date(r.move_date).getTime() : NaN;
-  return isNaN(t) ? Infinity : t; // missing/invalid dates sort last
-}
-// Array.sort is stable, so the fetched newest-first order is preserved within
-// each status group unless a secondary key applies.
-function sortByPipeline(rows) {
-  return rows.slice().sort((a, b) => {
-    const d = rank(a) - rank(b);
-    if (d !== 0) return d;
-    if (a.status === 'move_booked' && b.status === 'move_booked') {
-      return moveTime(a) - moveTime(b); // next job first within move booked
-    }
+// Pipeline order: new first, then move booked (soonest first), survey booked,
+// prospecting, quote sent, contacted, completed, lost. Array.sort is stable, so
+// the fetched newest-first order is kept within each group.
+const STATUS_RANK = { new:0, move_booked:1, survey_booked:2, prospecting:3, quote_sent:4, contacted:5, won:6, lost:7 };
+function sortLeads(rows){
+  const md = (r) => ((r.move_date || '').slice(0,10)) || '9999-99-99';
+  const rank = (r) => STATUS_RANK[r.status] ?? 0;
+  return rows.slice().sort((a,b) => {
+    if (rank(a) !== rank(b)) return rank(a) - rank(b);
+    if (a.status === 'move_booked' && b.status === 'move_booked') return md(a) < md(b) ? -1 : md(a) > md(b) ? 1 : 0;
     return 0;
   });
 }
 
-async function load() {
+let activeStatus = 'all';
+let allRows = [];
+const selected = new Set();
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let timer;
+
+function fmtDate(v){ if(!v) return '-'; try{ return new Date(v).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }catch{ return v; } }
+function fmtMoney(v){ return (v===null||v===undefined||v==='') ? '-' : '£'+Number(v).toLocaleString('en-GB'); }
+
+async function api(url, opts){
+  const r = await fetch(url, opts);
+  if (r.status === 401){ window.location.href = '/admin'; throw new Error('unauth'); }
+  return r;
+}
+
+async function load(){
+  const search = $('search').value.trim();
   const params = new URLSearchParams();
-  if (filterEl.value !== 'all') params.set('status', filterEl.value);
-  if (searchEl.value.trim()) params.set('search', searchEl.value.trim());
-  const tb = document.getElementById('rows');
-  tb.innerHTML = '<tr><td colspan="10" class="empty">Loading...</td></tr>';
+  if (activeStatus !== 'all') params.set('status', activeStatus);
+  if (search) params.set('search', search);
+  $('rows').innerHTML = '<tr><td colspan="10" class="empty">Loading...</td></tr>';
   try {
-    const res = await fetch('/api/admin/quotes?' + params);
-    if (res.status === 401) { window.location.href = '/admin'; return; }
-    const data = await res.json();
-    render(data.quotes || []);
+    const r = await api('/api/admin/quotes?' + params);
+    const data = await r.json();
+    allRows = sortLeads(data.quotes || []);
+    renderRows(allRows);
+    renderStats();
   } catch (e) {
-    tb.innerHTML = `<tr><td colspan="10" class="empty">Failed to load: ${esc(e.message)}</td></tr>`;
+    if (String(e.message) !== 'unauth') $('rows').innerHTML = '<tr><td colspan="10" class="empty">Could not load leads.</td></tr>';
   }
 }
 
-function render(rows) {
-  rows = sortByPipeline(rows);
-  // Only refresh the dashboard totals on a clean, unfiltered load so the
-  // card counts keep showing true totals while a status filter is active.
-  if (filterEl.value === 'all' && !searchEl.value.trim()) {
-    const stats = { all: rows.length, new: 0, contacted: 0, survey_booked: 0, move_booked: 0, quote_sent: 0, won: 0 };
-    rows.forEach(r => { if (stats[r.status] !== undefined) stats[r.status]++; });
-    document.querySelectorAll('[data-stat]').forEach(el => {
-      el.textContent = stats[el.getAttribute('data-stat')] ?? 0;
-    });
+// Counts come from a separate unfiltered fetch so they stay stable (true totals)
+// even while a status filter or search is active.
+async function renderStats(){
+  let rows = allRows;
+  if (activeStatus !== 'all' || $('search').value.trim()) {
+    try { rows = (await (await api('/api/admin/quotes')).json()).quotes || []; } catch { rows = allRows; }
   }
-  const tb = document.getElementById('rows');
-  if (!rows.length) {
-    tb.innerHTML = '<tr><td colspan="10" class="empty">No quotes match the current filter.</td></tr>';
-    updateBulkBar();
-    return;
-  }
-  tb.innerHTML = rows.map(r => {
-    const status = r.status || 'new';
-    return `
-      <tr data-id="${r.id}" data-name="${esc(r.name)}">
-        <td class="sel-cell"><input type="checkbox" class="row-sel" data-id="${r.id}" data-name="${esc(r.name)}"></td>
-        <td>${fmt(r.created_at)}</td>
-        <td>
-          <div style="font-weight:600">${esc(r.name)}</div>
-          <div class="muted">${esc(r.email || '')}</div>
-        </td>
-        <td>${esc(r.phone || '-')}</td>
-        <td>${esc(r.service || '-')}</td>
-        <td>
-          <div>${esc(r.move_from || '-')}</div>
-          <div class="muted">to ${esc(r.move_to || '-')}</div>
-        </td>
-        <td>${fmtDate(r.move_date)}</td>
-        <td><span class="tag tag-${status}">${status.replace('_',' ')}</span></td>
-        <td class="right">${fmtMoney(r.value)}</td>
-        <td class="actions"><button class="del" data-action="delete" title="Delete this quote">&#128465;</button></td>
-      </tr>
-    `;
+  const counts = { all: rows.length };
+  rows.forEach((r) => { const s = r.status || 'new'; counts[s] = (counts[s]||0)+1; });
+  $('stats').innerHTML = STATUSES.map(([key,label]) => `
+    <div class="stat ${key==='won'?'s-won':''} ${activeStatus===key?'active':''}" data-status="${key}" role="button" tabindex="0" aria-label="Show ${label} quotes">
+      <div class="n">${counts[key]||0}</div><div class="l">${label}</div>
+    </div>`).join('');
+  document.querySelectorAll('.stat').forEach((el) => {
+    const go = () => { activeStatus = el.dataset.status; $('filter').value = activeStatus; load(); };
+    el.addEventListener('click', go);
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+  });
+}
+
+function renderRows(rows){
+  selected.clear(); updateBulkBar();
+  if ($('selectAll')) $('selectAll').checked = false;
+  if (!rows.length){ $('rows').innerHTML = '<tr><td colspan="10" class="empty">No leads match the current filter.</td></tr>'; return; }
+  const today = new Date().toISOString().slice(0,10);
+  $('rows').innerHTML = rows.map((r) => {
+    const st = r.status || 'new';
+    const rem = r.reminder;
+    const remHtml = rem
+      ? `<div class="rem-badge ${rem.remind_on <= today ? 'due' : ''}">&#128222; Call ${fmtDate(rem.remind_on)}${rem.remind_time ? ' ' + esc(rem.remind_time) : ''}${rem.note ? ' &middot; ' + esc(rem.note) : ''}</div>`
+      : '';
+    const tel = r.phone
+      ? `<a class="tel-link" href="tel:${esc(String(r.phone).replace(/[^\d+]/g,''))}" aria-label="Call ${esc(r.phone)}"><span class="tel-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .8-.3 1l-2.2 2.2z"/></svg></span><span class="tel-num">${esc(r.phone)}</span></a>`
+      : '-';
+    return `<tr data-id="${esc(r.id)}" data-name="${esc(r.name)}">
+      <td class="cb-col"><input type="checkbox" class="row-cb" data-id="${esc(r.id)}"></td>
+      <td><strong>${esc(r.name||'-')}</strong><div class="sub">${esc(r.email||'')}</div>${remHtml}</td>
+      <td><span class="pill ${st}">${labelFor(st)}</span></td>
+      <td>${fmtDate(r.move_date)}</td>
+      <td>${fmtDate(r.created_at)}</td>
+      <td>${tel}</td>
+      <td>${esc(r.service||'-')}</td>
+      <td>${esc(r.move_from||'-')} <span class="sub">&rarr;</span> ${esc(r.move_to||'-')}</td>
+      <td class="right">${fmtMoney(r.value)}</td>
+      <td class="actions"><button class="del" data-action="delete" title="Delete this lead">&#128465;</button></td>
+    </tr>`;
   }).join('');
-  document.getElementById('selectAll').checked = false;
-  updateBulkBar();
+
+  document.querySelectorAll('#rows tr[data-id]').forEach((tr) => {
+    tr.addEventListener('click', (e) => {
+      if (e.target.closest('[data-action="delete"]') || e.target.closest('.row-cb') || e.target.closest('.tel-link')) return;
+      window.location.href = '/admin/quote/' + tr.dataset.id;
+    });
+  });
+  document.querySelectorAll('.row-cb').forEach((cb) => {
+    cb.addEventListener('click', (e) => e.stopPropagation());
+    cb.addEventListener('change', (e) => {
+      const id = e.target.dataset.id;
+      const tr = e.target.closest('tr');
+      if (e.target.checked){ selected.add(id); tr.classList.add('selected'); }
+      else { selected.delete(id); tr.classList.remove('selected'); }
+      const all = document.querySelectorAll('.row-cb');
+      if ($('selectAll')) $('selectAll').checked = selected.size === all.length && all.length > 0;
+      updateBulkBar();
+    });
+  });
+  document.querySelectorAll('[data-action="delete"]').forEach((b) => {
+    b.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const tr = e.target.closest('tr');
+      const id = tr.dataset.id;
+      if (!confirm(`Delete "${tr.dataset.name}" and all their appointments?\n\nThis cannot be undone.`)) return;
+      try {
+        const r = await api('/api/admin/quote/' + encodeURIComponent(id), { method:'DELETE' });
+        if (r.ok){ tr.style.opacity = '.3'; tr.style.pointerEvents = 'none'; setTimeout(load, 250); }
+        else { const d = await r.json().catch(()=>({})); alert('Delete failed: ' + (d.error || r.status)); }
+      } catch {}
+    });
+  });
 }
 
-function selectedIds() {
-  return Array.from(document.querySelectorAll('.row-sel:checked')).map(el => ({
-    id: el.dataset.id, name: el.dataset.name
-  }));
-}
-function updateBulkBar() {
-  const sel = selectedIds();
-  const bar = document.getElementById('bulkBar');
-  bar.style.display = sel.length ? 'flex' : 'none';
-  document.getElementById('bulkCount').textContent = sel.length;
-  const all = document.querySelectorAll('.row-sel');
-  const sa = document.getElementById('selectAll');
-  if (!all.length) { sa.checked = false; sa.indeterminate = false; return; }
-  if (sel.length === 0) { sa.checked = false; sa.indeterminate = false; }
-  else if (sel.length === all.length) { sa.checked = true; sa.indeterminate = false; }
-  else { sa.checked = false; sa.indeterminate = true; }
+function updateBulkBar(){
+  $('bulkCount').textContent = selected.size;
+  $('bulkBar').classList.toggle('open', selected.size > 0);
 }
 
-document.getElementById('selectAll').addEventListener('change', (e) => {
-  document.querySelectorAll('.row-sel').forEach(el => { el.checked = e.target.checked; });
+$('selectAll').addEventListener('change', (e) => {
+  document.querySelectorAll('.row-cb').forEach((cb) => {
+    cb.checked = e.target.checked;
+    const tr = cb.closest('tr');
+    if (e.target.checked){ selected.add(cb.dataset.id); tr.classList.add('selected'); }
+    else { selected.delete(cb.dataset.id); tr.classList.remove('selected'); }
+  });
   updateBulkBar();
 });
-
-document.getElementById('bulkClear').addEventListener('click', () => {
-  document.querySelectorAll('.row-sel').forEach(el => { el.checked = false; });
+$('bulkClear').addEventListener('click', () => {
+  selected.clear();
+  document.querySelectorAll('.row-cb').forEach((cb) => { cb.checked = false; cb.closest('tr').classList.remove('selected'); });
+  $('selectAll').checked = false;
   updateBulkBar();
 });
-
-document.getElementById('bulkDelete').addEventListener('click', async () => {
-  const sel = selectedIds();
-  if (!sel.length) return;
-  const preview = sel.slice(0, 5).map(s => '• ' + s.name).join('\n');
-  const extra = sel.length > 5 ? `\n• ...and ${sel.length - 5} more` : '';
-  if (!confirm(`Delete ${sel.length} quote(s) and all their appointments?\n\n${preview}${extra}\n\nThis cannot be undone.`)) return;
-  const btn = document.getElementById('bulkDelete');
-  btn.disabled = true;
-  const originalText = btn.textContent;
-  const results = await Promise.allSettled(sel.map(s =>
-    fetch('/api/admin/quote/' + encodeURIComponent(s.id), { method: 'DELETE' })
-      .then(r => r.ok ? { ok: true, id: s.id } : r.json().catch(() => ({})).then(d => ({ ok: false, id: s.id, error: d.error || r.status })))
-  ));
-  const failed = results.filter(r => r.status === 'fulfilled' && !r.value.ok).map(r => r.value);
-  const errored = results.filter(r => r.status === 'rejected').length;
-  btn.disabled = false;
-  btn.textContent = originalText;
-  if (failed.length || errored) {
-    alert(`Deleted ${sel.length - failed.length - errored} of ${sel.length}. ${failed.length + errored} failed.`);
-  }
+$('bulkDelete').addEventListener('click', async () => {
+  const ids = [...selected];
+  if (!ids.length) return;
+  if (!confirm('Delete ' + ids.length + ' lead' + (ids.length>1?'s':'') + ' and their appointments? This cannot be undone.')) return;
+  const btn = $('bulkDelete'); btn.disabled = true; btn.textContent = 'Deleting...';
+  const results = await Promise.allSettled(ids.map((id) => api('/api/admin/quote/' + encodeURIComponent(id), { method:'DELETE' })));
+  const failed = results.filter((r) => r.status === 'rejected' || (r.value && !r.value.ok)).length;
+  btn.disabled = false; btn.textContent = '\u{1F5D1} Delete selected';
+  if (failed) alert(failed + ' of ' + ids.length + ' could not be deleted. The rest were removed.');
+  selected.clear();
   load();
 });
 
-// Click-to-open AND click-to-delete with proper event handling.
-document.getElementById('rows').addEventListener('click', async (e) => {
-  // Checkbox clicks stay on the row, don't navigate
-  if (e.target.closest('.row-sel') || e.target.closest('.sel-cell')) {
-    if (e.target.classList && e.target.classList.contains('row-sel')) {
-      updateBulkBar();
-    }
-    return;
-  }
-  const tr = e.target.closest('tr[data-id]');
-  if (!tr) return;
-  const id = tr.dataset.id;
-  const name = tr.dataset.name;
-
-  // Delete button takes priority
-  if (e.target.closest('button[data-action="delete"]')) {
-    e.stopPropagation();
-    if (!confirm(`Delete "${name}" and all their appointments?\n\nThis cannot be undone.`)) return;
-    try {
-      const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), { method: 'DELETE' });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        alert('Delete failed: ' + (d.error || res.status));
-        return;
-      }
-      tr.style.opacity = '0.3';
-      tr.style.pointerEvents = 'none';
-      setTimeout(load, 250);
-    } catch (err) {
-      alert('Network error during delete.');
-    }
-    return;
-  }
-
-  // Anywhere else on the row → open the quote
-  window.location.href = '/admin/quote/' + id;
-});
-
 // Add customer modal
-const addModal = document.getElementById('addModal');
-const addFlash = document.getElementById('addFlash');
-const addSubmit = document.getElementById('addSubmit');
-document.getElementById('addBtn').addEventListener('click', () => {
-  document.getElementById('addForm').reset();
-  addFlash.className = 'flash';
-  addModal.classList.add('open');
-});
-document.getElementById('addCancel').addEventListener('click', () => addModal.classList.remove('open'));
+const addModal = $('addModal');
+$('addBtn').addEventListener('click', () => { $('addForm').reset(); $('addFlash').className = 'flash'; addModal.classList.add('open'); });
+$('addCancel').addEventListener('click', () => addModal.classList.remove('open'));
 addModal.addEventListener('click', (e) => { if (e.target.id === 'addModal') addModal.classList.remove('open'); });
-
-document.getElementById('addForm').addEventListener('submit', async (e) => {
+$('addForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = Object.fromEntries(new FormData(e.target).entries());
-  if (!data.phone && !data.email) {
-    addFlash.textContent = 'Phone OR email is required.';
-    addFlash.className = 'flash err';
-    return;
+  if (!String(data.phone||'').trim() && !String(data.email||'').trim()){
+    $('addFlash').textContent = 'Phone OR email is required.'; $('addFlash').className = 'flash err'; return;
   }
-  addSubmit.disabled = true; addSubmit.textContent = 'Adding...';
+  const btn = $('addSubmit'); btn.disabled = true; btn.textContent = 'Adding...';
   try {
-    const res = await fetch('/api/admin/customer', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    const d = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      addFlash.textContent = d.error || 'Failed to add customer';
-      addFlash.className = 'flash err';
-      return;
-    }
-    addFlash.textContent = 'Customer added.';
-    addFlash.className = 'flash ok';
-    setTimeout(() => {
-      if (d.quote && d.quote.id) {
-        window.location.href = '/admin/quote/' + d.quote.id;
-      } else {
-        addModal.classList.remove('open');
-        load();
-      }
-    }, 600);
-  } catch (err) {
-    addFlash.textContent = 'Network error - try again.';
-    addFlash.className = 'flash err';
-  } finally {
-    addSubmit.disabled = false; addSubmit.textContent = 'Add customer';
-  }
+    const r = await api('/api/admin/customer', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok){ $('addFlash').textContent = d.error || 'Failed to add customer'; $('addFlash').className = 'flash err'; return; }
+    $('addFlash').textContent = 'Customer added.'; $('addFlash').className = 'flash ok';
+    setTimeout(() => { if (d.quote && d.quote.id) window.location.href = '/admin/quote/' + d.quote.id; else { addModal.classList.remove('open'); load(); } }, 500);
+  } catch { $('addFlash').textContent = 'Network error - try again.'; $('addFlash').className = 'flash err'; }
+  finally { btn.disabled = false; btn.textContent = 'Add customer'; }
 });
+
+// Controls
+$('search').addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(load, 300); });
+$('filter').addEventListener('change', (e) => { activeStatus = e.target.value; load(); });
+$('refreshBtn').addEventListener('click', load);
+$('logoutBtn').addEventListener('click', async (e) => { e.preventDefault(); await fetch('/api/admin/login', { method:'DELETE' }); window.location.href = '/admin'; });
 
 load();
 </script>
