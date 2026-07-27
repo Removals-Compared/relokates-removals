@@ -46,9 +46,12 @@ export async function listQuotes({ status, search, limit = 200 } = {}) {
   params.set('order', 'created_at.desc');
   params.set('limit', String(limit));
   if (status && status !== 'all') params.set('status', `eq.${status}`);
-  if (search) {
-    const q = encodeURIComponent(`%${search}%`);
-    params.set('or', `(name.ilike.${q},email.ilike.${q},phone.ilike.${q})`);
+  if (search && search.trim()) {
+    // PostgREST ilike uses * as the wildcard (not %). Strip characters that
+    // are significant in the or() filter so the query can't be broken.
+    // URLSearchParams handles the encoding - don't pre-encode here.
+    const t = search.replace(/[(),*%]/g, ' ').trim();
+    if (t) params.set('or', `(name.ilike.*${t}*,email.ilike.*${t}*,phone.ilike.*${t}*)`);
   }
   const res = await fetch(`${url(QUOTES)}?${params}`, { headers: headers() });
   if (!res.ok) throw new Error(`supabase listQuotes ${res.status}`);
