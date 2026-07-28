@@ -69,5 +69,9 @@ CREATE TABLE IF NOT EXISTS reminders (
 CREATE INDEX IF NOT EXISTS reminders_lead_idx ON reminders (lead_id);
 CREATE INDEX IF NOT EXISTS reminders_due_idx  ON reminders (remind_on, sent);
 
--- Same access model as appointments (admin key bypasses RLS).
-ALTER TABLE reminders ENABLE ROW LEVEL SECURITY;
+-- Same access model as relokates_quote_request and relokates_appointments:
+-- RLS is OFF. The admin API key is used server-side only (never exposed to the
+-- browser), and it does NOT bypass RLS - so enabling RLS here without an INSERT
+-- policy blocks the app with a 42501 "row-level security policy" error. Keep it
+-- disabled to match the other admin tables.
+ALTER TABLE reminders DISABLE ROW LEVEL SECURITY;
