@@ -125,8 +125,12 @@ button.lose:hover{background:#FCA5A5}
       </div>
 
       <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
-        <a id="quoteDocBtn" class="primary" href="#" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:12px 20px">&#128196; Generate quote document</a>
-        <span class="muted" style="font-size:12px;margin-left:8px">Opens a print-ready, emailable quote in a new tab.</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a id="quoteDocBtn" class="primary" href="#" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:12px 18px">&#128196; Quote document</a>
+          <a id="invoiceDocBtn" class="ghost" href="#" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:12px 18px">&#129534; Invoice</a>
+          <a id="receiptDocBtn" class="ghost" href="#" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:12px 18px">&#128179; Receipt</a>
+        </div>
+        <span class="muted" style="font-size:12px;display:block;margin-top:8px">Each opens a print-ready, emailable document in a new tab.</span>
       </div>
 
       <div class="action-row">
@@ -227,6 +231,8 @@ const id = window.location.pathname.split('/').pop();
 let quote = null;
 
 document.getElementById('quoteDocBtn').href = '/admin/quote-doc?id=' + encodeURIComponent(id);
+document.getElementById('invoiceDocBtn').href = '/admin/invoice-doc?id=' + encodeURIComponent(id);
+document.getElementById('receiptDocBtn').href = '/admin/receipt-doc?id=' + encodeURIComponent(id);
 
 document.getElementById('logoutBtn').addEventListener('click', async (e) => {
   e.preventDefault();
