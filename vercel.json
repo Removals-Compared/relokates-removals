@@ -106,6 +106,7 @@
   "rewrites": [
     { "source": "/admin", "destination": "/admin/index.html" },
     { "source": "/admin/dashboard", "destination": "/admin/dashboard.html" },
+    { "source": "/admin/overview", "destination": "/admin/overview.html" },
     { "source": "/admin/quote-doc", "destination": "/admin/quote-doc.html" },
     { "source": "/admin/invoice-doc", "destination": "/admin/invoice-doc.html" },
     { "source": "/admin/receipt-doc", "destination": "/admin/receipt-doc.html" },

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overview | Relokates Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/images/relokates-app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Relokates Admin">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1A3C6E;--gold:#B8932A;--cream:#F4F8F6;--teal:#A8C5BC;--muted:#556070;--border:#c8ddd8}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#F4F6FA;font-family:Inter,Arial,sans-serif;color:#1f2937;min-height:100vh}
+.bar{background:var(--navy);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.bar img{height:36px;width:auto}
+.bar .title{font-family:Montserrat,sans-serif;font-weight:700;letter-spacing:.5px}
+.bar .links{display:flex;gap:8px;align-items:center}
+.bar a{color:rgba(255,255,255,.85);font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:6px}
+.bar a:hover{color:#fff;border-color:#fff}
+.wrap{max-width:1280px;margin:0 auto;padding:24px}
+.loading{text-align:center;color:var(--muted);padding:60px 0}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:700}
+.kpi .n{font-family:Montserrat,sans-serif;font-size:30px;font-weight:800;color:var(--navy);margin-top:6px;line-height:1}
+.kpi .s{font-size:12px;color:var(--muted);margin-top:6px}
+.kpi.gold .n{color:var(--gold)}
+.kpi.green .n{color:#16a34a}
+
+/* cards grid */
+.grid{display:grid;grid-template-columns:1.2fr 1fr;gap:18px;margin-bottom:18px}
+.grid.thirds{grid-template-columns:1fr 1fr}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px 20px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.card h2{font-family:Montserrat,sans-serif;font-size:13px;color:var(--navy);margin:0 0 14px;letter-spacing:.8px;text-transform:uppercase}
+.chart-box{position:relative;height:260px}
+
+/* lists */
+.list{list-style:none;margin:0;padding:0}
+.list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #f0f3f8;cursor:pointer}
+.list li:last-child{border-bottom:none}
+.list li:hover{background:#FBFCFE}
+.list .who{font-weight:600;color:#1f2937}
+.list .sub{font-size:12px;color:var(--muted);margin-top:2px}
+.list .rt{text-align:right;white-space:nowrap}
+.list .rt .d{font-weight:700;color:var(--navy);font-size:13px}
+.list .rt .v{font-size:12px;color:var(--muted)}
+.badge-due{display:inline-block;font-size:11px;font-weight:700;color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:1px 7px}
+.empty{color:var(--muted);font-size:13px;padding:14px 0}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:12px}
+.legend .li{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.legend .dot{width:10px;height:10px;border-radius:3px}
+
+@media(max-width:900px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .grid,.grid.thirds{grid-template-columns:1fr}
+  .wrap{padding:14px 12px}
+}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div style="display:flex;align-items:center;gap:14px">
+    <img src="/images/logo.webp" alt="Relokates">
+    <span class="title">Admin / Overview</span>
+  </div>
+  <div class="links">
+    <a href="/admin/dashboard">&#9776; Leads list</a>
+    <a href="#" id="refreshBtn">Refresh</a>
+    <a href="#" id="logoutBtn">Sign out</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="loading" id="loading">Loading overview...</div>
+  <div id="content" style="display:none">
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Leads received (last 12 weeks)</h2>
+        <div class="chart-box"><canvas id="chartLeads"></canvas></div>
+      </div>
+      <div class="card">
+        <h2>Pipeline by status</h2>
+        <div class="chart-box"><canvas id="chartStatus"></canvas></div>
+        <div class="legend" id="statusLegend"></div>
+      </div>
+    </div>
+
+    <div class="grid thirds">
+      <div class="card">
+        <h2>Revenue won (last 6 months)</h2>
+        <div class="chart-box"><canvas id="chartRevenue"></canvas></div>
+      </div>
+      <div class="card">
+        <h2>Upcoming moves</h2>
+        <ul class="list" id="upcoming"></ul>
+      </div>
+    </div>
+
+    <div class="grid thirds">
+      <div class="card">
+        <h2>Call reminders due</h2>
+        <ul class="list" id="reminders"></ul>
+      </div>
+      <div class="card">
+        <h2>Latest leads</h2>
+        <ul class="list" id="latest"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const ACTIVE=['new','contacted','quote_sent','prospecting','survey_booked','move_booked'];
+const STATUS_ORDER=['new','contacted','quote_sent','prospecting','survey_booked','move_booked','won','lost'];
+const STATUS_LABEL={new:'New',contacted:'Contacted',quote_sent:'Quote sent',prospecting:'Prospecting',survey_booked:'Survey booked',move_booked:'Move booked',won:'Completed',lost:'Lost'};
+const STATUS_COLOR={new:'#0ea5e9',contacted:'#f59e0b',quote_sent:'#6366f1',prospecting:'#14b8a6',survey_booked:'#8b5cf6',move_booked:'#22c55e',won:'#16a34a',lost:'#94a3b8'};
+const NAVY='#1A3C6E', GOLD='#B8932A';
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+const num=v=>{const n=Number(v);return isNaN(n)?0:n;};
+function money(v){const n=num(v);return '£'+n.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0});}
+function dshort(s){if(!s)return '-';const d=new Date(s);if(isNaN(d))return String(s);return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});}
+function dfull(s){if(!s)return '-';const d=new Date(s);if(isNaN(d))return String(s);return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+function go(id){ window.location.href='/admin/quote/'+encodeURIComponent(id); }
+
+async function load(){
+  let res;
+  try{ res=await fetch('/api/admin/quotes'); }
+  catch(e){ $('loading').textContent='Network error loading data.'; return; }
+  if(res.status===401){ window.location.href='/admin'; return; }
+  if(!res.ok){ $('loading').textContent='Could not load data.'; return; }
+  const rows=(await res.json()).quotes||[];
+  render(rows);
+  $('loading').style.display='none';
+  $('content').style.display='';
+}
+
+function render(rows){
+  const today=new Date(); today.setHours(0,0,0,0);
+  const counts={}; STATUS_ORDER.forEach(s=>counts[s]=0);
+  let pipelineVal=0, wonVal=0;
+  rows.forEach(r=>{
+    const s=r.status||'new'; if(counts[s]===undefined)counts[s]=0; counts[s]++;
+    if(ACTIVE.includes(s)) pipelineVal+=num(r.value);
+    if(s==='won') wonVal+=num(r.value);
+  });
+  const won=counts.won||0, lost=counts.lost||0;
+  const winRate=(won+lost)>0 ? Math.round(won/(won+lost)*100) : 0;
+  const moveBooked=counts.move_booked||0;
+  const newCount=counts.new||0;
+  const monthStart=new Date(today.getFullYear(),today.getMonth(),1);
+  const leadsThisMonth=rows.filter(r=>r.created_at && new Date(r.created_at)>=monthStart).length;
+
+  // KPI tiles
+  const kpis=[
+    {l:'Total leads',n:rows.length,s:leadsThisMonth+' this month'},
+    {l:'New (need action)',n:newCount,s:'awaiting first contact'},
+    {l:'Upcoming moves',n:moveBooked,s:'booked jobs',cls:'green'},
+    {l:'Win rate',n:winRate+'%',s:won+' won / '+lost+' lost'},
+    {l:'Pipeline value',n:money(pipelineVal),s:'active leads',cls:'gold'},
+    {l:'Won value',n:money(wonVal),s:won+' completed jobs',cls:'green'},
+    {l:'Avg job value',n:money(won?wonVal/won:0),s:'per completed move'},
+    {l:'Contacted / quoted',n:(counts.contacted||0)+(counts.quote_sent||0),s:'in conversation'},
+  ];
+  $('kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.cls||''}"><div class="l">${k.l}</div><div class="n">${k.n}</div><div class="s">${k.s}</div></div>`).join('');
+
+  // Upcoming moves (move_booked, soonest first)
+  const upcoming=rows.filter(r=>r.status==='move_booked')
+    .sort((a,b)=>{const x=a.move_date?+new Date(a.move_date):Infinity,y=b.move_date?+new Date(b.move_date):Infinity;return x-y;})
+    .slice(0,8);
+  $('upcoming').innerHTML = upcoming.length ? upcoming.map(r=>`
+    <li onclick="go('${esc(r.id)}')"><div><div class="who">${esc(r.name||'-')}</div>
+    <div class="sub">${esc(r.move_from||'-')} &rarr; ${esc(r.move_to||'-')}</div></div>
+    <div class="rt"><div class="d">${dfull(r.move_date)}</div><div class="v">${r.value?money(r.value):''}</div></div></li>`).join('')
+    : '<div class="empty">No moves booked yet.</div>';
+
+  // Reminders due (has reminder, remind_on <= today+ shown; overdue flagged)
+  const todayStr=new Date().toISOString().slice(0,10);
+  const rem=rows.filter(r=>r.reminder).sort((a,b)=>(a.reminder.remind_on<b.reminder.remind_on?-1:1)).slice(0,8);
+  $('reminders').innerHTML = rem.length ? rem.map(r=>{
+    const due=r.reminder.remind_on<=todayStr;
+    return `<li onclick="go('${esc(r.id)}')"><div><div class="who">${esc(r.name||'-')}</div>
+    <div class="sub">${r.reminder.note?esc(r.reminder.note):'Call back'}</div></div>
+    <div class="rt"><div class="d">${dfull(r.reminder.remind_on)}${r.reminder.remind_time?' '+esc(r.reminder.remind_time):''}</div>
+    ${due?'<div class="v"><span class="badge-due">Due</span></div>':''}</div></li>`;}).join('')
+    : '<div class="empty">No call reminders set.</div>';
+
+  // Latest leads
+  const latest=rows.slice().sort((a,b)=>(+new Date(b.created_at||0))-(+new Date(a.created_at||0))).slice(0,8);
+  $('latest').innerHTML = latest.length ? latest.map(r=>`
+    <li onclick="go('${esc(r.id)}')"><div><div class="who">${esc(r.name||'-')}</div>
+    <div class="sub">${esc(STATUS_LABEL[r.status]||'New')}${r.service?' &middot; '+esc(r.service):''}</div></div>
+    <div class="rt"><div class="d">${dshort(r.created_at)}</div><div class="v">${r.value?money(r.value):''}</div></div></li>`).join('')
+    : '<div class="empty">No leads yet.</div>';
+
+  if(typeof Chart==='undefined'){ return; }
+  Chart.defaults.font.family='Inter,Arial,sans-serif';
+  Chart.defaults.color='#556070';
+
+  // Status doughnut
+  const sLabels=STATUS_ORDER.filter(s=>counts[s]>0);
+  new Chart($('chartStatus'),{type:'doughnut',
+    data:{labels:sLabels.map(s=>STATUS_LABEL[s]),datasets:[{data:sLabels.map(s=>counts[s]),backgroundColor:sLabels.map(s=>STATUS_COLOR[s]),borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false}}}});
+  $('statusLegend').innerHTML=sLabels.map(s=>`<span class="li"><span class="dot" style="background:${STATUS_COLOR[s]}"></span>${STATUS_LABEL[s]} (${counts[s]})</span>`).join('');
+
+  // Leads over last 12 weeks
+  const weeks=[]; const wStart=new Date(today); const dow=(wStart.getDay()+6)%7; wStart.setDate(wStart.getDate()-dow);
+  for(let i=11;i>=0;i--){ const d=new Date(wStart); d.setDate(d.getDate()-i*7); weeks.push(d); }
+  const wCounts=weeks.map(()=>0);
+  rows.forEach(r=>{ if(!r.created_at)return; const c=new Date(r.created_at); c.setHours(0,0,0,0); const cd=(c.getDay()+6)%7; c.setDate(c.getDate()-cd);
+    for(let i=0;i<weeks.length;i++){ if(+c===+weeks[i]){ wCounts[i]++; break; } } });
+  new Chart($('chartLeads'),{type:'line',
+    data:{labels:weeks.map(d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})),datasets:[{data:wCounts,borderColor:NAVY,backgroundColor:'rgba(26,60,110,.08)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:NAVY}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
+
+  // Revenue won by month (last 6 months, by move_date else created_at)
+  const months=[]; for(let i=5;i>=0;i--){ const d=new Date(today.getFullYear(),today.getMonth()-i,1); months.push(d); }
+  const mKey=d=>d.getFullYear()+'-'+d.getMonth();
+  const mVals=months.map(()=>0);
+  rows.filter(r=>r.status==='won').forEach(r=>{ const base=r.move_date||r.created_at; if(!base)return; const d=new Date(base);
+    for(let i=0;i<months.length;i++){ if(mKey(d)===mKey(months[i])){ mVals[i]+=num(r.value); break; } } });
+  new Chart($('chartRevenue'),{type:'bar',
+    data:{labels:months.map(d=>d.toLocaleDateString('en-GB',{month:'short'})),datasets:[{data:mVals,backgroundColor:GOLD,borderRadius:6,maxBarThickness:42}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'£'+Number(v).toLocaleString('en-GB')}}}}});
+}
+
+$('refreshBtn').addEventListener('click',e=>{e.preventDefault();$('content').style.display='none';$('loading').style.display='';$('loading').textContent='Loading overview...';load();});
+$('logoutBtn').addEventListener('click',async e=>{e.preventDefault();await fetch('/api/admin/login',{method:'DELETE'});window.location.href='/admin';});
+load();
+</script>
+</body>
+</html>
