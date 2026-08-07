@@ -98,7 +98,26 @@ td.actions{text-align:right;padding:8px 12px !important}
 .flash.ok{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;display:block}
 .flash.err{background:#FEF2F2;color:#991B1B;border:1px solid #FCA5A5;display:block}
 
+/* staff role: hide money + destructive controls */
+body.staff td.right,body.staff th.right{display:none !important}
+body.staff .staff-hide{display:none !important}
+body.staff .del,body.staff .bulkbar,body.staff td.cb-col,body.staff th.cb-col,body.staff #binLink{display:none !important}
+/* identity chip */
+.chip{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:3px 12px 3px 3px;color:#fff;font-size:13px;font-weight:600}
+.chip .ava{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:Montserrat,sans-serif;overflow:hidden;cursor:pointer;flex:0 0 auto}
+.chip .ava img{width:100%;height:100%;object-fit:cover}
+/* today panel */
+.today{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.today .tcard{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.today .tcard h3{font-family:Montserrat,sans-serif;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);margin:0 0 10px}
+.today .ti{font-size:13px;padding:6px 0;border-bottom:1px solid #f0f3f8;cursor:pointer}
+.today .ti:last-child{border-bottom:none}
+.today .ti .n{font-weight:600}
+.today .ti .s{color:var(--muted);font-size:12px}
+.today .none{color:var(--muted);font-size:13px}
+
 @media(max-width:760px){
+  .today{grid-template-columns:1fr}
   .wrap{padding:14px 12px}
   .stats{flex-wrap:nowrap;overflow-x:auto;gap:8px;padding-bottom:4px;-webkit-overflow-scrolling:touch}
   .stat{min-width:96px;flex:0 0 auto;padding:10px 12px}
@@ -123,10 +142,14 @@ td.actions{text-align:right;padding:8px 12px !important}
     <img src="/images/logo.webp" alt="Relokates">
     <span class="title">Admin / Quotes</span>
   </div>
-  <a href="#" class="logout" id="logoutBtn">Sign out</a>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="chipSlot"></span>
+    <a href="#" class="logout" id="logoutBtn">Sign out</a>
+  </div>
 </div>
 
 <div class="wrap">
+  <div class="today" id="today" style="display:none"></div>
   <div class="stats" id="stats"></div>
 
   <div class="controls">
@@ -143,6 +166,7 @@ td.actions{text-align:right;padding:8px 12px !important}
       <option value="lost">Lost</option>
     </select>
     <a class="btn" href="/admin/overview" style="text-decoration:none;display:inline-flex;align-items:center">&#128202; Overview</a>
+    <a class="btn" id="binLink" href="/admin/deleted" style="text-decoration:none;display:inline-flex;align-items:center">&#128465; Recycle bin</a>
     <button class="btn navy" id="refreshBtn">Refresh</button>
     <button class="btn gold" id="addBtn">+ Add customer</button>
   </div>
@@ -257,6 +281,7 @@ function sortLeads(rows){
 
 let activeStatus = 'all';
 let allRows = [];
+let myRole = 'admin';
 const selected = new Set();
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -280,8 +305,12 @@ async function load(){
   try {
     const r = await api('/api/admin/quotes?' + params);
     const data = await r.json();
+    myRole = data.role || 'admin';
+    document.body.classList.toggle('staff', myRole === 'staff');
+    showChip(data.display_name || 'Admin');
     allRows = sortLeads(data.quotes || []);
     renderRows(allRows);
+    renderToday(allRows);
     renderStats();
   } catch (e) {
     if (String(e.message) !== 'unauth') $('rows').innerHTML = '<tr><td colspan="10" class="empty">Could not load leads.</td></tr>';
@@ -359,7 +388,7 @@ function renderRows(rows){
       e.stopPropagation();
       const tr = e.target.closest('tr');
       const id = tr.dataset.id;
-      if (!confirm(`Delete "${tr.dataset.name}" and all their appointments?\n\nThis cannot be undone.`)) return;
+      if (!confirm(`Move "${tr.dataset.name}" to the recycle bin?\n\nYou can restore it within 30 days.`)) return;
       try {
         const r = await api('/api/admin/quote/' + encodeURIComponent(id), { method:'DELETE' });
         if (r.ok){ tr.style.opacity = '.3'; tr.style.pointerEvents = 'none'; setTimeout(load, 250); }
@@ -372,6 +401,54 @@ function renderRows(rows){
 function updateBulkBar(){
   $('bulkCount').textContent = selected.size;
   $('bulkBar').classList.toggle('open', selected.size > 0);
+}
+
+// Identity chip: initials avatar (or a locally-stored photo). Tap the avatar to
+// set a photo; it is saved in this browser only (localStorage), never uploaded.
+function showChip(name){
+  const slot = $('chipSlot'); if (!slot) return;
+  const initials = String(name||'Admin').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase() || 'A';
+  const key = 'rlk_avatar_' + String(name||'admin').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  const saved = (()=>{ try { return localStorage.getItem(key); } catch { return null; } })();
+  slot.innerHTML = `<span class="chip"><span class="ava" id="chipAva" title="Tap to set a photo">${saved?`<img src="${saved}" alt="">`:esc(initials)}</span>${esc(name||'Admin')}</span>`;
+  const ava = $('chipAva');
+  ava.addEventListener('click', () => {
+    const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+    inp.addEventListener('change', () => {
+      const f = inp.files && inp.files[0]; if (!f) return;
+      const img = new Image(); const rd = new FileReader();
+      rd.onload = () => { img.onload = () => {
+        const c = document.createElement('canvas'); c.width=128; c.height=128;
+        const ctx=c.getContext('2d'); const s=Math.min(img.width,img.height);
+        ctx.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,128,128);
+        const data=c.toDataURL('image/jpeg',0.85);
+        try { localStorage.setItem(key,data); } catch {}
+        ava.innerHTML=`<img src="${data}" alt="">`;
+      }; img.src=rd.result; };
+      rd.readAsDataURL(f);
+    });
+    inp.click();
+  });
+}
+
+// "Today" panel: what needs attention right now.
+function renderToday(rows){
+  const el = $('today'); if (!el) return;
+  const today = new Date().toISOString().slice(0,10);
+  const moving = rows.filter(r => r.status==='move_booked' && (r.move_date||'').slice(0,10)===today);
+  const calls = rows.filter(r => r.reminder && r.reminder.remind_on <= today);
+  const chase = rows.filter(r => r.status==='quote_sent' && r.created_at && (Date.now()-new Date(r.created_at).getTime()) > 7*86400000);
+  const card = (icon,title,items,fmt) => {
+    const shown = items.slice(0,3).map(fmt).join('');
+    const more = items.length>3 ? `<div class="s">+${items.length-3} more</div>` : '';
+    return `<div class="tcard"><h3>${icon} ${title} (${items.length})</h3>${items.length?shown+more:'<div class="none">Nothing today</div>'}</div>`;
+  };
+  const row = (r,sub) => `<div class="ti" onclick="location.href='/admin/quote/${esc(r.id)}'"><span class="n">${esc(r.name||'-')}</span><div class="s">${sub}</div></div>`;
+  el.innerHTML =
+    card('&#128667;','Moving today',moving,r=>row(r,`${esc(r.move_from||'-')} to ${esc(r.move_to||'-')}`)) +
+    card('&#128222;','Calls due',calls,r=>row(r,r.reminder&&r.reminder.note?esc(r.reminder.note):'Call back')) +
+    card('&#8987;','Quotes to chase',chase,r=>row(r,'Quote sent '+fmtDate(r.created_at)));
+  el.style.display='';
 }
 
 $('selectAll').addEventListener('change', (e) => {
@@ -392,7 +469,7 @@ $('bulkClear').addEventListener('click', () => {
 $('bulkDelete').addEventListener('click', async () => {
   const ids = [...selected];
   if (!ids.length) return;
-  if (!confirm('Delete ' + ids.length + ' lead' + (ids.length>1?'s':'') + ' and their appointments? This cannot be undone.')) return;
+  if (!confirm('Move ' + ids.length + ' lead' + (ids.length>1?'s':'') + ' to the recycle bin? You can restore them within 30 days.')) return;
   const btn = $('bulkDelete'); btn.disabled = true; btn.textContent = 'Deleting...';
   const results = await Promise.allSettled(ids.map((id) => api('/api/admin/quote/' + encodeURIComponent(id), { method:'DELETE' })));
   const failed = results.filter((r) => r.status === 'rejected' || (r.value && !r.value.ok)).length;

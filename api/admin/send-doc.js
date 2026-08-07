@@ -37,7 +37,9 @@ function htmlWrap(body) {
 }
 
 export default async function handler(req, res) {
-  if (!requireAuth(req, res)) return;
+  const role = requireAuth(req, res);
+  if (!role) return;
+  if (role === 'staff') return res.status(403).json({ error: 'staff cannot send priced documents' });
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
   const { lead_id, doc_type, to, subject, body, pdf_base64, filename } = req.body || {};

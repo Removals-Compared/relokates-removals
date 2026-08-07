@@ -1,10 +1,12 @@
 // Manually create a quote / lead from the admin area.
 // Same shape as a public submission, tagged source="manual-admin".
 
-import { requireAuth } from './_session.js';
+import { requireAuth, actorName } from './_session.js';
+import { appendNote, logActivity } from './_db.js';
 
 export default async function handler(req, res) {
-  if (!requireAuth(req, res)) return;
+  const role = requireAuth(req, res);
+  if (!role) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
   const {
@@ -50,7 +52,15 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: `supabase: ${text.slice(0, 200)}` });
     }
     const rows = await r.json();
-    return res.status(200).json({ ok: true, quote: rows[0] || null });
+    const created = rows[0] || null;
+    if (created && created.id != null) {
+      const actor = actorName(req);
+      try {
+        await appendNote(created.id, `Added by ${actor}`);
+        await logActivity({ actor, action: 'added', lead_id: created.id, lead_name: created.name, detail: 'manual entry' });
+      } catch (_) { /* non-fatal */ }
+    }
+    return res.status(200).json({ ok: true, quote: created });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }

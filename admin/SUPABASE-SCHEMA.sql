@@ -75,3 +75,18 @@ CREATE INDEX IF NOT EXISTS reminders_due_idx  ON reminders (remind_on, sent);
 -- policy blocks the app with a 42501 "row-level security policy" error. Keep it
 -- disabled to match the other admin tables.
 ALTER TABLE reminders DISABLE ROW LEVEL SECURITY;
+
+-- ── Team activity log ───────────────────────────────────────
+-- Structured audit feed for the Insights page (who added/edited/deleted a lead).
+-- Same access model as the other admin tables (admin key, RLS off).
+CREATE TABLE IF NOT EXISTS activity_log (
+  id         uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  at         timestamptz NOT NULL DEFAULT now(),
+  actor      text NOT NULL DEFAULT 'unknown',
+  action     text NOT NULL DEFAULT '',
+  lead_id    text,
+  lead_name  text DEFAULT '',
+  detail     text DEFAULT ''
+);
+CREATE INDEX IF NOT EXISTS activity_log_at_idx ON activity_log (at DESC);
+ALTER TABLE activity_log DISABLE ROW LEVEL SECURITY;

@@ -5,8 +5,8 @@
 //   3. Customer email confirmation
 //   4. Quote status auto-advance
 
-import { requireAuth } from './_session.js';
-import { getQuote, createAppointment, updateAppointment, updateQuote } from './_db.js';
+import { requireAuth, actorName } from './_session.js';
+import { getQuote, createAppointment, updateAppointment, updateQuote, fetchMovesOnDate, appendNote, logActivity } from './_db.js';
 import { createEvent, buildAppointmentEvent, isGcalConfigured } from './_gcal.js';
 import { sendSurveyConfirmation, sendBookingConfirmation } from './_email.js';
 
@@ -78,10 +78,32 @@ export default async function handler(req, res) {
     errors.push({ step: 'status', message: e.message });
   }
 
+  // Audit trail (best-effort).
+  const actor = actorName(req);
+  try {
+    await appendNote(lead_id, `${type === 'survey' ? 'Survey' : 'Move'} booked by ${actor} for ${scheduled_for}`);
+    await logActivity({ actor, action: type === 'survey' ? 'booked survey' : 'booked move', lead_id, lead_name: quote.name, detail: scheduled_for });
+  } catch (_) { /* non-fatal */ }
+
+  // Booking-conflict warning: other move jobs already on that day.
+  let conflicts = [];
+  if (type === 'move') {
+    try {
+      const day = String(scheduled_for).slice(0, 10);
+      const others = await fetchMovesOnDate(day, lead_id);
+      const names = [];
+      for (const o of others) {
+        try { const q = await getQuote(o.lead_id); if (q && q.name) names.push(q.name); } catch (_) { /* skip */ }
+      }
+      conflicts = [...new Set(names)];
+    } catch (_) { /* non-fatal */ }
+  }
+
   return res.status(200).json({
     ok: true,
     appointment,
     event_link: event?.htmlLink || null,
+    conflicts,
     errors,
   });
 }

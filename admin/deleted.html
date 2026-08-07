@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recycle bin | Relokates Admin</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.png">
+<link rel="apple-touch-icon" href="/images/relokates-app-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Relokates Admin">
+<meta name="theme-color" content="#1A3C6E">
+<link rel="manifest" href="/admin/manifest.webmanifest">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1A3C6E;--gold:#B8932A;--cream:#F4F8F6;--teal:#A8C5BC;--muted:#556070;--border:#c8ddd8}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#F4F6FA;font-family:Inter,Arial,sans-serif;color:#1f2937;min-height:100vh}
+.bar{background:var(--navy);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.bar img{height:36px;width:auto}
+.bar .title{font-family:Montserrat,sans-serif;font-weight:700;letter-spacing:.5px}
+.bar .links{display:flex;gap:8px}
+.bar a{color:rgba(255,255,255,.85);font-size:13px;text-decoration:none;border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:6px}
+.bar a:hover{color:#fff;border-color:#fff}
+.wrap{max-width:960px;margin:0 auto;padding:24px}
+.intro{color:var(--muted);font-size:14px;margin:0 0 16px}
+.row{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.row .who{font-weight:700;color:var(--navy)}
+.row .sub{font-size:12px;color:var(--muted);margin-top:3px}
+.row .left{min-width:0}
+.row .acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px}
+.btn.green{background:#D1FAE5;color:#065F46;border-color:#6EE7B7}
+.btn.red{background:#FEF2F2;color:#991B1B;border-color:#FCA5A5}
+.days{font-size:12px;color:var(--muted)}
+.days.soon{color:#b91c1c;font-weight:700}
+.empty{text-align:center;color:var(--muted);padding:50px 0}
+.flash{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none}
+.flash.ok{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;display:block}
+.flash.err{background:#FEF2F2;color:#991B1B;border:1px solid #FCA5A5;display:block}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div style="display:flex;align-items:center;gap:14px">
+    <img src="/images/logo.webp" alt="Relokates">
+    <span class="title">Recycle bin</span>
+  </div>
+  <div class="links">
+    <a href="/admin/dashboard">&larr; Leads list</a>
+    <a href="#" id="logoutBtn">Sign out</a>
+  </div>
+</div>
+<div class="wrap">
+  <p class="intro">Deleted leads are kept here for 30 days, then removed for good. Restore any lead to put it back where it was.</p>
+  <div class="flash" id="flash"></div>
+  <div id="list"><p class="empty">Loading...</p></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+function flash(msg,ok){const f=$('flash');f.textContent=msg;f.className='flash '+(ok?'ok':'err');}
+function daysLeft(updated){ if(!updated) return 30; const d=Math.ceil(30-(Date.now()-new Date(updated).getTime())/86400000); return Math.max(0,d); }
+
+async function api(url,opts){ const r=await fetch(url,opts); if(r.status===401){window.location.href='/admin';throw new Error('unauth');} return r; }
+
+async function load(){
+  let data;
+  try{ const r=await api('/api/admin/quotes?status=deleted'); data=await r.json(); }
+  catch(e){ if(String(e.message)!=='unauth') $('list').innerHTML='<p class="empty">Could not load the recycle bin.</p>'; return; }
+  if(data.role==='staff'){ window.location.href='/admin/dashboard'; return; }
+  const rows=data.quotes||[];
+  if(!rows.length){ $('list').innerHTML='<p class="empty">The recycle bin is empty.</p>'; return; }
+  $('list').innerHTML=rows.map(r=>{
+    const dl=daysLeft(r.updated_at);
+    return `<div class="row" data-id="${esc(r.id)}">
+      <div class="left">
+        <div class="who">${esc(r.name||'-')}</div>
+        <div class="sub">${esc(r.email||'')}${r.phone?' &middot; '+esc(r.phone):''}</div>
+        <div class="sub"><span class="days ${dl<=5?'soon':''}">${dl} day${dl===1?'':'s'} left</span></div>
+      </div>
+      <div class="acts">
+        <button class="btn green" data-act="restore">Restore</button>
+        <button class="btn red" data-act="forever">Delete forever</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.row').forEach(row=>{
+    const id=row.dataset.id;
+    row.querySelector('[data-act="restore"]').addEventListener('click',async()=>{
+      try{ const r=await api('/api/admin/quote/'+encodeURIComponent(id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({restore:true})});
+        if(r.ok){ row.remove(); flash('Lead restored.',true); if(!document.querySelector('.row'))$('list').innerHTML='<p class="empty">The recycle bin is empty.</p>'; }
+        else { const d=await r.json().catch(()=>({})); flash(d.error||'Restore failed.',false); } }catch(e){}
+    });
+    row.querySelector('[data-act="forever"]').addEventListener('click',async()=>{
+      if(!confirm('Delete this lead permanently? This cannot be undone.'))return;
+      try{ const r=await api('/api/admin/quote/'+encodeURIComponent(id)+'?permanent=1',{method:'DELETE'});
+        if(r.ok){ row.remove(); flash('Lead permanently deleted.',true); if(!document.querySelector('.row'))$('list').innerHTML='<p class="empty">The recycle bin is empty.</p>'; }
+        else { const d=await r.json().catch(()=>({})); flash(d.error||'Delete failed.',false); } }catch(e){}
+    });
+  });
+}
+$('logoutBtn').addEventListener('click',async e=>{e.preventDefault();await fetch('/api/admin/login',{method:'DELETE'});window.location.href='/admin';});
+load();
+</script>
+</body>
+</html>

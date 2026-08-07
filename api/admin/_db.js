@@ -9,6 +9,7 @@
 const QUOTES = 'relokates_quote_request';
 const APPTS = 'relokates_appointments';
 const REMINDERS = 'reminders';
+const ACT = 'activity_log';
 
 function url(path) {
   return `${process.env.SUPABASE_URL}/rest/v1/${path}`;
@@ -45,7 +46,10 @@ export async function listQuotes({ status, search, limit = 200 } = {}) {
   params.set('select', '*');
   params.set('order', 'created_at.desc');
   params.set('limit', String(limit));
+  // An explicit status filter (incl. 'deleted' for the recycle bin) wins;
+  // otherwise hide soft-deleted leads from the normal lists.
   if (status && status !== 'all') params.set('status', `eq.${status}`);
+  else params.set('status', 'neq.deleted');
   if (search && search.trim()) {
     // PostgREST ilike uses * as the wildcard (not %). Strip characters that
     // are significant in the or() filter so the query can't be broken.
@@ -208,6 +212,106 @@ export async function fetchRemindersByLeadIds(ids) {
 export async function fetchPendingReminders() {
   try {
     const res = await fetch(`${url(REMINDERS)}?sent=eq.false&select=lead_id,remind_on,remind_time,note&order=remind_on.asc`, { headers: headers() });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (_) {
+    return [];
+  }
+}
+
+// Reminders due on/before `today` (YYYY-MM-DD) that haven't been sent - for the
+// daily cron backup. Tolerates a missing table.
+export async function fetchDueReminders(today) {
+  try {
+    const res = await fetch(`${url(REMINDERS)}?sent=eq.false&remind_on=lte.${today}&select=*&order=remind_on.asc`, { headers: headers() });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (_) {
+    return [];
+  }
+}
+
+export async function markReminderSent(id) {
+  try {
+    await fetch(`${url(REMINDERS)}?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: headers({ Prefer: 'return=minimal' }),
+      body: JSON.stringify({ sent: true, sent_at: new Date().toISOString() }),
+    });
+  } catch (_) { /* non-fatal */ }
+}
+
+// ── Team activity log ───────────────────────────────────────
+// Structured audit feed (activity_log table). Best-effort: never throws, so a
+// missing table can't break the action that triggered it.
+export async function logActivity({ actor, action, lead_id, lead_name, detail } = {}) {
+  try {
+    await fetch(url(ACT), {
+      method: 'POST',
+      headers: headers({ Prefer: 'return=minimal' }),
+      body: JSON.stringify({
+        actor: actor || 'unknown',
+        action: action || '',
+        lead_id: lead_id != null ? String(lead_id) : null,
+        lead_name: lead_name || '',
+        detail: detail || '',
+      }),
+    });
+  } catch (_) { /* non-fatal */ }
+}
+
+export async function fetchActivity(limit = 30) {
+  try {
+    const res = await fetch(`${url(ACT)}?select=*&order=at.desc&limit=${limit}`, { headers: headers() });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (_) {
+    return [];
+  }
+}
+
+// ── Recycle bin purge ───────────────────────────────────────
+// Soft-deleted leads older than `days` (by updated_at), for the daily cron.
+export async function fetchExpiredDeleted(days = 30) {
+  try {
+    const cutoff = new Date(Date.now() - days * 86400000).toISOString();
+    const res = await fetch(`${url(QUOTES)}?status=eq.deleted&updated_at=lt.${cutoff}&select=id,name`, { headers: headers() });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (_) {
+    return [];
+  }
+}
+
+// ── Duplicate detection ─────────────────────────────────────
+// Other non-deleted leads sharing this phone or email. Tolerates errors.
+export async function fetchDuplicates(id, phone, email) {
+  try {
+    const or = [];
+    if (phone) or.push(`phone.eq.${encodeURIComponent(String(phone).trim())}`);
+    if (email) or.push(`email.eq.${encodeURIComponent(String(email).trim().toLowerCase())}`);
+    if (!or.length) return [];
+    const res = await fetch(
+      `${url(QUOTES)}?or=(${or.join(',')})&id=neq.${id}&status=neq.deleted&select=id,name,status,created_at&limit=5`,
+      { headers: headers() });
+    if (!res.ok) return [];
+    return res.json();
+  } catch (_) {
+    return [];
+  }
+}
+
+// ── Booking-conflict detection ──────────────────────────────
+// Move appointments on the same calendar day as dayISO (YYYY-MM-DD),
+// excluding the given lead. Tolerates a missing appointments table.
+export async function fetchMovesOnDate(dayISO, excludeLeadId) {
+  try {
+    if (!dayISO) return [];
+    const start = new Date(dayISO + 'T00:00:00.000Z').toISOString();
+    const end = new Date(new Date(dayISO + 'T00:00:00.000Z').getTime() + 86400000).toISOString();
+    let q = `${url(APPTS)}?type=eq.move&scheduled_for=gte.${start}&scheduled_for=lt.${end}&select=lead_id,scheduled_for`;
+    if (excludeLeadId != null) q += `&lead_id=neq.${excludeLeadId}`;
+    const res = await fetch(q, { headers: headers() });
     if (!res.ok) return [];
     return res.json();
   } catch (_) {

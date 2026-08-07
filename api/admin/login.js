@@ -1,5 +1,4 @@
-import { setSessionCookie, clearSessionCookie } from './_session.js';
-import crypto from 'node:crypto';
+import { setSessionCookie, clearSessionCookie, checkPassword } from './_session.js';
 
 export default async function handler(req, res) {
   if (req.method === 'DELETE') {
@@ -8,16 +7,12 @@ export default async function handler(req, res) {
   }
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
+  if (!process.env.ADMIN_PASSWORD) return res.status(500).json({ error: 'ADMIN_PASSWORD not configured' });
+
   const { password } = req.body || {};
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return res.status(500).json({ error: 'ADMIN_PASSWORD not configured' });
+  const acct = checkPassword(password);
+  if (!acct) return res.status(401).json({ error: 'invalid password' });
 
-  const pHash = crypto.createHash('sha256').update(String(password || '')).digest();
-  const eHash = crypto.createHash('sha256').update(expected).digest();
-  if (!crypto.timingSafeEqual(pHash, eHash)) {
-    return res.status(401).json({ error: 'invalid password' });
-  }
-
-  setSessionCookie(res);
-  return res.status(200).json({ ok: true });
+  setSessionCookie(res, acct.role, acct.name);
+  return res.status(200).json({ ok: true, role: acct.role });
 }
