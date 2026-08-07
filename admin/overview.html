@@ -62,6 +62,13 @@
   .grid,.grid.thirds{grid-template-columns:1fr}
   .wrap{padding:14px 12px}
 }
+.chip{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:3px 12px 3px 3px;color:#fff;font-size:13px;font-weight:600}
+.chip .ava{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:Montserrat,sans-serif;overflow:hidden;flex:0 0 auto}
+.badge-r{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 7px}
+.badge-r.wait{color:#92400e;background:#fef3c7;border:1px solid #fde68a}
+.badge-r.got{color:#065f46;background:#d1fae5;border:1px solid #6ee7b7}
+.act-actor{font-weight:700;color:var(--navy)}
+.act-detail{color:var(--muted);font-size:12px}
 </style>
 </head>
 <body>
@@ -71,6 +78,7 @@
     <span class="title">Admin / Overview</span>
   </div>
   <div class="links">
+    <span id="chipSlot"></span>
     <a href="/admin/dashboard">&#9776; Leads list</a>
     <a href="#" id="refreshBtn">Refresh</a>
     <a href="#" id="logoutBtn">Sign out</a>
@@ -115,6 +123,17 @@
         <ul class="list" id="latest"></ul>
       </div>
     </div>
+
+    <div class="grid thirds">
+      <div class="card">
+        <h2>Team activity</h2>
+        <ul class="list" id="activity"></ul>
+      </div>
+      <div class="card">
+        <h2>Google review requests</h2>
+        <ul class="list" id="reviews"></ul>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -126,6 +145,7 @@ const STATUS_LABEL={new:'New',contacted:'Contacted',quote_sent:'Quote sent',pros
 const STATUS_COLOR={new:'#0ea5e9',contacted:'#f59e0b',quote_sent:'#6366f1',prospecting:'#14b8a6',survey_booked:'#8b5cf6',move_booked:'#22c55e',won:'#16a34a',lost:'#94a3b8'};
 const NAVY='#1A3C6E', GOLD='#B8932A';
 
+let myRole='admin';
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[<>&]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
 const num=v=>{const n=Number(v);return isNaN(n)?0:n;};
@@ -140,13 +160,25 @@ async function load(){
   catch(e){ $('loading').textContent='Network error loading data.'; return; }
   if(res.status===401){ window.location.href='/admin'; return; }
   if(!res.ok){ $('loading').textContent='Could not load data.'; return; }
-  const rows=(await res.json()).quotes||[];
-  render(rows);
+  const data=await res.json();
+  myRole=data.role||'admin';
+  document.body.classList.toggle('staff', myRole==='staff');
+  showChip(data.display_name||'Admin');
+  let activity=[];
+  try{ activity=(await (await fetch('/api/admin/activity?limit=12')).json()).activity||[]; }catch(_){}
+  render(data.quotes||[], activity);
   $('loading').style.display='none';
   $('content').style.display='';
 }
 
-function render(rows){
+function showChip(name){
+  const slot=$('chipSlot'); if(!slot) return;
+  const initials=String(name||'Admin').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase()||'A';
+  slot.innerHTML=`<span class="chip"><span class="ava">${esc(initials)}</span>${esc(name||'Admin')}</span>`;
+}
+
+function render(rows, activity){
+  const staff = myRole==='staff';
   const today=new Date(); today.setHours(0,0,0,0);
   const counts={}; STATUS_ORDER.forEach(s=>counts[s]=0);
   let pipelineVal=0, wonVal=0;
@@ -162,8 +194,18 @@ function render(rows){
   const monthStart=new Date(today.getFullYear(),today.getMonth(),1);
   const leadsThisMonth=rows.filter(r=>r.created_at && new Date(r.created_at)>=monthStart).length;
 
-  // KPI tiles
-  const kpis=[
+  // KPI tiles. Staff never see money, so they get count-based tiles instead.
+  const openCount=ACTIVE.reduce((a,s)=>a+(counts[s]||0),0);
+  const kpis = staff ? [
+    {l:'Total leads',n:rows.length,s:leadsThisMonth+' this month'},
+    {l:'New (need action)',n:newCount,s:'awaiting first contact'},
+    {l:'Upcoming moves',n:moveBooked,s:'booked jobs',cls:'green'},
+    {l:'Win rate',n:winRate+'%',s:won+' won / '+lost+' lost'},
+    {l:'Open leads',n:openCount,s:'in the pipeline'},
+    {l:'Completed',n:won,s:'jobs done',cls:'green'},
+    {l:'Survey booked',n:counts.survey_booked||0,s:'surveys arranged'},
+    {l:'Contacted / quoted',n:(counts.contacted||0)+(counts.quote_sent||0),s:'in conversation'},
+  ] : [
     {l:'Total leads',n:rows.length,s:leadsThisMonth+' this month'},
     {l:'New (need action)',n:newCount,s:'awaiting first contact'},
     {l:'Upcoming moves',n:moveBooked,s:'booked jobs',cls:'green'},
@@ -174,6 +216,7 @@ function render(rows){
     {l:'Contacted / quoted',n:(counts.contacted||0)+(counts.quote_sent||0),s:'in conversation'},
   ];
   $('kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.cls||''}"><div class="l">${k.l}</div><div class="n">${k.n}</div><div class="s">${k.s}</div></div>`).join('');
+  if(staff){ const rc=$('chartRevenue'); if(rc && rc.closest('.card')) rc.closest('.card').style.display='none'; }
 
   // Upcoming moves (move_booked, soonest first)
   const upcoming=rows.filter(r=>r.status==='move_booked')
@@ -204,6 +247,9 @@ function render(rows){
     <div class="rt"><div class="d">${dshort(r.created_at)}</div><div class="v">${r.value?money(r.value):''}</div></div></li>`).join('')
     : '<div class="empty">No leads yet.</div>';
 
+  renderActivity(activity||[]);
+  renderReviews(rows);
+
   if(typeof Chart==='undefined'){ return; }
   Chart.defaults.font.family='Inter,Arial,sans-serif';
   Chart.defaults.color='#556070';
@@ -225,15 +271,53 @@ function render(rows){
     data:{labels:weeks.map(d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})),datasets:[{data:wCounts,borderColor:NAVY,backgroundColor:'rgba(26,60,110,.08)',fill:true,tension:.3,pointRadius:3,pointBackgroundColor:NAVY}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}});
 
-  // Revenue won by month (last 6 months, by move_date else created_at)
-  const months=[]; for(let i=5;i>=0;i--){ const d=new Date(today.getFullYear(),today.getMonth()-i,1); months.push(d); }
-  const mKey=d=>d.getFullYear()+'-'+d.getMonth();
-  const mVals=months.map(()=>0);
-  rows.filter(r=>r.status==='won').forEach(r=>{ const base=r.move_date||r.created_at; if(!base)return; const d=new Date(base);
-    for(let i=0;i<months.length;i++){ if(mKey(d)===mKey(months[i])){ mVals[i]+=num(r.value); break; } } });
-  new Chart($('chartRevenue'),{type:'bar',
-    data:{labels:months.map(d=>d.toLocaleDateString('en-GB',{month:'short'})),datasets:[{data:mVals,backgroundColor:GOLD,borderRadius:6,maxBarThickness:42}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'£'+Number(v).toLocaleString('en-GB')}}}}});
+  // Revenue won by month (admin only - staff never see money)
+  if(!staff){
+    const months=[]; for(let i=5;i>=0;i--){ const d=new Date(today.getFullYear(),today.getMonth()-i,1); months.push(d); }
+    const mKey=d=>d.getFullYear()+'-'+d.getMonth();
+    const mVals=months.map(()=>0);
+    rows.filter(r=>r.status==='won').forEach(r=>{ const base=r.move_date||r.created_at; if(!base)return; const d=new Date(base);
+      for(let i=0;i<months.length;i++){ if(mKey(d)===mKey(months[i])){ mVals[i]+=num(r.value); break; } } });
+    new Chart($('chartRevenue'),{type:'bar',
+      data:{labels:months.map(d=>d.toLocaleDateString('en-GB',{month:'short'})),datasets:[{data:mVals,backgroundColor:GOLD,borderRadius:6,maxBarThickness:42}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>money(c.parsed.y)}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'£'+Number(v).toLocaleString('en-GB')}}}}});
+  }
+}
+
+function renderActivity(list){
+  const el=$('activity'); if(!el) return;
+  if(!list.length){ el.innerHTML='<div class="empty">No activity yet.</div>'; return; }
+  const color=a=>/delete|purge/.test(a.action||'')?'#b91c1c':((a.action||'')==='added'?'#16a34a':'#1A3C6E');
+  el.innerHTML=list.map(a=>{
+    const when=a.at?new Date(a.at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'';
+    const clickable=a.lead_id && !/delete|purge/.test(a.action||'');
+    return `<li ${clickable?`onclick="go('${esc(a.lead_id)}')"`:''}><div>
+      <div><span class="act-actor" style="color:${color(a)}">${esc(a.actor||'Someone')}</span> <span>${esc(a.action||'')}</span>${a.lead_name?' <b>'+esc(a.lead_name)+'</b>':''}</div>
+      ${a.detail?`<div class="act-detail">${esc(a.detail)}</div>`:''}</div>
+      <div class="rt"><div class="v">${when}</div></div></li>`;
+  }).join('');
+}
+
+function renderReviews(rows){
+  const el=$('reviews'); if(!el) return;
+  const now=Date.now(); const waiting=[]; let received=0;
+  rows.forEach(r=>{
+    const notes=Array.isArray(r.notes)?r.notes:[];
+    let lastSent=null, gotAt=null;
+    notes.forEach(n=>{ const t=String(n.text||''); if(t.includes('Review request emailed')) lastSent=n.at||lastSent; if(t.includes('Review received')) gotAt=n.at||gotAt; });
+    if(lastSent){ if(gotAt && new Date(gotAt)>=new Date(lastSent)) received++; else waiting.push({r,lastSent}); }
+    else if(gotAt) received++;
+  });
+  waiting.sort((a,b)=>new Date(a.lastSent)-new Date(b.lastSent));
+  if(!received && !waiting.length){ el.innerHTML='<div class="empty">No review requests sent yet.</div>'; return; }
+  const head=`<li><div><div class="who">${received} review${received===1?'':'s'} received</div><div class="sub">${waiting.length} awaiting a reply</div></div></li>`;
+  const items=waiting.slice(0,7).map(w=>{
+    const days=Math.floor((now-new Date(w.lastSent))/86400000);
+    const remind=days>=7;
+    return `<li onclick="go('${esc(w.r.id)}')"><div><div class="who">${esc(w.r.name||'-')}</div><div class="sub">asked ${days} day${days===1?'':'s'} ago</div></div>
+      <div class="rt">${remind?'<span class="badge-r wait">send reminder</span>':'<span class="badge-r got">waiting</span>'}</div></li>`;
+  }).join('');
+  el.innerHTML=head+items;
 }
 
 $('refreshBtn').addEventListener('click',e=>{e.preventDefault();$('content').style.display='none';$('loading').style.display='';$('loading').textContent='Loading overview...';load();});
