@@ -50,15 +50,43 @@ label{display:block;font-family:Montserrat,sans-serif;font-size:11px;letter-spac
 input,select,textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:Inter,sans-serif}
 textarea{min-height:80px;resize:vertical}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)}
-button.primary{background:var(--gold);color:#fff;border:none;padding:12px 18px;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;cursor:pointer}
-button.primary:hover{background:#A07F1E}
-button.primary:disabled{opacity:.5;cursor:not-allowed}
+/* primary = 3D gold key-cap */
+button.primary{background:linear-gradient(180deg,#cda63f,#B8932A);color:#fff;border:none;padding:13px 18px;border-radius:10px;font-family:Montserrat,sans-serif;font-weight:800;font-size:13px;cursor:pointer;box-shadow:0 4px 0 #806619,0 6px 10px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.4);transition:transform .06s ease,box-shadow .06s ease}
+button.primary:hover{filter:brightness(1.03)}
+button.primary:active{transform:translateY(3px);box-shadow:0 1px 0 #806619,0 2px 5px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.3)}
+button.primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
 button.ghost{background:transparent;color:var(--navy);border:1px solid var(--border);padding:8px 12px;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
 button.ghost:hover{border-color:var(--gold);color:var(--gold)}
 button.win{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;padding:8px 12px;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
 button.win:hover{background:#A7F3D0}
 button.lose{background:#FEF2F2;color:#991B1B;border:1px solid #FCA5A5;padding:8px 12px;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
 button.lose:hover{background:#FCA5A5}
+
+/* ── 3D key-cap buttons ── */
+.k{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:12px;font-family:Montserrat,sans-serif;font-weight:800;font-size:14px;letter-spacing:.3px;padding:14px 18px;cursor:pointer;color:#fff;text-decoration:none;transition:transform .06s ease,box-shadow .06s ease;user-select:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.k:hover{filter:brightness(1.03)}
+.k:active{transform:translateY(3px)}
+.k:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.k.full{width:100%}
+.k.gold{background:linear-gradient(180deg,#cda63f,#B8932A);box-shadow:0 5px 0 #806619,0 7px 12px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.4)}
+.k.gold:active{box-shadow:0 2px 0 #806619,0 3px 6px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.35)}
+.k.navy{background:linear-gradient(180deg,#264d80,#1A3C6E);box-shadow:0 5px 0 #10264a,0 7px 12px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.25)}
+.k.navy:active{box-shadow:0 2px 0 #10264a,0 3px 6px rgba(0,0,0,.2)}
+.k.green{background:linear-gradient(180deg,#1fbf5b,#16a34a);box-shadow:0 5px 0 #0f7536,0 7px 12px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.35)}
+.k.green:active{box-shadow:0 2px 0 #0f7536,0 3px 6px rgba(0,0,0,.18)}
+.k.red{background:linear-gradient(180deg,#ef4444,#dc2626);box-shadow:0 5px 0 #991b1b,0 7px 12px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.3)}
+.k.red:active{box-shadow:0 2px 0 #991b1b,0 3px 6px rgba(0,0,0,.18)}
+.k.grey{background:linear-gradient(180deg,#ffffff,#eef1f6);color:var(--navy);box-shadow:0 5px 0 #c8d0dc,0 7px 12px rgba(0,0,0,.1),inset 0 1px 0 #fff}
+.k.grey:active{box-shadow:0 2px 0 #c8d0dc,0 3px 6px rgba(0,0,0,.1)}
+.k.wa{background:linear-gradient(180deg,#2fdd75,#25D366);box-shadow:0 5px 0 #128c3e,0 7px 12px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.35)}
+.k.wa:active{box-shadow:0 2px 0 #128c3e,0 3px 6px rgba(0,0,0,.18)}
+.btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.btn-grid .k{width:100%}
+/* crew roster (Medway style) */
+.crew-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:10px;background:#fff}
+.crew-item .nm{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--navy)}
+.crew-item .nm input{width:18px;height:18px}
+.crew-wa{display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;padding:8px 14px;border-radius:99px}
 .note{background:var(--cream);border-left:3px solid var(--gold);padding:12px 14px;border-radius:6px;margin-bottom:8px;font-size:14px}
 .note .meta{font-size:11px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
 .appt{padding:14px 16px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
@@ -143,33 +171,34 @@ button.review:hover{background:#FEF08A}
       </div>
 
       <div class="staff-hide" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a id="quoteDocBtn" class="primary" href="#" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:12px 18px">&#128196; Quote document</a>
-          <a id="invoiceDocBtn" class="ghost" href="#" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:12px 18px">&#129534; Invoice</a>
-          <a id="receiptDocBtn" class="ghost" href="#" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:12px 18px">&#128179; Receipt</a>
+        <a id="quoteDocBtn" class="k gold full" href="#" target="_blank" rel="noopener">&#128196; Generate quote document</a>
+        <div class="btn-grid">
+          <a id="invoiceDocBtn" class="k grey" href="#" target="_blank" rel="noopener">&#129534; Invoice</a>
+          <a id="receiptDocBtn" class="k grey" href="#" target="_blank" rel="noopener">&#128179; Receipt</a>
         </div>
         <span class="muted" style="font-size:12px;display:block;margin-top:8px">Each opens a print-ready, emailable document in a new tab.</span>
       </div>
 
       <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
-        <a id="depositBtn" href="#" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;text-decoration:none;padding:12px 18px;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px">
+        <a id="depositBtn" class="k wa full" href="#" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><path fill="#fff" d="M16 3C9 3 3.5 8.6 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 6.9 0 12.5-5.6 12.5-12.5S22.9 3 16 3z"/><path fill="#25D366" d="M12.4 9.3c-.3-.6-.5-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.8s1.2 3.3 1.4 3.5c.2.2 2.4 3.8 5.9 5.2 2.9 1.1 3.5.9 4.2.9.7-.1 2.1-.9 2.4-1.7.3-.8.3-1.5.2-1.7-.1-.2-.3-.2-.7-.4-.4-.2-2.1-1-2.4-1.1-.3-.1-.6-.2-.8.2-.2.3-.9 1.1-1.1 1.4-.2.2-.4.2-.7.1-.4-.2-1.5-.6-2.9-1.8-1.1-1-1.8-2.2-2-2.5-.2-.4 0-.6.2-.7.2-.2.4-.4.5-.6.2-.2.2-.4.4-.6.1-.2.1-.5 0-.6-.1-.2-.8-2-1.1-2.6z"/></svg>
           Send &pound;50 deposit link on WhatsApp
         </a>
         <span class="muted" style="font-size:12px;display:block;margin-top:8px">Opens WhatsApp to the customer's number with your Monzo deposit link ready to send.</span>
       </div>
 
-      <div class="action-row">
-        <button class="ghost" data-status="contacted">Mark contacted</button>
-        <button class="ghost" data-status="quote_sent">Mark quote sent</button>
-        <button class="ghost" data-status="prospecting">Mark prospecting</button>
-        <button class="win" data-status="won">Mark completed</button>
-        <button class="lose" data-status="lost">Mark lost</button>
+      <div class="btn-grid">
+        <button class="k navy" data-status="new">New</button>
+        <button class="k navy" data-status="contacted">Contacted</button>
+        <button class="k navy" data-status="quote_sent">Quote sent</button>
+        <button class="k navy" data-status="prospecting">Prospecting</button>
       </div>
+      <button class="k green full" data-status="won" style="margin-top:12px">&#10003; Mark completed</button>
+      <button class="k red full" data-status="lost" style="margin-top:12px">Mark lost</button>
 
-      <div class="action-row">
-        <button class="review" id="sendReview">&#11088; Send review request</button>
-        <button class="ghost" id="reviewReceived">&#10003; Mark review received</button>
+      <div class="btn-grid">
+        <button class="k grey" id="sendReview">&#11088; Review request</button>
+        <button class="k grey" id="reviewReceived">&#10003; Review received</button>
       </div>
 
       <div class="staff-hide" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -261,7 +290,7 @@ button.review:hover{background:#FEF08A}
       <label>Assign crew (names)</label>
       <input type="text" id="crewInput" placeholder="e.g. Moses, Tibi, Milo">
       <div class="flash" id="crewFlash"></div>
-      <button class="primary" id="crewSave" style="margin-top:10px">Save crew</button>
+      <button class="k navy full" id="crewSave" style="margin-top:10px">Save crew</button>
     </div>
   </div>
 </div>
