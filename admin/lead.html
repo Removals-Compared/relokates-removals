@@ -137,6 +137,14 @@ button.lose:hover{background:#FCA5A5}
         <span class="muted" style="font-size:12px;display:block;margin-top:8px">Each opens a print-ready, emailable document in a new tab.</span>
       </div>
 
+      <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
+        <a id="depositBtn" href="#" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;text-decoration:none;padding:12px 18px;border-radius:8px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px">
+          <svg width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><path fill="#fff" d="M16 3C9 3 3.5 8.6 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 6.9 0 12.5-5.6 12.5-12.5S22.9 3 16 3z"/><path fill="#25D366" d="M12.4 9.3c-.3-.6-.5-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.8s1.2 3.3 1.4 3.5c.2.2 2.4 3.8 5.9 5.2 2.9 1.1 3.5.9 4.2.9.7-.1 2.1-.9 2.4-1.7.3-.8.3-1.5.2-1.7-.1-.2-.3-.2-.7-.4-.4-.2-2.1-1-2.4-1.1-.3-.1-.6-.2-.8.2-.2.3-.9 1.1-1.1 1.4-.2.2-.4.2-.7.1-.4-.2-1.5-.6-2.9-1.8-1.1-1-1.8-2.2-2-2.5-.2-.4 0-.6.2-.7.2-.2.4-.4.5-.6.2-.2.2-.4.4-.6.1-.2.1-.5 0-.6-.1-.2-.8-2-1.1-2.6z"/></svg>
+          Send &pound;50 deposit link on WhatsApp
+        </a>
+        <span class="muted" style="font-size:12px;display:block;margin-top:8px">Opens WhatsApp to the customer's number with your Monzo deposit link ready to send.</span>
+      </div>
+
       <div class="action-row">
         <button class="ghost" data-status="contacted">Mark contacted</button>
         <button class="ghost" data-status="quote_sent">Mark quote sent</button>
@@ -237,6 +245,23 @@ let quote = null;
 document.getElementById('quoteDocBtn').href = '/admin/quote-doc?id=' + encodeURIComponent(id);
 document.getElementById('invoiceDocBtn').href = '/admin/invoice-doc?id=' + encodeURIComponent(id);
 document.getElementById('receiptDocBtn').href = '/admin/receipt-doc?id=' + encodeURIComponent(id);
+
+// One-touch: send the fixed Monzo deposit link to the customer on WhatsApp.
+const DEPOSIT_LINK = 'https://monzo.com/pay/r/relokates-ltd_o6mbFV8SrC2nwA';
+function waNumber(phone){
+  let p = String(phone || '').replace(/[^\d]/g, '');
+  if (!p) return '';
+  if (p.startsWith('44')) return p;          // already international
+  if (p.startsWith('0')) return '44' + p.slice(1); // UK national -> international
+  return p;
+}
+document.getElementById('depositBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  const fn = (quote && quote.name) ? String(quote.name).trim().split(/\s+/)[0] : 'there';
+  const msg = 'Hi ' + fn + ', to secure your move with Relokates Removals, please pay your £50 deposit using this secure link: ' + DEPOSIT_LINK + '. Once received, we will confirm your booking. Thank you.';
+  const num = waNumber(quote && quote.phone);
+  window.open('https://wa.me/' + num + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+});
 
 document.getElementById('logoutBtn').addEventListener('click', async (e) => {
   e.preventDefault();
