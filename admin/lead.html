@@ -74,6 +74,16 @@ button.lose:hover{background:#FCA5A5}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .muted{color:var(--muted);font-size:13px}
 .action-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:99px;padding:3px 12px 3px 3px;color:#fff;font-size:13px;font-weight:600}
+.chip .ava{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:Montserrat,sans-serif;overflow:hidden;cursor:pointer;flex:0 0 auto}
+.chip .ava img{width:100%;height:100%;object-fit:cover}
+body.staff .staff-hide{display:none !important}
+.dupe-banner{background:#fff8e6;border:1px solid #f0d97d;border-left:4px solid var(--gold);border-radius:8px;padding:10px 14px;font-size:13px;color:#4a3a00;margin-bottom:14px}
+.dupe-banner a{color:var(--navy);font-weight:700;text-decoration:none}
+.crew-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.crew-row input[type=checkbox]{width:16px;height:16px}
+button.review{background:#FEF9C3;color:#854D0E;border:1px solid #FDE68A;padding:8px 12px;border-radius:6px;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;cursor:pointer}
+button.review:hover{background:#FEF08A}
 @media(max-width:900px){.wrap{grid-template-columns:1fr;padding:16px;gap:16px}.row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -84,6 +94,7 @@ button.lose:hover{background:#FCA5A5}
     <span class="title">Quote</span>
   </div>
   <div style="display:flex;gap:10px;align-items:center">
+    <span id="chipSlot"></span>
     <a href="/admin/dashboard" class="back">&larr; Dashboard</a>
     <a href="#" id="logoutBtn" class="back">Sign out</a>
   </div>
@@ -92,6 +103,7 @@ button.lose:hover{background:#FCA5A5}
 <div class="wrap">
   <!-- LEFT: customer + notes -->
   <div>
+    <div id="dupeBanner"></div>
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
         <h2 style="margin:0">Customer details</h2>
@@ -120,7 +132,7 @@ button.lose:hover{background:#FCA5A5}
         </div>
       </form>
 
-      <div class="value-row">
+      <div class="value-row staff-hide">
         <label>Job value</label>
         <div class="value-input">
           <span>£</span>
@@ -130,7 +142,7 @@ button.lose:hover{background:#FCA5A5}
         </div>
       </div>
 
-      <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
+      <div class="staff-hide" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <a id="quoteDocBtn" class="primary" href="#" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:12px 18px">&#128196; Quote document</a>
           <a id="invoiceDocBtn" class="ghost" href="#" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:12px 18px">&#129534; Invoice</a>
@@ -155,9 +167,14 @@ button.lose:hover{background:#FCA5A5}
         <button class="lose" data-status="lost">Mark lost</button>
       </div>
 
-      <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div class="action-row">
+        <button class="review" id="sendReview">&#11088; Send review request</button>
+        <button class="ghost" id="reviewReceived">&#10003; Mark review received</button>
+      </div>
+
+      <div class="staff-hide" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <button class="lose" id="deleteBtn" style="padding:10px 16px;font-size:13px">&#128465; Delete this quote</button>
-        <span class="muted" style="font-size:12px">Removes the customer and all their appointments from Supabase. Cannot be undone.</span>
+        <span class="muted" style="font-size:12px">Moves the customer to the recycle bin. You can restore it within 30 days.</span>
       </div>
     </div>
 
@@ -237,12 +254,22 @@ button.lose:hover{background:#FCA5A5}
       <button class="primary" id="remSet" style="margin-top:10px">Set reminder</button>
       <p class="muted" style="font-size:12px;margin-top:8px">Adds a "Call" event to Google Calendar and alerts you at that time.</p>
     </div>
+
+    <div class="card">
+      <h2>Crew</h2>
+      <div id="crewCurrent" class="muted" style="margin-bottom:10px">No crew assigned yet.</div>
+      <label>Assign crew (names)</label>
+      <input type="text" id="crewInput" placeholder="e.g. Moses, Tibi, Milo">
+      <div class="flash" id="crewFlash"></div>
+      <button class="primary" id="crewSave" style="margin-top:10px">Save crew</button>
+    </div>
   </div>
 </div>
 
 <script>
 const id = window.location.pathname.split('/').pop();
 let quote = null;
+let myRole = 'admin';
 
 document.getElementById('quoteDocBtn').href = '/admin/quote-doc?id=' + encodeURIComponent(id);
 document.getElementById('invoiceDocBtn').href = '/admin/invoice-doc?id=' + encodeURIComponent(id);
@@ -297,10 +324,64 @@ async function load() {
   }
   const data = await res.json();
   quote = data.quote;
+  myRole = data.role || 'admin';
+  document.body.classList.toggle('staff', myRole === 'staff');
+  showChip(data.display_name || 'Admin');
+  renderDupes(data.duplicates || []);
   renderCustomer(quote);
   renderNotes(quote.notes);
+  renderCrew(quote.notes);
   renderAppts(quote.relokates_appointments || []);
   renderReminders(data.reminders || []);
+}
+
+// Identity chip (initials or a locally-stored photo; photo never uploaded).
+function showChip(name){
+  const slot = document.getElementById('chipSlot'); if (!slot) return;
+  const initials = String(name||'Admin').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase() || 'A';
+  const key = 'rlk_avatar_' + String(name||'admin').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+  const saved = (()=>{ try { return localStorage.getItem(key); } catch { return null; } })();
+  slot.innerHTML = `<span class="chip"><span class="ava" id="chipAva" title="Tap to set a photo">${saved?`<img src="${saved}" alt="">`:esc(initials)}</span>${esc(name||'Admin')}</span>`;
+  document.getElementById('chipAva').addEventListener('click', () => {
+    const inp = document.createElement('input'); inp.type='file'; inp.accept='image/*';
+    inp.addEventListener('change', () => {
+      const f = inp.files && inp.files[0]; if (!f) return;
+      const img = new Image(); const rd = new FileReader();
+      rd.onload = () => { img.onload = () => {
+        const c=document.createElement('canvas'); c.width=128; c.height=128;
+        const ctx=c.getContext('2d'); const s=Math.min(img.width,img.height);
+        ctx.drawImage(img,(img.width-s)/2,(img.height-s)/2,s,s,0,0,128,128);
+        const dataUrl=c.toDataURL('image/jpeg',0.85);
+        try { localStorage.setItem(key,dataUrl); } catch {}
+        document.getElementById('chipAva').innerHTML=`<img src="${dataUrl}" alt="">`;
+      }; img.src=rd.result; };
+      rd.readAsDataURL(f);
+    });
+    inp.click();
+  });
+}
+
+// Possible-duplicate banner.
+function renderDupes(dupes){
+  const el = document.getElementById('dupeBanner'); if (!el) return;
+  if (!dupes.length) { el.innerHTML = ''; return; }
+  const links = dupes.map(d => `<a href="/admin/quote/${esc(d.id)}">${esc(d.name||'lead')}</a>`).join(', ');
+  el.innerHTML = `<div class="dupe-banner">&#9888;&#65039; Possible duplicate - this phone or email also appears on: ${links}</div>`;
+}
+
+// Current crew from the latest "Crew assigned:" note.
+function renderCrew(notes){
+  const el = document.getElementById('crewCurrent'); if (!el) return;
+  const arr = Array.isArray(notes) ? notes : [];
+  let crew = '';
+  for (let i = arr.length - 1; i >= 0; i--) {
+    const t = String(arr[i].text || '');
+    const m = /^Crew assigned:\s*(.+)$/.exec(t);
+    if (m) { crew = m[1]; break; }
+    if (/^Crew cleared$/.test(t)) { crew = ''; break; }
+  }
+  el.textContent = crew ? ('Assigned: ' + crew) : 'No crew assigned yet.';
+  const inp = document.getElementById('crewInput'); if (inp && crew && !inp.value) inp.value = crew;
 }
 
 function renderReminders(list) {
@@ -407,26 +488,67 @@ document.getElementById('noteBtn').addEventListener('click', async () => {
   }
 });
 
-// Status buttons (contacted, won, lost)
+// Status buttons. Marking a job Completed offers to email a review request.
 document.querySelectorAll('button[data-status]').forEach(btn => {
   btn.addEventListener('click', async () => {
     const status = btn.dataset.status;
-    if ((status === 'won' || status === 'lost') && !confirm(`Mark this quote as ${status.toUpperCase()}?`)) return;
+    if ((status === 'won' || status === 'lost') && !confirm(`Mark this quote as ${status === 'won' ? 'COMPLETED' : status.toUpperCase()}?`)) return;
+    const payload = { status };
+    if (status === 'won' && quote && quote.email
+        && !((quote.notes || []).some(n => String(n.text || '').includes('Review request emailed')))) {
+      payload.send_review = confirm('Also email ' + (quote.name || 'the customer') + ' a thank-you with your Google review link?');
+    }
     btn.disabled = true;
     try {
       const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        alert(d.error || 'Failed to update status');
-      } else {
-        load();
-      }
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { alert(d.error || 'Failed to update status'); }
+      else { if (d.review_request === 'sent') alert('Review request sent.'); load(); }
     } finally { btn.disabled = false; }
   });
+});
+
+// Review request buttons.
+document.getElementById('sendReview').addEventListener('click', async () => {
+  if (!quote || !quote.email) { alert('No customer email on file.'); return; }
+  if (!confirm('Email ' + (quote.name || 'the customer') + ' a Google review request now?')) return;
+  const btn = document.getElementById('sendReview'); btn.disabled = true;
+  try {
+    const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ resend_review: true }),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) alert(d.error || 'Could not send review request');
+    else { alert('Review request sent.'); load(); }
+  } finally { btn.disabled = false; }
+});
+document.getElementById('reviewReceived').addEventListener('click', async () => {
+  if (!confirm('Mark that this customer has left a Google review?')) return;
+  try {
+    const res = await fetch('/api/admin/note', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lead_id: id, text: 'Review received on Google' }),
+    });
+    if (res.ok) load();
+  } catch (_) {}
+});
+
+// Crew allocation (stored as a note so no schema change is needed).
+document.getElementById('crewSave').addEventListener('click', async () => {
+  const val = document.getElementById('crewInput').value.trim();
+  const flash = document.getElementById('crewFlash');
+  const text = val ? ('Crew assigned: ' + val) : 'Crew cleared';
+  const btn = document.getElementById('crewSave'); btn.disabled = true;
+  try {
+    const res = await fetch('/api/admin/note', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lead_id: id, text }),
+    });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); showFlash(flash, d.error || 'Failed to save crew', false); return; }
+    showFlash(flash, 'Crew saved.', true); load();
+  } catch (e) { showFlash(flash, 'Network error', false); } finally { btn.disabled = false; }
 });
 
 // Value save
@@ -458,7 +580,7 @@ document.getElementById('valueSave').addEventListener('click', async () => {
 document.getElementById('deleteBtn').addEventListener('click', async () => {
   const cust = document.getElementById('customer');
   const name = (cust.querySelector('dd')?.textContent || 'this customer').trim();
-  if (!confirm(`Delete "${name}" and all their appointments?\n\nThis cannot be undone.`)) return;
+  if (!confirm(`Move "${name}" to the recycle bin?\n\nYou can restore it within 30 days.`)) return;
   const btn = document.getElementById('deleteBtn');
   btn.disabled = true; btn.textContent = 'Deleting...';
   try {
@@ -557,6 +679,9 @@ function wireForm(formId, flashId) {
         showFlash(flash, 'Saved, but these steps need attention: ' + probs, false);
       } else {
         showFlash(flash, 'Booked. Customer notified.', true);
+      }
+      if (d.conflicts && d.conflicts.length) {
+        alert('Heads up: you already have ' + d.conflicts.join(', ') + ' booked to move that day. The booking is saved - just check your crews.');
       }
       form.reset();
       load();
