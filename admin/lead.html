@@ -85,6 +85,7 @@ button.lose:hover{background:#FCA5A5}
 /* crew roster (Medway style) */
 .crew-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:10px;background:#fff}
 .crew-item .nm{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--navy)}
+.crew-item.on{border-color:var(--gold);background:#fffdf5}
 .crew-item .nm input{width:18px;height:18px}
 .crew-wa{display:inline-flex;align-items:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;font-family:Montserrat,sans-serif;font-weight:700;font-size:12px;padding:8px 14px;border-radius:99px}
 .note{background:var(--cream);border-left:3px solid var(--gold);padding:12px 14px;border-radius:6px;margin-bottom:8px;font-size:14px}
@@ -285,12 +286,10 @@ button.review:hover{background:#FEF08A}
     </div>
 
     <div class="card">
-      <h2>Crew</h2>
-      <div id="crewCurrent" class="muted" style="margin-bottom:10px">No crew assigned yet.</div>
-      <label>Assign crew (names)</label>
-      <input type="text" id="crewInput" placeholder="e.g. Moses, Tibi, Milo">
+      <h2>Crew for this job</h2>
+      <div id="crewList"></div>
       <div class="flash" id="crewFlash"></div>
-      <button class="k navy full" id="crewSave" style="margin-top:10px">Save crew</button>
+      <button class="k navy full" id="crewSave" style="margin-top:12px">Save crew</button>
     </div>
   </div>
 </div>
@@ -299,6 +298,16 @@ button.review:hover{background:#FEF08A}
 const id = window.location.pathname.split('/').pop();
 let quote = null;
 let myRole = 'admin';
+
+// Crew roster (shared team). WhatsApp numbers in international format.
+const CREW = [
+  { name: 'Moses',    wa: '447366390504' },
+  { name: 'Tibi',     wa: '447340148916' },
+  { name: 'Milo',     wa: '447508297584' },
+  { name: 'Emmanuel', wa: '447867021205' },
+  { name: 'Jackson',  wa: '447383438805' },
+  { name: 'Caleb',    wa: '447931926990' },
+];
 
 document.getElementById('quoteDocBtn').href = '/admin/quote-doc?id=' + encodeURIComponent(id);
 document.getElementById('invoiceDocBtn').href = '/admin/invoice-doc?id=' + encodeURIComponent(id);
@@ -398,19 +407,37 @@ function renderDupes(dupes){
   el.innerHTML = `<div class="dupe-banner">&#9888;&#65039; Possible duplicate - this phone or email also appears on: ${links}</div>`;
 }
 
-// Current crew from the latest "Crew assigned:" note.
-function renderCrew(notes){
-  const el = document.getElementById('crewCurrent'); if (!el) return;
+// Current crew = whatever the latest "Crew assigned:" note says (lives in the
+// lead's own history, so no schema change needed).
+function currentCrew(notes){
   const arr = Array.isArray(notes) ? notes : [];
-  let crew = '';
   for (let i = arr.length - 1; i >= 0; i--) {
     const t = String(arr[i].text || '');
+    if (/^Crew cleared/.test(t)) return [];
     const m = /^Crew assigned:\s*(.+)$/.exec(t);
-    if (m) { crew = m[1]; break; }
-    if (/^Crew cleared$/.test(t)) { crew = ''; break; }
+    if (m) return m[1].split(',').map(x => x.trim()).filter(Boolean);
   }
-  el.textContent = crew ? ('Assigned: ' + crew) : 'No crew assigned yet.';
-  const inp = document.getElementById('crewInput'); if (inp && crew && !inp.value) inp.value = crew;
+  return [];
+}
+function crewJobMessage(member){
+  const q = quote || {};
+  const bits = ['Hi ' + member + ', you are on the move for ' + (q.name || 'a customer')];
+  if (q.move_date) bits.push('on ' + fmt(q.move_date));
+  if (q.move_from || q.move_to) bits.push('from ' + (q.move_from || '?') + ' to ' + (q.move_to || '?'));
+  return bits.join(' ') + '. Please confirm you are available. Thanks, Relokates Removals.';
+}
+// Crew picker: tick who's on the job + one-tap WhatsApp each.
+function renderCrew(notes){
+  const el = document.getElementById('crewList'); if (!el) return;
+  const on = currentCrew(notes);
+  el.innerHTML = CREW.map(c => `
+    <div class="crew-item ${on.includes(c.name) ? 'on' : ''}">
+      <label class="nm"><input type="checkbox" class="crew-cb" data-name="${esc(c.name)}" ${on.includes(c.name) ? 'checked' : ''}> ${esc(c.name)}</label>
+      <a class="crew-wa" href="https://wa.me/${c.wa}?text=${encodeURIComponent(crewJobMessage(c.name))}" target="_blank" rel="noopener">&#128172; WhatsApp</a>
+    </div>`).join('');
+  el.querySelectorAll('.crew-cb').forEach(cb => cb.addEventListener('change', () => {
+    cb.closest('.crew-item').classList.toggle('on', cb.checked);
+  }));
 }
 
 function renderReminders(list) {
@@ -567,16 +594,16 @@ document.getElementById('reviewReceived').addEventListener('click', async () => 
 
 // Crew allocation (stored as a note so no schema change is needed).
 document.getElementById('crewSave').addEventListener('click', async () => {
-  const val = document.getElementById('crewInput').value.trim();
+  const picked = Array.from(document.querySelectorAll('.crew-cb:checked')).map(c => c.dataset.name);
   const flash = document.getElementById('crewFlash');
-  const text = val ? ('Crew assigned: ' + val) : 'Crew cleared';
+  const text = picked.length ? ('Crew assigned: ' + picked.join(', ')) : 'Crew cleared';
   const btn = document.getElementById('crewSave'); btn.disabled = true;
   try {
     const res = await fetch('/api/admin/note', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lead_id: id, text }),
     });
     if (!res.ok) { const d = await res.json().catch(() => ({})); showFlash(flash, d.error || 'Failed to save crew', false); return; }
-    showFlash(flash, 'Crew saved.', true); load();
+    showFlash(flash, picked.length ? ('Crew saved: ' + picked.join(', ')) : 'Crew cleared.', true); load();
   } catch (e) { showFlash(flash, 'Network error', false); } finally { btn.disabled = false; }
 });
 
