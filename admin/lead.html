@@ -531,10 +531,10 @@ document.getElementById('noteBtn').addEventListener('click', async () => {
   const flash = document.getElementById('noteFlash');
   if (!text) { showFlash(flash, 'Note cannot be empty.', false); return; }
   try {
-    const res = await fetch('/api/admin/note', {
-      method: 'POST',
+    const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lead_id: id, text }),
+      body: JSON.stringify({ add_note: text }),
     });
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
@@ -605,8 +605,8 @@ document.getElementById('sendReview').addEventListener('click', async () => {
 document.getElementById('reviewReceived').addEventListener('click', async () => {
   if (!confirm('Mark that this customer has left a Google review?')) return;
   try {
-    const res = await fetch('/api/admin/note', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lead_id: id, text: 'Review received on Google' }),
+    const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ add_note: 'Review received on Google' }),
     });
     if (res.ok) load();
   } catch (_) {}
@@ -619,8 +619,8 @@ document.getElementById('crewSave').addEventListener('click', async () => {
   const text = picked.length ? ('Crew assigned: ' + picked.join(', ')) : 'Crew cleared';
   const btn = document.getElementById('crewSave'); btn.disabled = true;
   try {
-    const res = await fetch('/api/admin/note', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lead_id: id, text }),
+    const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ add_note: text }),
     });
     if (!res.ok) { const d = await res.json().catch(() => ({})); showFlash(flash, d.error || 'Failed to save crew', false); return; }
     showFlash(flash, picked.length ? ('Crew saved: ' + picked.join(', ')) : 'Crew cleared.', true); load();

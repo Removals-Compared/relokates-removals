@@ -72,6 +72,14 @@ export default async function handler(req, res) {
     if (req.method === 'PATCH') {
       const body = req.body || {};
 
+      // Add a free-text internal note (folded in from the old /note endpoint).
+      if (typeof body.add_note === 'string') {
+        const text = body.add_note.trim();
+        if (!text) return res.status(400).json({ error: 'text required' });
+        const updated = await appendNote(id, text);
+        return res.status(200).json({ quote: stripMoney(updated, role) });
+      }
+
       // Restore from the recycle bin.
       if (body.restore === true) {
         if (role === 'staff') return res.status(403).json({ error: 'staff cannot restore leads' });
