@@ -51,10 +51,10 @@ export async function createEvent(event) {
 export function buildAppointmentEvent({ type, scheduledFor, durationMinutes = 60, customer, address, notes }) {
   const start = new Date(scheduledFor);
   const end = new Date(start.getTime() + durationMinutes * 60_000);
-  const isSurvey = type === 'survey';
-  const summary = isSurvey ? `Survey - ${customer.name}` : `Move - ${customer.name}`;
+  const label = type === 'survey' ? 'Survey' : type === 'packing' ? 'Packing' : 'Move';
+  const summary = `${label} - ${customer.name}`;
   const description = [
-    isSurvey ? 'Pre-move survey with Relokates Removals.' : 'Moving day with Relokates Removals.',
+    type === 'survey' ? 'Pre-move survey with Relokates Removals.' : type === 'packing' ? 'Packing day with Relokates Removals.' : 'Moving day with Relokates Removals.',
     '',
     `Customer: ${customer.name}`,
     `Phone:    ${customer.phone || ''}`,

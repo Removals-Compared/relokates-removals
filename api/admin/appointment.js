@@ -8,7 +8,7 @@
 import { requireAuth, actorName } from './_session.js';
 import { getQuote, createAppointment, updateAppointment, updateQuote, fetchMovesOnDate, appendNote, logActivity } from './_db.js';
 import { createEvent, buildAppointmentEvent, isGcalConfigured } from './_gcal.js';
-import { sendSurveyConfirmation, sendBookingConfirmation } from './_email.js';
+import { sendSurveyConfirmation, sendBookingConfirmation, sendPackingConfirmation } from './_email.js';
 
 export default async function handler(req, res) {
   if (!requireAuth(req, res)) return;
@@ -18,8 +18,8 @@ export default async function handler(req, res) {
   if (!lead_id || !type || !scheduled_for) {
     return res.status(400).json({ error: 'lead_id, type and scheduled_for required' });
   }
-  if (!['survey', 'move'].includes(type)) {
-    return res.status(400).json({ error: 'type must be survey or move' });
+  if (!['survey', 'move', 'packing'].includes(type)) {
+    return res.status(400).json({ error: 'type must be survey, move or packing' });
   }
 
   const errors = [];
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
   // Customer email.
   if (customer.email) {
     try {
-      const send = type === 'survey' ? sendSurveyConfirmation : sendBookingConfirmation;
+      const send = type === 'survey' ? sendSurveyConfirmation : type === 'packing' ? sendPackingConfirmation : sendBookingConfirmation;
       await send({ customer, scheduledFor: scheduled_for, address: address || quote.move_from, notes });
       await updateAppointment(appointment.id, { email_sent: true });
       appointment.email_sent = true;
@@ -71,18 +71,22 @@ export default async function handler(req, res) {
     }
   }
 
-  // Status advance.
-  try {
-    await updateQuote(lead_id, { status: type === 'survey' ? 'survey_booked' : 'move_booked' });
-  } catch (e) {
-    errors.push({ step: 'status', message: e.message });
+  // Status advance - survey/move drive the pipeline; a packing day does not
+  // (it is day one of a 2-day job; the separate move booking sets move_booked).
+  if (type !== 'packing') {
+    try {
+      await updateQuote(lead_id, { status: type === 'survey' ? 'survey_booked' : 'move_booked' });
+    } catch (e) {
+      errors.push({ step: 'status', message: e.message });
+    }
   }
 
   // Audit trail (best-effort).
   const actor = actorName(req);
+  const typeLabel = type === 'survey' ? 'Survey' : type === 'packing' ? 'Packing day' : 'Move';
   try {
-    await appendNote(lead_id, `${type === 'survey' ? 'Survey' : 'Move'} booked by ${actor} for ${scheduled_for}`);
-    await logActivity({ actor, action: type === 'survey' ? 'booked survey' : 'booked move', lead_id, lead_name: quote.name, detail: scheduled_for });
+    await appendNote(lead_id, `${typeLabel} booked by ${actor} for ${scheduled_for}`);
+    await logActivity({ actor, action: `booked ${type}`, lead_id, lead_name: quote.name, detail: scheduled_for });
   } catch (_) { /* non-fatal */ }
 
   // Booking-conflict warning: other move jobs already on that day.

@@ -275,6 +275,30 @@ button.review:hover{background:#FEF08A}
     </div>
 
     <div class="card">
+      <h2>Book the packing day</h2>
+      <p class="muted">For 2-day jobs: the crew packs on day one, the move happens on the moving date. Booking a packing day does not change the lead status.</p>
+      <form id="packingForm" data-type="packing">
+        <div class="row">
+          <div><label>Date &amp; time</label><input type="datetime-local" name="scheduled_for" required></div>
+          <div><label>Duration (mins)</label>
+            <select name="duration_minutes">
+              <option value="120">2 hrs</option>
+              <option value="180">3 hrs</option>
+              <option value="240" selected>4 hrs</option>
+              <option value="360">6 hrs</option>
+            </select>
+          </div>
+        </div>
+        <label>Address</label>
+        <input type="text" name="address" placeholder="Leave blank to use the customer's 'moving from' address">
+        <label>Packing plan / notes for the customer</label>
+        <textarea name="notes" rows="4">Our crew will pack all rooms into boxes, wrap furniture and fragile items, and label every box by room so unloading is easy. Please keep aside your valuables, documents and anything you need overnight.</textarea>
+        <div class="flash" id="packingFlash"></div>
+        <button class="primary" type="submit" style="margin-top:10px">Book packing day</button>
+      </form>
+    </div>
+
+    <div class="card">
       <h2>Call reminders</h2>
       <div id="reminders"></div>
       <div class="row">
@@ -511,7 +535,7 @@ function renderAppts(appts) {
   el.innerHTML = appts.map(a => `
     <div class="appt ${a.type}">
       <div class="head">
-        <h4>${a.type === 'survey' ? 'Survey' : 'Move'}</h4>
+        <h4>${a.type === 'survey' ? 'Survey' : a.type === 'packing' ? 'Packing day' : 'Move'}</h4>
         <span class="when">${fmt(a.scheduled_for)}</span>
       </div>
       <div class="meta">
@@ -765,12 +789,13 @@ function wireForm(formId, flashId) {
       showFlash(flash, 'Network error', false);
     } finally {
       btn.disabled = false;
-      btn.textContent = form.dataset.type === 'survey' ? 'Book survey' : 'Book move';
+      btn.textContent = form.dataset.type === 'survey' ? 'Book survey' : form.dataset.type === 'packing' ? 'Book packing day' : 'Book move';
     }
   });
 }
 wireForm('surveyForm', 'surveyFlash');
 wireForm('moveForm', 'moveFlash');
+wireForm('packingForm', 'packingFlash');
 
 // Call reminder
 document.getElementById('remSet').addEventListener('click', async () => {

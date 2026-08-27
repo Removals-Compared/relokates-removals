@@ -31,7 +31,7 @@ CREATE INDEX IF NOT EXISTS relokates_quote_request_status_idx
 CREATE TABLE IF NOT EXISTS relokates_appointments (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   lead_id bigint NOT NULL,
-  type text NOT NULL CHECK (type IN ('survey', 'move')),
+  type text NOT NULL CHECK (type IN ('survey', 'move', 'packing')),
   scheduled_for timestamptz NOT NULL,
   duration_minutes int NOT NULL DEFAULT 60,
   address text,
@@ -90,3 +90,9 @@ CREATE TABLE IF NOT EXISTS activity_log (
 );
 CREATE INDEX IF NOT EXISTS activity_log_at_idx ON activity_log (at DESC);
 ALTER TABLE activity_log DISABLE ROW LEVEL SECURITY;
+
+-- ── Migration: allow packing-day bookings ───────────────────
+-- 2-day jobs need a "packing" appointment type. Safe to run repeatedly.
+alter table relokates_appointments drop constraint if exists relokates_appointments_type_check;
+alter table relokates_appointments add constraint relokates_appointments_type_check
+  check (type in ('survey','move','packing'));

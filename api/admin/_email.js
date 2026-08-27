@@ -25,9 +25,13 @@ function shellHtml(body) {
       </div>
       <div style="background:#F4F8F6;padding:24px;border:1px solid #c8ddd8;border-top:none;border-radius:0 0 8px 8px;color:#1A3C6E">
         ${body}
-        <hr style="border:none;border-top:1px solid #c8ddd8;margin:24px 0">
-        <p style="font-size:13px;color:#556070;margin:0">Need to change or cancel? Call 07359 724844 or reply to this email.</p>
-        <p style="font-size:13px;color:#556070;margin:8px 0 0">Relokates Removals - Company No. 13441775 - info@relokates.co.uk</p>
+        <p style="margin-top:20px;font-size:14px;color:#556070;line-height:1.6">If anything needs to change, just reply to this email, or reach us whichever way suits you:</p>
+        <div style="text-align:center;margin:14px 0 4px">
+          <a href="tel:07359724844" style="background:#B8932A;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 22px;border-radius:9px;display:inline-block;margin:4px">&#128222; Call 07359 724844</a>
+          <a href="https://wa.me/447359724844" style="background:#25D366;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 22px;border-radius:9px;display:inline-block;margin:4px">&#128172; WhatsApp us</a>
+        </div>
+        <hr style="border:none;border-top:1px solid #c8ddd8;margin:20px 0">
+        <p style="font-size:13px;color:#556070;margin:0">Relokates Removals - Company No. 13441775 - 07359 724844 - info@relokates.co.uk</p>
       </div>
     </div>
   `;
@@ -47,6 +51,24 @@ export async function sendSurveyConfirmation({ customer, scheduledFor, address, 
     from: 'Relokates Removals <info@relokates.co.uk>',
     to: customer.email,
     subject: `Survey confirmed - ${when} - Relokates Removals`,
+    html: shellHtml(body),
+  });
+}
+
+export async function sendPackingConfirmation({ customer, scheduledFor, address, notes }) {
+  const when = formatDateTime(scheduledFor);
+  const body = `
+    <p style="font-size:15px">Hello ${customer.name},</p>
+    <p style="font-size:15px;line-height:1.7">Your <strong>packing day</strong> with Relokates Removals is confirmed for <strong style="color:#B8932A">${when}</strong>.</p>
+    ${address ? `<p style="font-size:14px;line-height:1.7"><strong>Address:</strong><br>${address}</p>` : ''}
+    ${notes ? `<p style="font-size:14px;line-height:1.7"><strong>Notes:</strong><br>${notes}</p>` : ''}
+    <p style="font-size:14px;line-height:1.7">Our crew will carefully pack and label everything by room so it is all ready for moving day. Please set aside your valuables, documents and anything you need overnight.</p>
+    <p style="font-size:14px;line-height:1.7">You will also receive a calendar invite from info@relokates.co.uk.</p>
+  `;
+  return transporter.sendMail({
+    from: 'Relokates Removals <info@relokates.co.uk>',
+    to: customer.email,
+    subject: `Packing day confirmed - ${when} - Relokates Removals`,
     html: shellHtml(body),
   });
 }
