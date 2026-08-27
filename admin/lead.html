@@ -515,7 +515,7 @@ function renderCustomer(q) {
   c.innerHTML = [
     ['Status', `<span class="tag tag-${status}">${status === 'won' ? 'Completed' : status.replace('_',' ')}</span>`],
     ['Name', esc(q.name)],
-    ['Phone', q.phone ? `<a href="tel:${esc(q.phone)}">${esc(q.phone)}</a>` : '-'],
+    ['Phone', q.phone ? `<a href="tel:${esc(q.phone)}">${esc(q.phone)}</a> &nbsp;<a href="https://wa.me/${String(q.phone).replace(/[^\d]/g,'').replace(/^0/,'44')}?text=${encodeURIComponent('Hi ' + (q.name||'').split(' ')[0] + ', it\'s Relokates Removals about your removals quote.')}" target="_blank" rel="noopener" style="background:#25D366;color:#fff;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:12px;text-decoration:none">&#128172; WhatsApp</a>` : '-'],
     ['Email', q.email ? `<a href="mailto:${esc(q.email)}">${esc(q.email)}</a>` : '-'],
     ['Service', esc(q.service || '-')],
     ['Moving from', esc(q.move_from || '-')],
