@@ -38,6 +38,22 @@
 .flash{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none}
 .flash.ok{background:#D1FAE5;color:#065F46;border:1px solid #6EE7B7;display:block}
 .flash.err{background:#FEF2F2;color:#991B1B;border:1px solid #FCA5A5;display:block}
+
+/* ── Dark mode: follows the phone/computer setting ── */
+@media (prefers-color-scheme: dark){
+  html,body{background:#0e1422 !important;color:#dfe5f0}
+  .card,.stat,.controls,.bulkbar,.modal,table,.tcard,.appt,.rem,.crew-item{background:#18213a !important;border-color:#293651 !important;color:#dfe5f0}
+  .card h2,.modal h3,.stat .n,.detail-grid dd,.who,.today .ti .n,.tcard h3,.crew-item .nm{color:#dfe5f0}
+  thead th{background:#131b30 !important;color:#8a97b2 !important;border-color:#293651 !important}
+  tbody td{border-color:#242f4a !important}
+  tbody tr:hover{background:#1d2842 !important}
+  input,select,textarea{background:#121a2e !important;border-color:#2c3a58 !important;color:#dfe5f0}
+  input::placeholder,textarea::placeholder{color:#7c89a5}
+  .muted,.sub,.empty,.stat .l,.detail-grid dt,.today .ti .s,.today .none,.act-detail{color:#8a97b2 !important}
+  .note{background:#1d2842 !important}
+  .btn.grey,.k.grey{background:linear-gradient(180deg,#243150,#1a2540) !important;color:#dfe5f0 !important;box-shadow:0 5px 0 #0c1424,0 7px 12px rgba(0,0,0,.3) !important}
+}
+
 </style>
 </head>
 <body>
