@@ -406,6 +406,9 @@ async function load(){
   if(!res.ok){ document.getElementById('loading').textContent='Could not load this quote.'; return; }
   const data=await res.json();
   quote=data.quote;
+  window.ACCEPT_LINK = data.accept_token
+    ? 'https://www.relokates.co.uk/api/accept-quote?id=' + encodeURIComponent(id) + '&t=' + data.accept_token
+    : '';
   fill(quote);
   document.getElementById('loading').style.display='none';
   document.getElementById('sheetWrap').style.display='';
@@ -482,6 +485,7 @@ function prefillEmail(){
     const from=quote.move_from||'your current address';
     const to2=quote.move_to||'your new address';
     const dateLine=quote.move_date? ('Your preferred move date is '+fmtDate(quote.move_date)+'. '):'';
+    const acceptLine = window.ACCEPT_LINK ? ('\n\nHappy with it? Accept your quote online in one click:\n' + window.ACCEPT_LINK) : '';
     body.value=
 `Hello ${firstName(quote.name)},
 
@@ -489,7 +493,7 @@ Thank you for getting in touch with Relokates Removals. Please find your fixed-p
 
 It covers your move from ${from} to ${to2}. ${dateLine}${total? 'The total price is '+total+', fully inclusive with no hidden charges.':'Your price is set out in the attached quotation.'}
 
-To secure your date, a 50 pound deposit is all that is needed, with the balance due on completion day. This quote is valid for 14 days.
+To secure your date, a 50 pound deposit is all that is needed, with the balance due on completion day. This quote is valid for 14 days.${acceptLine}
 
 If you have any questions or would like to book, just reply to this email or call us on 07359 724844.
 

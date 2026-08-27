@@ -17,16 +17,24 @@ const transporter = nodemailer.createTransport({
 });
 
 function htmlWrap(body) {
-  const safe = String(body || '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br>');
+  const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+  // If the message contains an accept-quote link, render it as a big 3D button.
+  const acceptMatch = String(body || '').match(/https:\/\/www\.relokates\.co\.uk\/api\/accept-quote\?\S+/);
+  let inner;
+  if (acceptMatch) {
+    const [before, after] = String(body).split(acceptMatch[0]);
+    const btn = `<div style="text-align:center;margin:22px 0"><a href="${acceptMatch[0]}" style="background:linear-gradient(180deg,#22b558,#0f803a);color:#ffffff;text-decoration:none;font-weight:700;font-family:Arial,Helvetica,sans-serif;font-size:16px;padding:15px 36px;border-radius:10px;display:inline-block;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 3px 0 #0c6b30,0 7px 16px rgba(22,163,74,.35)">&#10003; Click here to accept this quote</a></div>`;
+    inner = esc((before || '').trimEnd()) + btn + esc((after || '').trimStart());
+  } else {
+    inner = esc(body);
+  }
   return `
     <div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px">
       <div style="background:#1A3C6E;padding:20px 24px;border-radius:8px 8px 0 0">
         <h2 style="color:#A8C5BC;margin:0;font-size:18px">Relokates Removals</h2>
       </div>
       <div style="background:#fff;padding:28px;border:1px solid #c8ddd8;border-top:none;border-radius:0 0 8px 8px;color:#1f2937;font-size:14px;line-height:1.7">
-        ${safe}
+        ${inner}
         <hr style="border:none;border-top:1px solid #c8ddd8;margin:24px 0">
         <p style="font-size:12px;color:#556070;margin:0">Relokates Removals &middot; Company No. 13441775 &middot; 07359 724844 &middot; info@relokates.co.uk</p>
       </div>

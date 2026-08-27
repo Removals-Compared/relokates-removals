@@ -66,6 +66,7 @@ tbody tr:last-child td{border-bottom:none}
 
 .pill{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:99px;font-family:Montserrat,sans-serif;white-space:nowrap}
 .pill.new{background:#E0F2FE;color:#075985}
+.pill.accepted{background:#D1FAE5;color:#047857}
 .pill.contacted{background:#FEF3C7;color:#92400E}
 .pill.quote_sent{background:#e0e7ff;color:#4338ca}
 .pill.prospecting{background:#ccfbf1;color:#0f766e}
@@ -157,6 +158,7 @@ body.staff .del,body.staff .bulkbar,body.staff td.cb-col,body.staff th.cb-col,bo
     <select id="filter">
       <option value="all" selected>All statuses</option>
       <option value="new">New</option>
+      <option value="accepted">Accepted</option>
       <option value="contacted">Contacted</option>
       <option value="quote_sent">Quote Sent</option>
       <option value="prospecting">Prospecting</option>
@@ -257,18 +259,18 @@ body.staff .del,body.staff .bulkbar,body.staff td.cb-col,body.staff th.cb-col,bo
 <script>
 // Stat cards, in dashboard order. "won" is shown as Completed.
 const STATUSES = [
-  ['all','All'], ['new','New'], ['contacted','Contacted'], ['quote_sent','Quote Sent'],
+  ['all','All'], ['new','New'], ['accepted','Accepted'], ['contacted','Contacted'], ['quote_sent','Quote Sent'],
   ['prospecting','Prospecting'], ['survey_booked','Survey booked'], ['move_booked','Move booked'], ['won','Completed'],
 ];
 const labelFor = (s) => ({
-  new:'New', contacted:'Contacted', quote_sent:'Quote Sent', prospecting:'Prospecting',
+  new:'New', accepted:'Accepted', contacted:'Contacted', quote_sent:'Quote Sent', prospecting:'Prospecting',
   survey_booked:'Survey booked', move_booked:'Move booked', won:'Completed', lost:'Lost',
 }[s] || s || 'New');
 
 // Pipeline order: new first, then move booked (soonest first), survey booked,
 // prospecting, quote sent, contacted, completed, lost. Array.sort is stable, so
 // the fetched newest-first order is kept within each group.
-const STATUS_RANK = { new:0, move_booked:1, survey_booked:2, prospecting:3, quote_sent:4, contacted:5, won:6, lost:7 };
+const STATUS_RANK = { new:0, accepted:1, move_booked:2, survey_booked:3, prospecting:4, quote_sent:5, contacted:6, won:7, lost:8 };
 function sortLeads(rows){
   const md = (r) => ((r.move_date || '').slice(0,10)) || '9999-99-99';
   const rank = (r) => STATUS_RANK[r.status] ?? 0;

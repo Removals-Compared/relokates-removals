@@ -30,6 +30,7 @@
 .detail-grid a{color:var(--gold);text-decoration:none;font-weight:600}
 .tag{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:99px;font-family:Montserrat,sans-serif}
 .tag-new{background:#E0F2FE;color:#075985}
+.tag-accepted{background:#D1FAE5;color:#047857}
 .tag-contacted{background:#FEF3C7;color:#92400E}
 .tag-survey_booked{background:#DDD6FE;color:#5B21B6}
 .tag-move_booked{background:#D1FAE5;color:#065F46}
@@ -190,6 +191,7 @@ button.review:hover{background:#FEF08A}
 
       <div class="btn-grid">
         <button class="k navy" data-status="new">New</button>
+        <button class="k navy" data-status="accepted">Accepted</button>
         <button class="k navy" data-status="contacted">Contacted</button>
         <button class="k navy" data-status="quote_sent">Quote sent</button>
         <button class="k navy" data-status="prospecting">Prospecting</button>
@@ -197,6 +199,7 @@ button.review:hover{background:#FEF08A}
       <button class="k green full" data-status="won" style="margin-top:12px">&#10003; Mark completed</button>
       <button class="k red full" data-status="lost" style="margin-top:12px">Mark lost</button>
 
+      <button class="k grey full" id="sendFollowup" style="margin-top:12px">&#9203; Send quote follow-up</button>
       <div class="btn-grid">
         <button class="k grey" id="sendReview">&#11088; Review request</button>
         <button class="k grey" id="reviewReceived">&#10003; Review received</button>
@@ -568,6 +571,21 @@ document.querySelectorAll('button[data-status]').forEach(btn => {
       else { if (d.review_request === 'sent') alert('Review request sent.'); load(); }
     } finally { btn.disabled = false; }
   });
+});
+
+// Quote follow-up (gentle chase email).
+document.getElementById('sendFollowup').addEventListener('click', async () => {
+  if (!quote || !quote.email) { alert('No customer email on file.'); return; }
+  if (!confirm('Email ' + (quote.name || 'the customer') + ' a gentle follow-up about their quote?')) return;
+  const btn = document.getElementById('sendFollowup'); btn.disabled = true;
+  try {
+    const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ send_followup: true }),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) alert(d.error || 'Could not send follow-up');
+    else { alert('Follow-up sent.'); load(); }
+  } finally { btn.disabled = false; }
 });
 
 // Review request buttons.

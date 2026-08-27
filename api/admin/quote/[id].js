@@ -1,11 +1,19 @@
+import crypto from 'node:crypto';
 import { requireAuth, actorName } from '../_session.js';
 import {
   getQuote, updateQuote, deleteQuote, appendNote, logActivity,
   fetchRemindersByLeadIds, fetchDuplicates,
 } from '../_db.js';
 import { sendReviewRequest } from '../_review.js';
+import { sendFollowup } from '../_followup.js';
 
-const ALLOWED_STATUS = ['new', 'contacted', 'survey_booked', 'move_booked', 'quote_sent', 'prospecting', 'won', 'lost'];
+const ALLOWED_STATUS = ['new', 'accepted', 'contacted', 'survey_booked', 'move_booked', 'quote_sent', 'prospecting', 'won', 'lost'];
+
+// Same HMAC token the public /api/accept-quote endpoint verifies.
+function acceptToken(id) {
+  return crypto.createHmac('sha256', process.env.ADMIN_SESSION_SECRET || '')
+    .update('accept.' + String(id)).digest('hex').slice(0, 32);
+}
 const EDITABLE_TEXT_FIELDS = ['name', 'phone', 'email', 'service', 'move_from', 'move_to', 'move_date', 'property', 'message'];
 const REVIEW_MARK = 'Review request emailed';
 
@@ -39,6 +47,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         quote: stripMoney(quote, role), reminders, duplicates,
         role, staff_name: req._staffName || undefined, display_name: actor,
+        accept_token: role === 'staff' ? undefined : acceptToken(id),
       });
     }
 
@@ -73,6 +82,21 @@ export default async function handler(req, res) {
         await appendNote(id, `Restored by ${actor}`);
         await logActivity({ actor, action: 'restored', lead_id: id, lead_name: quote.name, detail: '' });
         return res.status(200).json({ quote: stripMoney(updated, role) });
+      }
+
+      // Gentle quote follow-up email (staff allowed - no price content).
+      if (body.send_followup === true) {
+        const quote = await getQuote(id);
+        if (!quote) return res.status(404).json({ error: 'not found' });
+        if (!quote.email) return res.status(400).json({ error: 'no email on this lead' });
+        try {
+          await sendFollowup(quote);
+          await appendNote(id, `Follow-up emailed to ${quote.email} by ${actor}`);
+          await logActivity({ actor, action: 'sent follow-up', lead_id: id, lead_name: quote.name, detail: '' });
+          return res.status(200).json({ followup: 'sent' });
+        } catch (e) {
+          return res.status(502).json({ error: 'follow-up email failed: ' + e.message });
+        }
       }
 
       // Manual review-request resend.
