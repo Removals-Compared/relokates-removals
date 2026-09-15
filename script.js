@@ -71,7 +71,7 @@ document.querySelectorAll('.cy').forEach(function(el){ el.textContent = new Date
 
 /* WhatsApp click-to-chat floating button. Auto-injects on every page. */
 (function(){
-  var WA_NUMBER = '447359724844';
+  var WA_NUMBER = window.RELOKATES_WA_NUMBER || '447359724844';
   var WA_MESSAGE = "Hi Relokates, I'd like a quote for my move.";
   var href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(WA_MESSAGE);
   var btn = document.createElement('a');
