@@ -41,6 +41,7 @@ move_to:     document.getElementById('move_to') ? document.getElementById('move_
 move_date:   document.getElementById('move_date') ? document.getElementById('move_date').value : '',
 property:    document.getElementById('property') ? document.getElementById('property').value : '',
 message:     document.getElementById('message') ? document.getElementById('message').value : '',
+branch:      window.RELOKATES_BRANCH || undefined,
 };
 try {
 var res = await fetch('/api/quote', {

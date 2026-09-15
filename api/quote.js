@@ -20,12 +20,24 @@ export default async function handler(req, res) {
 
   const {
     name, email, phone, service,
-    move_from, move_to, move_date, property, message
+    move_from, move_to, move_date, property, message, branch
   } = req.body;
 
   if (!name || !email || !phone) {
     return res.status(400).json({ error: 'Name, email and phone are required' });
   }
+
+  // Franchise branches tag their leads so each branch dashboard only sees its
+  // own enquiries. Whitelist keeps the source field clean.
+  const BRANCHES = ['birmingham'];
+  const leadBranch = BRANCHES.includes(branch) ? branch : null;
+  const source = leadBranch ? `relokates.co.uk/${leadBranch}` : 'relokates.co.uk';
+  // Branch notification address (e.g. BIRMINGHAM_NOTIFY_EMAIL) - falls back to
+  // head office until the branch owner's email is configured.
+  const notifyTo = (leadBranch && process.env[`${leadBranch.toUpperCase()}_NOTIFY_EMAIL`]) || 'info@relokates.co.uk';
+  const BRANCH_PHONES = { birmingham: '07947 229838' };
+  const phoneDisplay = (leadBranch && BRANCH_PHONES[leadBranch]) || '07359 724844';
+  const phoneTel = phoneDisplay.replace(/\s/g, '');
 
   const timestamp = new Date().toISOString();
   const errors = [];
@@ -43,7 +55,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         name, email, phone, service,
         move_from, move_to, move_date, property, message,
-        source: 'relokates.co.uk',
+        source,
         created_at: timestamp
       })
     });
@@ -56,9 +68,9 @@ export default async function handler(req, res) {
   try {
     await transporter.sendMail({
       from: 'Relokates Quotes <info@relokates.co.uk>',
-      to: 'info@relokates.co.uk',
+      to: notifyTo,
       replyTo: email,
-      subject: `New Quote Request — ${service || 'Removal'} | ${name}`,
+      subject: `New Quote Request${leadBranch ? ` [${leadBranch.charAt(0).toUpperCase() + leadBranch.slice(1)}]` : ''} — ${service || 'Removal'} | ${name}`,
       html: `
         <div style="font-family:Inter,sans-serif;max-width:600px;margin:0 auto;padding:24px">
           <div style="background:#1A3C6E;padding:20px 24px;border-radius:8px 8px 0 0">
@@ -77,7 +89,7 @@ export default async function handler(req, res) {
               ${message ? `<tr><td style="padding:8px 0;font-weight:600;color:#1A3C6E;vertical-align:top">Message</td><td style="padding:8px 0;color:#444">${message}</td></tr>` : ''}
             </table>
             <div style="margin-top:20px;padding:16px;background:#fff;border-radius:6px;border-left:4px solid #B8932A">
-              <p style="margin:0;font-size:13px;color:#666">Received: ${new Date(timestamp).toLocaleString('en-GB')} | Source: relokates.co.uk</p>
+              <p style="margin:0;font-size:13px;color:#666">Received: ${new Date(timestamp).toLocaleString('en-GB')} | Source: ${source}</p>
             </div>
           </div>
         </div>
@@ -104,7 +116,7 @@ export default async function handler(req, res) {
             <p style="color:#556070;line-height:1.8">Thank you for requesting a quote from Relokates Removals. We have received your enquiry and a member of our team will be in touch within 60 minutes during business hours.</p>
             <p style="color:#556070;line-height:1.8">If your move is urgent or you would like to speak to us immediately, please call us directly:</p>
             <div style="text-align:center;margin:24px 0">
-              <a href="tel:07359724844" style="display:inline-block;background:#B8932A;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px">&#9990; 07359 724844</a>
+              <a href="tel:${phoneTel}" style="display:inline-block;background:#B8932A;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px">&#9990; ${phoneDisplay}</a>
             </div>
             <p style="color:#556070;line-height:1.8">Our office hours are Monday to Friday 7am to 7pm, Saturday 8am to 5pm, and Sunday 9am to 2pm.</p>
             <p style="color:#556070;line-height:1.8">We look forward to helping with your move.</p>

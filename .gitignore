@@ -7,3 +7,6 @@
 quotes/*.pdf
 quotes/data/*.json
 !quotes/data/_template.example.json
+.vercel
+.env*
+.env

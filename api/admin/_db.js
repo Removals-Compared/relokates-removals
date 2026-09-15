@@ -41,11 +41,13 @@ async function fetchAppointmentsByLeadIds(leadIds) {
   }
 }
 
-export async function listQuotes({ status, search, limit = 200 } = {}) {
+export async function listQuotes({ status, search, source, limit = 200 } = {}) {
   const params = new URLSearchParams();
   params.set('select', '*');
   params.set('order', 'created_at.desc');
   params.set('limit', String(limit));
+  // Branch dashboards only ever see leads tagged with their own source.
+  if (source) params.set('source', `eq.${source}`);
   // An explicit status filter (incl. 'deleted' for the recycle bin) wins;
   // otherwise hide soft-deleted leads from the normal lists.
   if (status && status !== 'all') params.set('status', `eq.${status}`);
