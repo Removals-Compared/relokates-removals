@@ -25,27 +25,37 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<style>
+.page-hero-img{position:relative;overflow:hidden;min-height:420px;display:flex;align-items:center}
+.page-hero-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+.page-hero-img-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(26,60,110,.9) 0%,rgba(26,60,110,.72) 45%,rgba(26,60,110,.35) 100%)}
+.page-hero-img-content{position:relative;z-index:1;padding:64px 0}
+.page-hero-img h1{color:#fff}
+.page-hero-img p{color:rgba(255,255,255,.88);max-width:620px}
+.page-hero-img .section-eyebrow{color:var(--teal)}
+.page-hero-img .breadcrumb li{color:rgba(255,255,255,.6)}
+.page-hero-img .breadcrumb li a{color:rgba(255,255,255,.75)}
+.page-hero-img .hero-trust .trust-item{color:#fff}
+.hero-rating-chip{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.95);border-radius:10px;padding:10px 16px;box-shadow:0 6px 20px rgba(0,0,0,.18);margin-top:22px}
+</style>
 </head>
 <body>
 <nav id="site-nav" role="navigation" aria-label="Main navigation"><div class="nav-inner"><a class="nav-logo" href="/" aria-label="Relokates Removals Home"><img src="/images/logo.webp" alt="Relokates Removals" style="height:54px;width:auto;display:block"></a><ul class="nav-links" role="list"><li><a href="/">Home</a></li><li class="nav-dropdown" id="sd"><button class="nav-dropdown-btn" onclick="toggleDropdown('sd',event)">Services</button><ul class="nav-dropdown-menu"><li><a href="/house-removals">&#127968; House Removals</a></li><li><a href="/office-removals">&#127970; Office Removals</a></li><li><a href="/international-relocation">&#127758; International &amp; Dubai</a></li><li><a href="/packing-services">&#128230; Packing Services</a></li><li><a href="/storage">&#128274; Storage</a></li><li><a href="/man-and-van">&#128654; Man and Van</a></li><li><a href="/luxury-removals">&#128081; Luxury Removals</a></li><li><a href="/house-clearance">&#127968; House Clearance</a></li><li><a href="/same-day-removals">&#9889; Same Day</a></li><li><a href="/last-minute-removals">&#128680; Last Minute</a></li><li><a href="/weekend-removals">&#128197; Weekend</a></li><hr class="dd-divider"><li><a href="/services" class="dd-all">All services &#8594;</a></li></ul></li><li class="nav-dropdown" id="ad"><button class="nav-dropdown-btn" onclick="toggleDropdown('ad',event)">Areas We Cover</button><ul class="nav-dropdown-menu"><li><a href="/removals-london">&#127966; London</a></li><li><a href="/removals-essex">&#127807; Essex</a></li><li><a href="/removals-kent">&#127963; Kent</a></li><li><a href="/removals-west-sussex">&#127754; West Sussex</a></li><li><a href="/removals-birmingham">&#127961;&#65039; Birmingham</a></li><li><a href="/removals-dubai">&#9992;&#65039; Dubai</a></li><hr class="dd-divider"><li><a href="/areas" class="dd-all">All 661 locations &#8594;</a></li></ul></li><li><a href="/about">About</a></li><li><a href="/blog">Blog</a></li><li><a href="/faq">FAQs</a></li><li><a href="/contact" class="nav-cta">Get a Free Quote</a></li></ul><button class="hamburger" onclick="toggleMobile()" aria-label="Open menu"><span></span><span></span><span></span></button></div></nav>
 <div id="mobile-overlay" role="dialog" aria-modal="true"><button class="mob-close" onclick="toggleMobile()">&#10005;</button><a class="mob-nav-link" href="/">Home</a><a class="mob-nav-link" href="/services">Services</a><a class="mob-nav-link" href="/areas">Areas We Cover</a><a class="mob-nav-link" href="/about">About</a><a class="mob-nav-link" href="/contact" style="color:var(--gold)">Get a Free Quote &#8594;</a></div>
 
-<section class="hero-split" aria-label="Hero" style="display:grid;grid-template-columns:1.05fr 1fr">
-  <div class="hero-left" style="background:linear-gradient(135deg,var(--teal) 0%,var(--teal-light) 50%,var(--cream) 100%);padding:64px 48px;display:flex;align-items:center;position:relative;overflow:hidden">
-    <div class="hero-left-inner" style="max-width:560px;position:relative;z-index:1">
-      <nav class="breadcrumb" aria-label="Breadcrumb" style="padding:0 0 14px"><ol><li><a href="/">Home</a></li><li><a href="/areas">Areas</a></li><li>Birmingham Removals</li></ol></nav>
-      <div class="hero-badge">&#9733; 5-Star rated network &middot; Locally owned branch</div>
-      <h1 style="color:var(--navy);margin-bottom:18px">Relokates Removals <span style="color:var(--gold)">Birmingham</span> - your local moving team</h1>
-      <p class="hero-sub">Fully insured, fixed-price <strong>house removals</strong>, <strong>office relocations</strong> and <strong>man and van</strong> services across Edgbaston, Harborne, Moseley, Sutton Coldfield, Solihull and every B postcode. Locally owned and run by <strong>Richard Jones</strong>, backed by the Relokates network. No hidden charges. Same-day and weekend availability.</p>
-      <div class="hero-actions"><a href="/contact" class="btn btn-primary btn-lg" onclick="gtag('event','conversion_cta_click',{label:'birmingham_hero_quote'})">Get a Free Quote</a><a href="tel:07947229838" class="btn btn-secondary btn-lg" onclick="gtag('event','phone_click',{label:'birmingham_hero'})">&#9990; 07947 229838</a></div>
-      <div class="hero-trust"><div class="trust-item"><div class="trust-dot">&#10003;</div>Fully insured</div><div class="trust-item"><div class="trust-dot">&#10003;</div>Fixed prices</div><div class="trust-item"><div class="trust-dot">&#9733;</div>5.0 Google rating</div><div class="trust-item"><div class="trust-dot">&#10003;</div>Locally owned</div></div>
-    </div>
+<div class="page-hero-img" aria-label="Hero">
+  <img width="1600" height="1067" src="/images/birmingham-hero-movers.webp" alt="Professional removal team carrying boxes into a bright Birmingham home" loading="eager" decoding="sync" fetchpriority="high">
+  <div class="page-hero-img-overlay"></div>
+  <div class="page-hero-img-content container">
+    <nav class="breadcrumb" aria-label="Breadcrumb" style="padding:0 0 14px"><ol><li><a href="/">Home</a></li><li><a href="/areas">Areas</a></li><li>Birmingham Removals</li></ol></nav>
+    <div class="section-eyebrow">&#9733; 5-Star rated network &middot; Locally owned branch</div>
+    <h1 style="margin-bottom:18px">Relokates Removals <span style="color:var(--gold)">Birmingham</span> - your local moving team</h1>
+    <p style="margin-bottom:30px">Fully insured, fixed-price <strong style="color:#fff">house removals</strong>, <strong style="color:#fff">office relocations</strong> and <strong style="color:#fff">man and van</strong> services across Edgbaston, Harborne, Moseley, Sutton Coldfield, Solihull and every B postcode. Locally owned and run by <strong style="color:#fff">Richard Jones</strong>, backed by the Relokates network. No hidden charges. Same-day and weekend availability.</p>
+    <div class="hero-actions" style="margin-bottom:26px"><a href="/contact" class="btn btn-primary btn-lg" onclick="gtag('event','conversion_cta_click',{label:'birmingham_hero_quote'})">Get a Free Quote</a><a href="tel:07947229838" class="btn btn-outline-white btn-lg" style="color:#fff" onclick="gtag('event','phone_click',{label:'birmingham_hero'})">&#9990; 07947 229838</a></div>
+    <div class="hero-trust"><div class="trust-item"><div class="trust-dot">&#10003;</div>Fully insured</div><div class="trust-item"><div class="trust-dot">&#10003;</div>Fixed prices</div><div class="trust-item"><div class="trust-dot">&#9733;</div>5.0 Google rating</div><div class="trust-item"><div class="trust-dot">&#10003;</div>Locally owned</div></div>
+    <div class="hero-rating-chip"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg><div><div style="font-size:12px;color:#1A3C6E;font-weight:700;font-family:var(--ff-display);line-height:1">5.0 &#9733;&#9733;&#9733;&#9733;&#9733;</div><div style="font-size:11px;color:#556070;margin-top:2px">66 verified Google reviews</div></div></div>
   </div>
-  <div class="hero-right" style="position:relative;min-height:420px">
-    <img width="1200" height="800" src="/images/birmingham-van.webp" alt="Plain white Relokates Removals van - Birmingham branch, owned by Richard Jones" loading="eager" decoding="sync" fetchpriority="high" style="width:100%;height:100%;object-fit:cover;display:block;position:absolute;inset:0">
-    <div style="position:absolute;bottom:18px;right:18px;background:rgba(255,255,255,0.95);backdrop-filter:blur(8px);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 6px 20px rgba(0,0,0,0.18)"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg><div><div style="font-size:12px;color:#1A3C6E;font-weight:700;font-family:var(--ff-display);line-height:1">5.0 &#9733;&#9733;&#9733;&#9733;&#9733;</div><div style="font-size:11px;color:#556070;margin-top:2px">66 verified Google reviews</div></div></div>
-  </div>
-</section>
+</div>
 <div class="gold-bar"></div>
 
 <div class="stats-bar"><div class="container"><div class="stats-grid"><div class="stat-item"><div class="stat-num">B1<span class="stat-accent">-B98</span></div><div class="stat-label">All Birmingham postcodes</div></div><div class="stat-item"><div class="stat-num" style="color:var(--gold)">100%</div><div class="stat-label">Fully insured</div></div><div class="stat-item"><div class="stat-num">5.0 <span class="stat-accent">&#9733;</span></div><div class="stat-label">Google rated network</div></div><div class="stat-item"><div class="stat-num" style="color:var(--gold)">60</div><div class="stat-label">Min quote response</div></div></div></div></div>
@@ -70,13 +80,14 @@
         <p style="font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:18px;font-style:italic">"Every Birmingham move is my name on the line. You get a local owner who answers the phone, plans your move personally and turns up with a crew that treats your home like their own."</p>
         <a href="tel:07947229838" class="btn btn-primary" style="width:100%;justify-content:center" onclick="gtag('event','phone_click',{label:'birmingham_owner_card'})">&#9990; Call the Birmingham branch</a>
       </div>
+      <div class="content-img" style="margin:16px 0 0"><img width="1200" height="800" src="/images/birmingham-van.webp" alt="White Relokates Removals van with Birmingham branch livery" loading="lazy"></div>
     </div>
     <div>
       <div class="section-eyebrow">Meet your branch owner</div>
       <h2 class="section-title">Locally owned by Richard Jones. Backed by the Relokates network.</h2>
       <p style="font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:16px">Relokates Removals Birmingham is an independently owned franchise branch, run day to day by <strong style="color:var(--navy)">Richard Jones</strong>. That means you get the accountability of a local owner-operator - someone whose reputation rides on every job - combined with the systems, training, insurance standards and fixed-price promise that earned the Relokates network its 5.0-star Google rating.</p>
       <p style="font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:20px">Richard's crews cover every Birmingham postcode from B1 to B98, plus Solihull, Sutton Coldfield and the wider West Midlands. Vehicles are compliant with the Birmingham Clean Air Zone, so city-centre moves inside the A4540 ring road carry no surcharge.</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
         <div class="why-card" style="padding:20px"><div class="why-top"><div class="why-icon-wrap">&#129309;</div><h4>Owner accountability</h4></div><p>The person quoting your move is the person responsible for it.</p></div>
         <div class="why-card" style="padding:20px"><div class="why-top"><div class="why-icon-wrap">&#128737;</div><h4>Network standards</h4></div><p>Same insurance, vetting and fixed-price rules as every Relokates branch.</p></div>
         <div class="why-card" style="padding:20px"><div class="why-top"><div class="why-icon-wrap">&#128663;</div><h4>CAZ-compliant fleet</h4></div><p>No Clean Air Zone surcharge on central Birmingham moves.</p></div>
@@ -100,7 +111,7 @@
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start" class="content-sidebar-grid">
     <div>
       <div class="section-eyebrow">Why Birmingham chooses us</div><h2 class="section-title">The promise behind every Birmingham job</h2><p style="font-size:15px;color:var(--muted);line-height:1.85;margin-bottom:18px">Choosing a removal company is a leap of faith. Relokates Removals Birmingham is built around four non-negotiables that take that risk off the table.</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">
         <div class="why-card" style="padding:20px"><div class="why-top"><div class="why-icon-wrap">&#128737;</div><h4>Fully insured</h4></div><p>Goods-in-transit + public liability on every Birmingham move.</p></div>
         <div class="why-card" style="padding:20px"><div class="why-top"><div class="why-icon-wrap">&#128183;</div><h4>Fixed prices</h4></div><p>What we quote is what you pay. Zero day-of additions.</p></div>
         <div class="why-card" style="padding:20px"><div class="why-top"><div class="why-icon-wrap">&#11088;</div><h4>5.0 rated network</h4></div><p>66+ verified Google reviews across Relokates. Not paid, not curated.</p></div>
