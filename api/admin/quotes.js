@@ -10,14 +10,17 @@ const BRANCH_ALLOWED_STATUS = ['new', 'contacted', 'quote_sent', 'survey_booked'
 const branchSource = (slug) => `relokates.co.uk/${slug}`;
 const prettyBranch = (slug) => slug.charAt(0).toUpperCase() + slug.slice(1);
 
-async function branchHandler(req, res, branch) {
+const KNOWN_BRANCHES = ['birmingham'];
+
+async function branchHandler(req, res, branch, actorOverride, stripValue) {
   const source = branchSource(branch);
-  const actor = `${prettyBranch(branch)} branch`;
+  const actor = actorOverride || `${prettyBranch(branch)} branch`;
   try {
     if (req.method === 'GET') {
       const rows = await listQuotes({ status: req.query.status, search: req.query.search, source });
       // Belt and braces: never return a row that isn't this branch's.
       const quotes = rows.filter((q) => q.source === source);
+      if (stripValue) quotes.forEach((q) => { delete q.value; });
       return res.status(200).json({ quotes, branch, display_name: `${prettyBranch(branch)} (Richard Jones)` });
     }
     if (req.method === 'PATCH') {
@@ -48,6 +51,17 @@ export default async function handler(req, res) {
 
   const role = requireAuth(req, res);
   if (!role) return;
+
+  // A head-office session viewing a branch dashboard (?branch=... on GET, or
+  // branch in the PATCH body) gets the SAME scoped flow as a branch login -
+  // the branch pages must only ever show that branch's leads, whoever is
+  // signed in. Writes are attributed to the actual actor.
+  const branchView = req.query.branch || (req.body && req.body.branch);
+  if (branchView) {
+    if (!KNOWN_BRANCHES.includes(String(branchView))) return res.status(400).json({ error: 'unknown branch' });
+    return branchHandler(req, res, String(branchView), actorName(req), role === 'staff');
+  }
+
   if (req.method !== 'GET') return res.status(405).json({ error: 'method not allowed' });
   try {
     const status = req.query.status;

@@ -127,11 +127,15 @@ header{background:var(--navy-dark);padding:14px 0}
   function showDash(){ $('login-view').style.display='none'; $('dash-view').style.display='block'; }
 
   async function load(){
-    var res = await fetch('/api/admin/quotes');
+    // Always request the Birmingham-scoped view - whoever is signed in, this
+    // page must only ever show Birmingham leads.
+    var res = await fetch('/api/admin/quotes?branch=birmingham');
     if (res.status === 401 || res.status === 403) { showLogin(); return false; }
     if (!res.ok) { alert('Could not load leads ('+res.status+'). Try refreshing.'); return false; }
     var data = await res.json();
-    allLeads = data.quotes || [];
+    if (data.branch !== 'birmingham') { showLogin(); return false; }
+    // Belt and braces: drop anything that isn't tagged as a Birmingham lead.
+    allLeads = (data.quotes || []).filter(function(l){ return l.source === 'relokates.co.uk/birmingham'; });
     showDash(); render();
     return true;
   }
@@ -182,7 +186,7 @@ header{background:var(--navy-dark);padding:14px 0}
         var id = this.getAttribute('data-id'); var status = this.value; var el = this;
         el.disabled = true;
         try {
-          var r = await fetch('/api/admin/quotes', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id: id, status: status }) });
+          var r = await fetch('/api/admin/quotes', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id: id, status: status, branch: 'birmingham' }) });
           if (!r.ok) throw new Error();
           var lead = allLeads.find(function(l){ return String(l.id) === String(id); });
           if (lead) lead.status = status;
