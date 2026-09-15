@@ -110,3 +110,14 @@ If anything fails, the API responses include the failing step
 
 The dashboard filter dropdown lets you isolate any of these
 statuses. The "All" view shows everything regardless.
+
+## Franchise branch dashboards (added Sep 2026)
+
+Each franchise branch gets its own walled-off dashboard:
+
+- **Birmingham**: `/admin/birmingham` — owner Richard Jones.
+  - Password comes from the `BIRMINGHAM_ADMIN_PASSWORD` env var (set in Vercel for production, preview and development).
+  - Branch logins use the shared `/api/admin/login` endpoint but receive a `branch` role cookie. That cookie is **rejected with 403 by every head-office endpoint** — a branch can only call `/api/admin/branch`, which filters leads to `source = relokates.co.uk/birmingham` and re-checks ownership before any status update.
+  - Head-office admin sessions can also view a branch's list via `/api/admin/branch?branch=birmingham`, and continue to see branch leads in the main dashboard.
+- **Lead tagging**: the quote form on `/removals-birmingham` sets `branch: "birmingham"`, which `/api/quote` whitelists and stores as `source = relokates.co.uk/birmingham` (no schema change needed). Branch notification email: `BIRMINGHAM_NOTIFY_EMAIL` is set in Vercel (production, preview, development) to birmingham@relokates.co.uk, so Birmingham lead alerts go there (falls back to info@relokates.co.uk if the env var is ever removed). Customer auto-replies for Birmingham leads show the branch phone (07947 229838).
+- **Adding another branch**: add the slug to `BRANCH_SLUGS` in `api/admin/_session.js` and `BRANCHES` in `api/quote.js`, set `<SLUG>_ADMIN_PASSWORD`, copy `admin/birmingham.html`, and set `window.RELOKATES_BRANCH` on the branch's page.
