@@ -83,6 +83,7 @@ button.lose:hover{background:#FCA5A5}
 .k.wa:active{box-shadow:0 2px 0 #128c3e,0 3px 6px rgba(0,0,0,.18)}
 .btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
 .btn-grid .k{width:100%}
+body.branch #crew-card{display:none}
 /* crew roster (Medway style) */
 .crew-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:10px;background:#fff}
 .crew-item .nm{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--navy)}
@@ -328,7 +329,7 @@ button.review:hover{background:#FEF08A}
       <p class="muted" style="font-size:12px;margin-top:8px">Adds a "Call" event to Google Calendar and alerts you at that time.</p>
     </div>
 
-    <div class="card">
+    <div class="card" id="crew-card">
       <h2>Crew for this job</h2>
       <div id="crewList"></div>
       <div class="flash" id="crewFlash"></div>
@@ -409,6 +410,9 @@ async function load() {
   quote = data.quote;
   myRole = data.role || 'admin';
   document.body.classList.toggle('staff', myRole === 'staff');
+  // Franchise branches manage their own people - the head-office crew roster
+  // is hidden for them.
+  document.body.classList.toggle('branch', myRole === 'branch');
   showChip(data.display_name || 'Admin');
   renderDupes(data.duplicates || []);
   renderCustomer(quote);
