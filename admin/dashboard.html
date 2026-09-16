@@ -65,6 +65,10 @@ tbody tr:last-child td{border-bottom:none}
 .tel-icon{display:none}
 
 .pill{display:inline-block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:99px;font-family:Montserrat,sans-serif;white-space:nowrap}
+/* Franchise-branch leads: gold badge + soft gold row tint so head office can
+   tell branch enquiries (e.g. Birmingham) apart at a glance. */
+.branch-badge{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:3px 9px;border-radius:99px;font-family:Montserrat,sans-serif;background:#B8932A;color:#fff;margin-left:8px;vertical-align:1px;white-space:nowrap}
+tr.branch-row td{background:#fbf6e8}
 .pill.new{background:#E0F2FE;color:#075985}
 .pill.accepted{background:#D1FAE5;color:#047857}
 .pill.contacted{background:#FEF3C7;color:#92400E}
@@ -143,6 +147,7 @@ body.staff .del,body.staff .bulkbar,body.staff td.cb-col,body.staff th.cb-col,bo
   .card h2,.modal h3,.stat .n,.detail-grid dd,.who,.today .ti .n,.tcard h3,.crew-item .nm{color:#dfe5f0}
   thead th{background:#131b30 !important;color:#8a97b2 !important;border-color:#293651 !important}
   tbody td{border-color:#242f4a !important}
+  tr.branch-row td{background:#2a2412 !important}
   tbody tr:hover{background:#1d2842 !important}
   input,select,textarea{background:#121a2e !important;border-color:#2c3a58 !important;color:#dfe5f0}
   input::placeholder,textarea::placeholder{color:#7c89a5}
@@ -303,6 +308,8 @@ let myRole = 'admin';
 const selected = new Set();
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// "relokates.co.uk/birmingham" -> "Birmingham"; head-office sources -> null.
+const branchOf = (r) => { const m = /^relokates\.co\.uk\/([a-z-]+)$/.exec(String(r.source || '')); return m ? m[1].charAt(0).toUpperCase() + m[1].slice(1) : null; };
 let timer;
 
 function fmtDate(v){ if(!v) return '-'; try{ return new Date(v).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }catch{ return v; } }
@@ -362,6 +369,8 @@ function renderRows(rows){
   const today = new Date().toISOString().slice(0,10);
   $('rows').innerHTML = rows.map((r) => {
     const st = r.status || 'new';
+    const br = branchOf(r);
+    const brBadge = br ? `<span class="branch-badge">${esc(br)}</span>` : '';
     const rem = r.reminder;
     const remHtml = rem
       ? `<div class="rem-badge ${rem.remind_on <= today ? 'due' : ''}">&#128222; Call ${fmtDate(rem.remind_on)}${rem.remind_time ? ' ' + esc(rem.remind_time) : ''}${rem.note ? ' &middot; ' + esc(rem.note) : ''}</div>`
@@ -369,9 +378,9 @@ function renderRows(rows){
     const tel = r.phone
       ? `<a class="tel-link" href="tel:${esc(String(r.phone).replace(/[^\d+]/g,''))}" aria-label="Call ${esc(r.phone)}"><span class="tel-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.6.1.4 0 .8-.3 1l-2.2 2.2z"/></svg></span><span class="tel-num">${esc(r.phone)}</span></a>`
       : '-';
-    return `<tr data-id="${esc(r.id)}" data-name="${esc(r.name)}">
+    return `<tr data-id="${esc(r.id)}" data-name="${esc(r.name)}"${br ? ' class="branch-row"' : ''}>
       <td class="cb-col"><input type="checkbox" class="row-cb" data-id="${esc(r.id)}"></td>
-      <td><strong>${esc(r.name||'-')}</strong><div class="sub">${esc(r.email||'')}</div>${remHtml}</td>
+      <td><strong>${esc(r.name||'-')}</strong>${brBadge}<div class="sub">${esc(r.email||'')}</div>${remHtml}</td>
       <td><span class="pill ${st}">${labelFor(st)}</span></td>
       <td>${fmtDate(r.move_date)}</td>
       <td>${fmtDate(r.created_at)}</td>
@@ -461,7 +470,7 @@ function renderToday(rows){
     const more = items.length>3 ? `<div class="s">+${items.length-3} more</div>` : '';
     return `<div class="tcard"><h3>${icon} ${title} (${items.length})</h3>${items.length?shown+more:'<div class="none">Nothing today</div>'}</div>`;
   };
-  const row = (r,sub) => `<div class="ti" onclick="location.href='/admin/quote/${esc(r.id)}'"><span class="n">${esc(r.name||'-')}</span><div class="s">${sub}</div></div>`;
+  const row = (r,sub) => { const b = branchOf(r); return `<div class="ti" onclick="location.href='/admin/quote/${esc(r.id)}'"><span class="n">${esc(r.name||'-')}${b ? ` <span class="branch-badge">${esc(b)}</span>` : ''}</span><div class="s">${sub}</div></div>`; };
   el.innerHTML =
     card('&#128667;','Moving today',moving,r=>row(r,`${esc(r.move_from||'-')} to ${esc(r.move_to||'-')}`)) +
     card('&#128222;','Calls due',calls,r=>row(r,r.reminder&&r.reminder.note?esc(r.reminder.note):'Call back')) +
