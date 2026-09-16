@@ -287,14 +287,17 @@ export async function fetchExpiredDeleted(days = 30) {
 
 // ── Duplicate detection ─────────────────────────────────────
 // Other non-deleted leads sharing this phone or email. Tolerates errors.
-export async function fetchDuplicates(id, phone, email) {
+export async function fetchDuplicates(id, phone, email, source) {
   try {
     const or = [];
     if (phone) or.push(`phone.eq.${encodeURIComponent(String(phone).trim())}`);
     if (email) or.push(`email.eq.${encodeURIComponent(String(email).trim().toLowerCase())}`);
     if (!or.length) return [];
+    // Branch sessions only see duplicates among their own branch's leads -
+    // head-office customer names must never surface in a branch view.
+    const scope = source ? `&source=eq.${encodeURIComponent(source)}` : '';
     const res = await fetch(
-      `${url(QUOTES)}?or=(${or.join(',')})&id=neq.${id}&status=neq.deleted&select=id,name,status,created_at&limit=5`,
+      `${url(QUOTES)}?or=(${or.join(',')})&id=neq.${id}&status=neq.deleted${scope}&select=id,name,status,created_at&limit=5`,
       { headers: headers() });
     if (!res.ok) return [];
     return res.json();

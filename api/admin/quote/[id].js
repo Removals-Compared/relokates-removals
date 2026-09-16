@@ -50,7 +50,7 @@ export default async function handler(req, res) {
       const quote = await getQuote(id);
       if (!quote) return res.status(404).json({ error: 'not found' });
       const reminders = await fetchRemindersByLeadIds([id]);
-      const duplicates = await fetchDuplicates(id, quote.phone, quote.email);
+      const duplicates = await fetchDuplicates(id, quote.phone, quote.email, branchSource);
       return res.status(200).json({
         quote: stripMoney(quote, role), reminders, duplicates,
         role, staff_name: req._staffName || undefined, display_name: actor,

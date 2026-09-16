@@ -102,7 +102,14 @@ export default async function handler(req, res) {
       const others = await fetchMovesOnDate(day, lead_id);
       const names = [];
       for (const o of others) {
-        try { const q = await getQuote(o.lead_id); if (q && q.name) names.push(q.name); } catch (_) { /* skip */ }
+        try {
+          const q = await getQuote(o.lead_id);
+          if (!q || !q.name) continue;
+          // Branch sessions only see clashes with their own branch's moves -
+          // head-office customer names must never surface in a branch view.
+          if (auth.branchSource && q.source !== auth.branchSource) continue;
+          names.push(q.name);
+        } catch (_) { /* skip */ }
       }
       conflicts = [...new Set(names)];
     } catch (_) { /* non-fatal */ }
