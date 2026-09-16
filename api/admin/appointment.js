@@ -5,13 +5,14 @@
 //   3. Customer email confirmation
 //   4. Quote status auto-advance
 
-import { requireAuth, actorName } from './_session.js';
+import { requireAuthWithBranch, actorName } from './_session.js';
 import { getQuote, createAppointment, updateAppointment, updateQuote, fetchMovesOnDate, appendNote, logActivity } from './_db.js';
 import { createEvent, buildAppointmentEvent, isGcalConfigured } from './_gcal.js';
 import { sendSurveyConfirmation, sendBookingConfirmation, sendPackingConfirmation } from './_email.js';
 
 export default async function handler(req, res) {
-  if (!requireAuth(req, res)) return;
+  const auth = requireAuthWithBranch(req, res);
+  if (!auth) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
   const { lead_id, type, scheduled_for, duration_minutes = 60, address, notes } = req.body || {};
@@ -27,6 +28,10 @@ export default async function handler(req, res) {
   try {
     quote = await getQuote(lead_id);
     if (!quote) return res.status(404).json({ error: 'lead not found' });
+    // Branch sessions may only book against their own branch's leads.
+    if (auth.branchSource && quote.source !== auth.branchSource) {
+      return res.status(404).json({ error: 'lead not found' });
+    }
   } catch (e) {
     return res.status(500).json({ error: `supabase: ${e.message}` });
   }

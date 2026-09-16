@@ -3,8 +3,8 @@
 // as a sent record, appends a note, and moves the lead to "quote_sent".
 
 import nodemailer from 'nodemailer';
-import { requireAuth } from './_session.js';
-import { appendNote, updateQuote } from './_db.js';
+import { requireAuthWithBranch } from './_session.js';
+import { appendNote, updateQuote, getQuote } from './_db.js';
 
 const FROM = 'Relokates Removals <info@relokates.co.uk>';
 const OFFICE_INBOX = 'info@relokates.co.uk';
@@ -43,13 +43,18 @@ function htmlWrap(body) {
 }
 
 export default async function handler(req, res) {
-  const role = requireAuth(req, res);
-  if (!role) return;
-  if (role === 'staff') return res.status(403).json({ error: 'staff cannot send priced documents' });
+  const auth = requireAuthWithBranch(req, res);
+  if (!auth) return;
+  if (auth.role === 'staff') return res.status(403).json({ error: 'staff cannot send priced documents' });
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
   const { lead_id, to, subject, body, pdf_base64, filename } = req.body || {};
   if (!lead_id) return res.status(400).json({ error: 'lead_id required' });
+  // Branch sessions may only send documents for their own branch's leads.
+  if (auth.branchSource) {
+    const owned = await getQuote(lead_id).catch(() => null);
+    if (!owned || owned.source !== auth.branchSource) return res.status(404).json({ error: 'lead not found' });
+  }
   if (!to || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return res.status(400).json({ error: 'valid recipient email required' });
   if (!subject || !subject.trim()) return res.status(400).json({ error: 'subject required' });
   if (!body || !body.trim()) return res.status(400).json({ error: 'message body required' });

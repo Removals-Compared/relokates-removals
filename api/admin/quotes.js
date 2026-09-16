@@ -21,7 +21,8 @@ async function branchHandler(req, res, branch, actorOverride, stripValue) {
       // Belt and braces: never return a row that isn't this branch's.
       const quotes = rows.filter((q) => q.source === source);
       if (stripValue) quotes.forEach((q) => { delete q.value; });
-      return res.status(200).json({ quotes, branch, display_name: `${prettyBranch(branch)} (Richard Jones)` });
+      // role lets the shared dashboard UI render for branch sessions too.
+      return res.status(200).json({ quotes, branch, role: 'branch', display_name: `${prettyBranch(branch)} (Richard Jones)` });
     }
     if (req.method === 'PATCH') {
       const { id, status } = req.body || {};

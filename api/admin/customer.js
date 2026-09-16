@@ -1,12 +1,13 @@
 // Manually create a quote / lead from the admin area.
 // Same shape as a public submission, tagged source="manual-admin".
 
-import { requireAuth, actorName } from './_session.js';
+import { requireAuthWithBranch, actorName } from './_session.js';
 import { appendNote, logActivity } from './_db.js';
 
 export default async function handler(req, res) {
-  const role = requireAuth(req, res);
-  if (!role) return;
+  const auth = requireAuthWithBranch(req, res);
+  if (!auth) return;
+  const { branchSource } = auth;
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
   const {
@@ -28,7 +29,9 @@ export default async function handler(req, res) {
       move_date: move_date || null,
       property: property || null,
       message: message || null,
-      source: 'manual-admin',
+      // Branch-created leads carry the branch tag so they appear in (and only
+      // in) that branch's scoped dashboard.
+      source: branchSource || 'manual-admin',
       status: 'new',
       created_at: new Date().toISOString(),
     };

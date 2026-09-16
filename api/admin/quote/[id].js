@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { requireAuth, actorName } from '../_session.js';
+import { requireAuthWithBranch, actorName } from '../_session.js';
 import {
   getQuote, updateQuote, deleteQuote, appendNote, logActivity,
   fetchRemindersByLeadIds, fetchDuplicates,
@@ -32,13 +32,20 @@ function priorStatusFromNotes(quote) {
 const stripMoney = (q, role) => { if (q && role === 'staff') delete q.value; return q; };
 
 export default async function handler(req, res) {
-  const role = requireAuth(req, res);
-  if (!role) return;
+  const auth = requireAuthWithBranch(req, res);
+  if (!auth) return;
+  const { role, branchSource } = auth;
   const id = req.query.id;
   if (!id) return res.status(400).json({ error: 'id required' });
   const actor = actorName(req);
 
   try {
+    // Branch sessions may only touch their own branch's leads. A lead outside
+    // the branch reads as not-found so its existence isn't revealed.
+    if (branchSource) {
+      const owned = await getQuote(id);
+      if (!owned || owned.source !== branchSource) return res.status(404).json({ error: 'not found' });
+    }
     if (req.method === 'GET') {
       const quote = await getQuote(id);
       if (!quote) return res.status(404).json({ error: 'not found' });
@@ -57,6 +64,7 @@ export default async function handler(req, res) {
       if (!quote) return res.status(404).json({ error: 'not found' });
 
       if (req.query.permanent) {
+        if (branchSource) return res.status(403).json({ error: 'branch accounts cannot delete leads forever' });
         await deleteQuote(id);
         await logActivity({ actor, action: 'deleted forever', lead_id: id, lead_name: quote.name, detail: '' });
         return res.status(200).json({ ok: true });

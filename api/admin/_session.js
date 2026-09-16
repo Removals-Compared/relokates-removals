@@ -97,6 +97,26 @@ export function requireAuth(req, res) {
   return role;
 }
 
+// Auth for endpoints that franchise branches may use with SCOPING. Returns
+// { role, branchSource, branchName }: branchSource is null for head-office
+// sessions and "relokates.co.uk/<slug>" for a branch session. Every endpoint
+// using this MUST restrict reads and writes to branchSource when it is set.
+export function requireAuthWithBranch(req, res) {
+  const role = verifySession(req);
+  if (!role) {
+    res.status(401).json({ error: 'unauthorized' });
+    return false;
+  }
+  if (role === 'branch') {
+    if (!req._branchName) {
+      res.status(401).json({ error: 'unauthorized' });
+      return false;
+    }
+    return { role, branchName: req._branchName, branchSource: `relokates.co.uk/${req._branchName}` };
+  }
+  return { role, branchName: null, branchSource: null };
+}
+
 // Auth for the branch dashboard endpoint. Returns the branch slug the caller
 // may see: a branch session is locked to its own branch; a head-office admin
 // may view any branch (via ?branch=). Staff have no branch access.
@@ -117,8 +137,12 @@ export function adminName() {
   return process.env.ADMIN_NAME || 'Amos Osho';
 }
 
-// Who is acting: staff member's name, else the admin name.
+// Who is acting: branch owner, staff member's name, else the admin name.
 export function actorName(req) {
+  if (req._branchName) {
+    const b = req._branchName;
+    return `${b.charAt(0).toUpperCase()}${b.slice(1)} branch`;
+  }
   return req._staffName || adminName();
 }
 
