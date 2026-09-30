@@ -29,7 +29,7 @@ function priorStatusFromNotes(quote) {
   }
   return 'new';
 }
-const stripMoney = (q, role) => { if (q && role === 'staff') delete q.value; return q; };
+const stripMoney = (q, role) => { if (q && role === 'staff') { delete q.value; delete q.costs; } return q; };
 
 export default async function handler(req, res) {
   const auth = requireAuthWithBranch(req, res);
@@ -146,6 +146,20 @@ export default async function handler(req, res) {
         if (n !== null && (isNaN(n) || n < 0)) return res.status(400).json({ error: 'invalid value' });
         patch.value = n;
       }
+      // Job cost allocation — money, so staff excluded; validated line items.
+      if (body.costs !== undefined && role !== 'staff') {
+        patch.costs = Array.isArray(body.costs)
+          ? body.costs
+              .filter((c) => c && typeof c.label === 'string' && c.label.trim() && isFinite(Number(c.amount)))
+              .map((c) => ({ label: String(c.label).trim().slice(0, 60), amount: Math.max(0, Number(c.amount)) }))
+          : [];
+      }
+      // The received-date stamp on the lead page is click-to-edit.
+      if (body.created_at !== undefined) {
+        const d = new Date(body.created_at);
+        if (isNaN(d.getTime())) return res.status(400).json({ error: 'invalid received date' });
+        patch.created_at = d.toISOString();
+      }
       const textChanged = [];
       for (const field of EDITABLE_TEXT_FIELDS) {
         if (body[field] === undefined) continue;
@@ -169,6 +183,15 @@ export default async function handler(req, res) {
       if (textChanged.length || patch.value !== undefined) {
         await appendNote(id, `Details updated by ${actor}`);
         await logActivity({ actor, action: 'updated details', lead_id: id, lead_name: prior.name, detail: textChanged.join(', ') });
+      }
+      if (patch.costs !== undefined) {
+        const total = patch.costs.reduce((a, c) => a + c.amount, 0);
+        await appendNote(id, `Job costs updated by ${actor}`);
+        await logActivity({ actor, action: 'updated job costs', lead_id: id, lead_name: prior.name, detail: '£' + total.toFixed(0) + ' total' });
+      }
+      if (patch.created_at !== undefined) {
+        await appendNote(id, `Received date changed by ${actor}`);
+        await logActivity({ actor, action: 'changed received date', lead_id: id, lead_name: prior.name, detail: patch.created_at.slice(0, 10) });
       }
 
       // Auto-ask for a review when a job is marked completed (opt-in per request).

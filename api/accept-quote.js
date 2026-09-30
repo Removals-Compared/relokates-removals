@@ -82,7 +82,7 @@ export default async function handler(req, res) {
           + `Phone: ${q.phone || '-'}\nEmail: ${q.email || '-'}\nMove date: ${q.move_date || '-'}\n`
           + `From: ${q.move_from || '-'}  To: ${q.move_to || '-'}\n\n`
           + `Open the lead: ${SITE}/admin/quote/${id}\n\n`
-          + `Next step: call to confirm the date and take the £50 deposit.`,
+          + `Next step: call to confirm the date and take the 10% deposit${Math.round((Number(q.value) || 0) * 0.10) ? ` (£${Math.round((Number(q.value) || 0) * 0.10).toLocaleString('en-GB')})` : ''}, with the balance on the move date.`,
       });
     } catch (_) { /* non-fatal */ }
   }
@@ -90,7 +90,7 @@ export default async function handler(req, res) {
   return res.status(200).send(page('Quote accepted', `
     <div class="tick">&#10003;</div>
     <h1>Thank you, ${first}!</h1>
-    <p>Your quote is accepted and your move is now with our booking team. We will be in touch shortly to confirm your date and arrange your &pound;50 deposit.</p>
+    <p>Your quote is accepted and your move is now with our booking team. We will be in touch shortly to confirm your date and arrange your 10% deposit, with the balance payable on the move date.</p>
     <p>Need us sooner? We are here 7 days a week.</p>
     ${contactButtons('Hi, I just accepted my removals quote')}
     <div class="foot">Relokates Removals &middot; Fixed prices, no hidden charges</div>`));

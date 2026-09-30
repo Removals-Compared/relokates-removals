@@ -47,6 +47,17 @@
 .value-input span{color:var(--gold);font-family:Montserrat,sans-serif;font-weight:800;font-size:18px}
 .value-input input{flex:1;max-width:140px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:16px;font-family:Inter,sans-serif;font-weight:600;color:var(--navy)}
 .value-input input:focus{outline:none;border-color:var(--gold)}
+.cost-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.cost-row .cost-label{flex:2;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:Inter,sans-serif}
+.cost-row .cost-amt{flex:1;min-width:0;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:Inter,sans-serif}
+.cost-row input:focus{outline:none;border-color:var(--gold)}
+.cost-del{background:none;border:none;color:#b91c1c;font-size:22px;cursor:pointer;padding:0 6px;line-height:1}
+.cost-summary{margin-top:12px;border-radius:10px;padding:13px 16px;font-size:13.5px;font-weight:600}
+.cost-summary .bar{height:10px;border-radius:6px;background:#eceef2;margin-top:8px;overflow:hidden;box-shadow:inset 0 2px 4px rgba(13,31,60,.12)}
+.cost-summary .fill{height:100%;border-radius:6px}
+.cost-summary.good{background:#ecfdf5;color:#166534}
+.cost-summary.warn{background:#fef9c3;color:#854d0e}
+.cost-summary.bad{background:#fee2e2;color:#991b1b}
 label{display:block;font-family:Montserrat,sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--navy);margin:12px 0 6px;font-weight:700}
 input,select,textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:Inter,sans-serif}
 textarea{min-height:80px;resize:vertical}
@@ -201,7 +212,7 @@ button.review:hover{background:#FEF08A}
       <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
         <a id="depositBtn" class="k wa full" href="#" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><path fill="#fff" d="M16 3C9 3 3.5 8.6 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 6.9 0 12.5-5.6 12.5-12.5S22.9 3 16 3z"/><path fill="#25D366" d="M12.4 9.3c-.3-.6-.5-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.8s1.2 3.3 1.4 3.5c.2.2 2.4 3.8 5.9 5.2 2.9 1.1 3.5.9 4.2.9.7-.1 2.1-.9 2.4-1.7.3-.8.3-1.5.2-1.7-.1-.2-.3-.2-.7-.4-.4-.2-2.1-1-2.4-1.1-.3-.1-.6-.2-.8.2-.2.3-.9 1.1-1.1 1.4-.2.2-.4.2-.7.1-.4-.2-1.5-.6-2.9-1.8-1.1-1-1.8-2.2-2-2.5-.2-.4 0-.6.2-.7.2-.2.4-.4.5-.6.2-.2.2-.4.4-.6.1-.2.1-.5 0-.6-.1-.2-.8-2-1.1-2.6z"/></svg>
-          Send &pound;50 deposit link on WhatsApp
+          Send 10% deposit link on WhatsApp
         </a>
         <span class="muted" style="font-size:12px;display:block;margin-top:8px">Opens WhatsApp to the customer's number with your Monzo deposit link ready to send.</span>
       </div>
@@ -226,6 +237,18 @@ button.review:hover{background:#FEF08A}
         <button class="lose" id="deleteBtn" style="padding:10px 16px;font-size:13px">&#128465; Delete this quote</button>
         <span class="muted" style="font-size:12px">Moves the customer to the recycle bin. You can restore it within 30 days.</span>
       </div>
+    </div>
+
+    <div class="card staff-hide">
+      <h2>Job costs &amp; margin</h2>
+      <p class="muted" style="font-size:13px;margin:0 0 12px">Log what the job costs you (crew, fuel, van, materials) to see the margin against the job value.</p>
+      <div id="cost-rows"></div>
+      <div class="btn-grid">
+        <button class="k grey" id="add-cost" type="button">+ Add cost line</button>
+        <button class="k gold" id="save-costs" type="button">Save costs</button>
+      </div>
+      <div id="cost-summary"></div>
+      <div class="flash" id="costsFlash"></div>
     </div>
 
     <div class="card">
@@ -371,7 +394,11 @@ function waNumber(phone){
 document.getElementById('depositBtn').addEventListener('click', (e) => {
   e.preventDefault();
   const fn = (quote && quote.name) ? String(quote.name).trim().split(/\s+/)[0] : 'there';
-  const msg = 'Hi ' + fn + ', to secure your move with Relokates Removals, please pay your £50 deposit using this secure link: ' + DEPOSIT_LINK + '. Once received, we will confirm your booking. Thank you.';
+  const depAmt = Math.round((Number(quote && quote.value) || 0) * 0.10);
+  const msg = 'Hi ' + fn + ', to secure your move with Relokates Removals, please pay your 10% deposit'
+    + (depAmt ? ' of £' + depAmt.toLocaleString('en-GB') : '')
+    + ' using this secure link: ' + DEPOSIT_LINK
+    + '. The remaining 90% is payable on the move date. Once received, we will confirm your booking. Thank you.';
   const num = waNumber(quote && quote.phone);
   window.open('https://wa.me/' + num + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
 });
@@ -526,18 +553,104 @@ function renderCustomer(q) {
     ['Phone', q.phone ? `<a href="tel:${esc(q.phone)}">${esc(q.phone)}</a> &nbsp;<a href="https://wa.me/${String(q.phone).replace(/[^\d]/g,'').replace(/^0/,'44')}?text=${encodeURIComponent('Hi ' + (q.name||'').split(' ')[0] + ', it\'s Relokates Removals about your removals quote.')}" target="_blank" rel="noopener" style="background:#25D366;color:#fff;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:12px;text-decoration:none">&#128172; WhatsApp</a>` : '-'],
     ['Email', q.email ? `<a href="mailto:${esc(q.email)}">${esc(q.email)}</a>` : '-'],
     ['Service', esc(q.service || '-')],
-    ['Moving from', esc(q.move_from || '-')],
-    ['Moving to', esc(q.move_to || '-')],
+    ['Moving from', q.move_from ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q.move_from)}" target="_blank" rel="noopener" title="Open in Google Maps">${esc(q.move_from)} &#128205;</a>` : '-'],
+    ['Moving to', q.move_to ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q.move_to)}" target="_blank" rel="noopener" title="Open in Google Maps">${esc(q.move_to)} &#128205;</a>` : '-'],
+    ['Distance', (q.move_from && q.move_to) ? '<span id="lead-distance">Working it out&hellip;</span>' : '-'],
     ['Move date', esc(q.move_date || '-')],
     ['Property', esc(q.property || '-')],
     ['Source', esc(q.source || '-')],
     ['Message', q.message ? `<div style="white-space:pre-wrap">${esc(q.message)}</div>` : '-'],
-    ['Submitted', fmt(q.created_at)],
+    ['Submitted', `<span id="received-stamp" title="Click to change the received date" style="cursor:pointer;border-bottom:1px dashed var(--muted)">${fmt(q.created_at)}</span>`],
   ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
 
   // Hydrate the value editor.
   document.getElementById('valueInput').value = q.value ?? '';
   document.getElementById('valueStatus').textContent = q.value ? `current: ${fmtMoney(q.value)}` : '';
+  renderCosts(q);
+  calcDistance();
+  wireReceivedStamp();
+}
+
+// ── Received/Submitted date: click the stamp to change it ──
+function wireReceivedStamp() {
+  const stamp = document.getElementById('received-stamp');
+  if (!stamp) return;
+  stamp.addEventListener('click', () => {
+    const cur = (quote.created_at || '').slice(0, 10);
+    stamp.outerHTML = '<input type="date" id="received-edit" value="' + cur + '" style="padding:5px 8px;border:1px solid var(--border);border-radius:6px;font:inherit">';
+    const inp = document.getElementById('received-edit');
+    inp.focus();
+    let done = false;
+    const save = async () => {
+      if (done) return; done = true;
+      const v = inp.value;
+      if (!v || v === cur) { load(); return; }
+      // Keep the original time of day so only the date part moves.
+      const time = (quote.created_at || '').includes('T') ? quote.created_at.slice(10) : 'T09:00:00';
+      try {
+        const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ created_at: v + time }),
+        });
+        if (!res.ok) { const d = await res.json().catch(() => ({})); alert(d.error || 'Could not change the received date.'); }
+      } catch (_) { alert('Network error — please try again.'); }
+      load();
+    };
+    inp.addEventListener('change', save);
+    inp.addEventListener('blur', () => { if (!done) { done = true; load(); } });
+  });
+}
+
+// ── Distance between the two locations: postcode extracted from the free-text
+//    move_from/move_to, coordinates from postcodes.io, road distance from the
+//    public OSRM router, straight line as fallback. ──
+const DIST_CACHE = {};
+function pcOf(v) {
+  const m = String(v || '').toUpperCase().match(/([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})/);
+  return m ? m[1].replace(/\s+/, ' ') : null;
+}
+function routeLink() {
+  return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(quote.move_from)
+    + '&destination=' + encodeURIComponent(quote.move_to) + '&travelmode=driving';
+}
+async function calcDistance() {
+  const el = document.getElementById('lead-distance');
+  if (!el || !quote || !quote.move_from || !quote.move_to) return;
+  const route = '<a href="' + routeLink() + '" target="_blank" rel="noopener" style="font-weight:700;color:var(--gold)">Open route &rarr;</a>';
+  const a = pcOf(quote.move_from), b = pcOf(quote.move_to);
+  if (!a || !b) { el.innerHTML = 'Add full postcodes to work this out &bull; ' + route; return; }
+  const key = a + '|' + b;
+  if (DIST_CACHE[key]) { el.innerHTML = DIST_CACHE[key]; return; }
+  try {
+    const r = await fetch('https://api.postcodes.io/postcodes', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postcodes: [a, b] }),
+    });
+    const d = await r.json();
+    const p1 = d.result && d.result[0] && d.result[0].result;
+    const p2 = d.result && d.result[1] && d.result[1].result;
+    if (!p1 || !p2) { el.innerHTML = 'Postcode not recognised &bull; ' + route; return; }
+    let html = null;
+    try {
+      const o = await fetch('https://router.project-osrm.org/route/v1/driving/'
+        + p1.longitude + ',' + p1.latitude + ';' + p2.longitude + ',' + p2.latitude + '?overview=false');
+      const od = await o.json();
+      if (od.routes && od.routes[0]) {
+        const mi = od.routes[0].distance / 1609.344;
+        const mins = Math.round(od.routes[0].duration / 60);
+        html = '<strong>' + (mi >= 100 ? Math.round(mi) : mi.toFixed(1)) + ' miles</strong> by road'
+          + (mins ? ' &bull; about ' + (mins >= 60 ? Math.floor(mins / 60) + ' h ' + (mins % 60) + ' min' : mins + ' min') + ' drive' : '')
+          + ' &bull; ' + route;
+      }
+    } catch (_) {}
+    if (!html) {
+      const toR = Math.PI / 180;
+      const dLat = (p2.latitude - p1.latitude) * toR, dLon = (p2.longitude - p1.longitude) * toR;
+      const h = Math.sin(dLat / 2) ** 2 + Math.cos(p1.latitude * toR) * Math.cos(p2.latitude * toR) * Math.sin(dLon / 2) ** 2;
+      const mi = 2 * 3958.8 * Math.asin(Math.sqrt(h));
+      html = '<strong>' + mi.toFixed(1) + ' miles</strong> straight line &bull; ' + route;
+    }
+    DIST_CACHE[key] = html;
+    el.innerHTML = html;
+  } catch (_) { el.innerHTML = 'Could not work out the distance &bull; ' + route; }
 }
 
 function renderNotes(notes) {
@@ -672,6 +785,64 @@ document.getElementById('crewSave').addEventListener('click', async () => {
     });
     if (!res.ok) { const d = await res.json().catch(() => ({})); showFlash(flash, d.error || 'Failed to save crew', false); return; }
     showFlash(flash, picked.length ? ('Crew saved: ' + picked.join(', ')) : 'Crew cleared.', true); load();
+  } catch (e) { showFlash(flash, 'Network error', false); } finally { btn.disabled = false; }
+});
+
+// ── Job costs & margin ──
+function costRowsData() {
+  return Array.from(document.querySelectorAll('#cost-rows .cost-row')).map(r => ({
+    label: r.querySelector('.cost-label').value.trim(),
+    amount: Number(r.querySelector('.cost-amt').value),
+  })).filter(c => c.label && isFinite(c.amount) && c.amount > 0);
+}
+function costSummary() {
+  const box = document.getElementById('cost-summary');
+  const total = costRowsData().reduce((a, c) => a + c.amount, 0);
+  const val = Number(quote && quote.value) || 0;
+  if (!total) { box.innerHTML = ''; return; }
+  const pct = val ? Math.round(total / val * 100) : null;
+  const margin = val - total;
+  const band = pct === null ? 'warn' : pct <= 60 ? 'good' : pct <= 85 ? 'warn' : 'bad';
+  const fill = { good: '#16a34a', warn: '#d97706', bad: '#dc2626' }[band];
+  box.innerHTML = '<div class="cost-summary ' + band + '">'
+    + 'Costs £' + total.toLocaleString('en-GB')
+    + (val ? ' • Job £' + val.toLocaleString('en-GB')
+        + ' • Margin £' + margin.toLocaleString('en-GB')
+        + ' • ' + pct + '% of job value spent' : ' • set the job value to see the margin')
+    + (val ? '<div class="bar"><div class="fill" style="width:' + Math.min(100, pct) + '%;background:' + fill + '"></div></div>' : '')
+    + '</div>';
+}
+function addCostRow(label, amount) {
+  const div = document.createElement('div');
+  div.className = 'cost-row';
+  div.innerHTML = '<input class="cost-label" placeholder="e.g. Crew wages" value="' + (label || '') + '">'
+    + '<input class="cost-amt" type="number" step="0.01" min="0" placeholder="0.00" value="' + (amount ?? '') + '">'
+    + '<button type="button" class="cost-del" title="Remove">&times;</button>';
+  document.getElementById('cost-rows').appendChild(div);
+  return div;
+}
+function renderCosts(q) {
+  const wrap = document.getElementById('cost-rows');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  (Array.isArray(q.costs) ? q.costs : []).forEach(c => addCostRow(c.label, c.amount));
+  costSummary();
+}
+document.getElementById('add-cost').addEventListener('click', () => addCostRow().querySelector('.cost-label').focus());
+document.getElementById('cost-rows').addEventListener('click', (e) => {
+  if (e.target.classList.contains('cost-del')) { e.target.closest('.cost-row').remove(); costSummary(); }
+});
+document.getElementById('cost-rows').addEventListener('input', costSummary);
+document.getElementById('save-costs').addEventListener('click', async () => {
+  const costs = costRowsData();
+  const flash = document.getElementById('costsFlash');
+  const btn = document.getElementById('save-costs'); btn.disabled = true;
+  try {
+    const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ costs }),
+    });
+    if (!res.ok) { const d = await res.json().catch(() => ({})); showFlash(flash, d.error || 'Could not save costs', false); }
+    else { quote = (await res.json()).quote; showFlash(flash, 'Costs saved.', true); costSummary(); }
   } catch (e) { showFlash(flash, 'Network error', false); } finally { btn.disabled = false; }
 });
 

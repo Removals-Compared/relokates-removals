@@ -340,7 +340,7 @@ body.pdfx .qfoot{margin-top:56px;padding-top:18px;padding-bottom:12px}
       <div class="terms">
         <ol>
           <li>This fixed price is held provided the contents and access are as described at the time of quoting.</li>
-          <li>A &pound;50 deposit secures your booking, with the balance due on completion day.</li>
+          <li>A 10% deposit (<span id="t-deposit">&mdash;</span>) secures your booking, with the remaining 90% (<span id="t-balance">&mdash;</span>) payable on the move date.</li>
           <li>Please have all boxes packed before the crew arrives, unless you have arranged packing with us.</li>
           <li>Let us know about parking restrictions or permits in advance so we can plan access.</li>
           <li>This quote is valid for 14 days from the date of issue.</li>
@@ -460,6 +460,14 @@ function fill(q){
   document.getElementById('tSub').textContent=total||'On request';
   document.getElementById('tTotal').textContent=total||'On request';
 
+  // Deposit terms: 10% now, 90% on the move date.
+  const depV=Number(q.value)||0;
+  const tDep=document.getElementById('t-deposit'), tBal=document.getElementById('t-balance');
+  if(tDep&&tBal){
+    if(depV){ const dep=Math.round(depV*0.10); tDep.textContent=money(dep); tBal.textContent=money(depV-dep); }
+    else { tDep.textContent='10% of the total'; tBal.textContent='the remaining 90%'; }
+  }
+
   document.title='Quote '+refCode+' | Relokates';
 }
 
@@ -482,6 +490,7 @@ function prefillEmail(){
   if(!subj.value) subj.value='Your removal quote from Relokates Removals - '+refCode;
   if(!body.value){
     const total=money(quote.value);
+    const depV=Number(quote.value)||0;
     const from=quote.move_from||'your current address';
     const to2=quote.move_to||'your new address';
     const dateLine=quote.move_date? ('Your preferred move date is '+fmtDate(quote.move_date)+'. '):'';
@@ -493,7 +502,7 @@ Thank you for getting in touch with Relokates Removals. Please find your fixed-p
 
 It covers your move from ${from} to ${to2}. ${dateLine}${total? 'The total price is '+total+', fully inclusive with no hidden charges.':'Your price is set out in the attached quotation.'}
 
-To secure your date, a 50 pound deposit is all that is needed, with the balance due on completion day. This quote is valid for 14 days.${acceptLine}
+To secure your date, a 10% deposit${depV? ' ('+money(Math.round(depV*0.10))+')':''} is all that is needed, with the remaining 90%${depV? ' ('+money(depV-Math.round(depV*0.10))+')':''} payable on the move date. This quote is valid for 14 days.${acceptLine}
 
 If you have any questions or would like to book, just reply to this email or call us on 07359 724844.
 

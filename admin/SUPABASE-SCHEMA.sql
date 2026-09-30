@@ -96,3 +96,8 @@ ALTER TABLE activity_log DISABLE ROW LEVEL SECURITY;
 alter table relokates_appointments drop constraint if exists relokates_appointments_type_check;
 alter table relokates_appointments add constraint relokates_appointments_type_check
   check (type in ('survey','move','packing'));
+
+-- ── Migration (2026-09-30): job cost allocation + margin tracking ──
+-- Line-item costs per job: [{"label":"Crew wages","amount":180}, ...]
+-- Admin/branch only; stripped server-side for staff like all money.
+alter table relokates_quote_request add column if not exists costs jsonb default '[]';

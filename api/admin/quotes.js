@@ -20,7 +20,7 @@ async function branchHandler(req, res, branch, actorOverride, stripValue) {
       const rows = await listQuotes({ status: req.query.status, search: req.query.search, source });
       // Belt and braces: never return a row that isn't this branch's.
       const quotes = rows.filter((q) => q.source === source);
-      if (stripValue) quotes.forEach((q) => { delete q.value; });
+      if (stripValue) quotes.forEach((q) => { delete q.value; delete q.costs; });
       // role lets the shared dashboard UI render for branch sessions too.
       return res.status(200).json({ quotes, branch, role: 'branch', display_name: `${prettyBranch(branch)} (Richard Jones)` });
     }
@@ -82,7 +82,7 @@ export default async function handler(req, res) {
     rows.forEach((q) => { if (map[q.id]) q.reminder = map[q.id]; });
 
     // Staff never see money.
-    if (role === 'staff') rows.forEach((q) => { delete q.value; });
+    if (role === 'staff') rows.forEach((q) => { delete q.value; delete q.costs; });
 
     return res.status(200).json({
       quotes: rows,

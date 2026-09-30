@@ -387,7 +387,13 @@ function renderRows(rows){
       <td>${tel}</td>
       <td>${esc(r.service||'-')}</td>
       <td>${esc(r.move_from||'-')} <span class="sub">&rarr;</span> ${esc(r.move_to||'-')}</td>
-      <td class="right">${fmtMoney(r.value)}</td>
+      <td class="right">${fmtMoney(r.value)}${(() => {
+        const t = (Array.isArray(r.costs) ? r.costs : []).reduce((a,c) => a + (Number(c.amount)||0), 0);
+        if (!t || !r.value) return '';
+        const pct = Math.round(t / Number(r.value) * 100);
+        const col = pct <= 60 ? '#15803d' : pct <= 85 ? '#b45309' : '#b91c1c';
+        return `<div class="sub" style="color:${col};font-weight:700">costs &pound;${t.toLocaleString('en-GB')} &middot; ${pct}%</div>`;
+      })()}</td>
       <td class="actions"><button class="del" data-action="delete" title="Delete this lead">&#128465;</button></td>
     </tr>`;
   }).join('');

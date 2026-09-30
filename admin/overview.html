@@ -134,6 +134,14 @@
       </div>
     </div>
 
+    <div class="grid thirds" id="profitRow" hidden>
+      <div class="card">
+        <h2>Job profitability</h2>
+        <p class="sub" id="profitSummary" style="margin:0 0 10px"></p>
+        <ul class="list" id="profitability"></ul>
+      </div>
+    </div>
+
     <div class="grid thirds">
       <div class="card">
         <h2>Call reminders due</h2>
@@ -214,6 +222,13 @@ function render(rows, activity){
   const newCount=counts.new||0;
   const monthStart=new Date(today.getFullYear(),today.getMonth(),1);
   const leadsThisMonth=rows.filter(r=>r.created_at && new Date(r.created_at)>=monthStart).length;
+  // Margin across costed jobs (admin/branch only — staff have costs stripped).
+  let marginTotal=0, costedVal=0, costedSpend=0, costedCount=0;
+  rows.forEach(r=>{
+    if(!['move_booked','won'].includes(r.status) || num(r.value)<=0 || !Array.isArray(r.costs) || !r.costs.length) return;
+    const c=r.costs.reduce((a,x)=>a+(Number(x.amount)||0),0);
+    marginTotal+=num(r.value)-c; costedVal+=num(r.value); costedSpend+=c; costedCount++;
+  });
 
   // KPI tiles. Staff never see money, so they get count-based tiles instead.
   const openCount=ACTIVE.reduce((a,s)=>a+(counts[s]||0),0);
@@ -234,6 +249,7 @@ function render(rows, activity){
     {l:'Pipeline value',n:money(pipelineVal),s:'active leads',cls:'gold'},
     {l:'Won value',n:money(wonVal),s:won+' completed jobs',cls:'green'},
     {l:'Avg job value',n:money(won?wonVal/won:0),s:'per completed move'},
+    {l:'Margin (costed jobs)',n:money(marginTotal),s:costedCount?(Math.round(costedSpend/costedVal*100)+'% avg spend · '+costedCount+' job'+(costedCount===1?'':'s')):'add job costs on a lead',cls:'gold'},
     {l:'Contacted / quoted',n:(counts.contacted||0)+(counts.quote_sent||0),s:'in conversation'},
   ];
   $('kpis').innerHTML=kpis.map(k=>`<div class="kpi ${k.cls||''}"><div class="l">${k.l}</div><div class="n">${k.n}</div><div class="s">${k.s}</div></div>`).join('');
@@ -267,6 +283,26 @@ function render(rows, activity){
     <div class="sub">${esc(STATUS_LABEL[r.status]||'New')}${r.service?' &middot; '+esc(r.service):''}</div></div>
     <div class="rt"><div class="d">${dshort(r.created_at)}</div><div class="v">${r.value?money(r.value):''}</div></div></li>`).join('')
     : '<div class="empty">No leads yet.</div>';
+
+  // Job profitability (admin/branch only — staff have costs stripped server-side)
+  if (!staff) {
+    const costed = rows.filter(r => ['move_booked','won'].includes(r.status) && num(r.value) > 0 && Array.isArray(r.costs) && r.costs.length)
+      .map(r => ({ r, c: r.costs.reduce((a,x)=>a+(Number(x.amount)||0),0) }));
+    if (costed.length) {
+      document.getElementById('profitRow').hidden = false;
+      const tv = costed.reduce((a,o)=>a+num(o.r.value),0);
+      const tc = costed.reduce((a,o)=>a+o.c,0);
+      document.getElementById('profitSummary').textContent =
+        costed.length + ' costed job' + (costed.length===1?'':'s') + ' • average spend ' + Math.round(tc/tv*100) + '% of value • total margin ' + money(tv-tc);
+      $('profitability').innerHTML = costed.sort((a,b)=>(b.c/num(b.r.value))-(a.c/num(a.r.value))).slice(0,8).map(({r,c})=>{
+        const pct=Math.round(c/num(r.value)*100);
+        const col=pct<=60?'#16a34a':pct<=85?'#d97706':'#dc2626';
+        return `<li onclick="go('${esc(r.id)}')"><div><div class="who">${esc(r.name||'-')}</div>
+          <div class="sub">job ${money(num(r.value))} &middot; costs ${money(c)} &middot; margin ${money(num(r.value)-c)}</div>
+          <div class="sub"><span style="display:inline-block;width:110px;height:8px;border-radius:4px;background:#eceef2;vertical-align:middle"><span style="display:block;width:${Math.min(100,pct)}%;height:100%;border-radius:4px;background:${col}"></span></span> ${pct}% spent</div></div></li>`;
+      }).join('');
+    }
+  }
 
   renderActivity(activity||[]);
   renderReviews(rows);
