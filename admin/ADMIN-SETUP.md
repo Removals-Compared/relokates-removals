@@ -8,14 +8,16 @@ automatically.
 
 Three things to do once - about 15 minutes total.
 
-## 1. Supabase (2 minutes)
+## 1. Database (Neon, 2 minutes)
 
-Open https://app.supabase.com -> SQL editor -> paste the contents
-of `admin/SUPABASE-SCHEMA.sql` -> click **Run**.
+Create a Neon database (https://console.neon.tech), open its SQL editor,
+paste the contents of `admin/SCHEMA.sql` and click **Run**. Copy the pooled
+connection string; it becomes the `DATABASE_URL` env var in step 3.
 
 What it does:
-  - Adds `status`, `notes`, `updated_at`, `value` columns to your
-    existing `relokates_quote_request` table.
+  - Creates the `relokates_quote_request` table (with `status`, `notes`,
+    `updated_at`, `value`, `costs`) and the appointments, reminders and
+    activity tables.
   - Backfills existing rows with `status = 'new'`.
   - Creates `relokates_appointments` table for bookings + surveys.
   - Enables Row Level Security ONLY on the new appointments table.
@@ -68,6 +70,7 @@ Environment Variables. Add for all environments:
 
 | Name | Value |
 |---|---|
+| `DATABASE_URL` | Neon pooled connection string from step 1 |
 | `ADMIN_PASSWORD` | Pick a strong password - this is what you type to log in |
 | `ADMIN_SESSION_SECRET` | 32+ random hex chars. Generate with `openssl rand -hex 32` |
 | `GCAL_CLIENT_ID` | From step 2a-6 (skip if no calendar) |
@@ -80,7 +83,7 @@ Redeploy in Vercel so the new env vars take effect.
 
   1. Visit https://www.relokates.co.uk/admin
   2. Enter the `ADMIN_PASSWORD`
-  3. You land on the dashboard - any quote in Supabase shows up
+  3. You land on the dashboard - any quote in the database shows up
   4. Click "+ Add customer" to test manual entry
   5. Click any row -> opens the quote detail page
   6. Try: set a value, add a note, mark contacted, book a survey
@@ -88,7 +91,7 @@ Redeploy in Vercel so the new env vars take effect.
      the customer gets an email
 
 If anything fails, the API responses include the failing step
-(`supabase`, `gcal`, `email`) so you know where to look.
+(`database`, `gcal`, `email`) so you know where to look.
 
 ## What's protected
 

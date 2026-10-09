@@ -1,5 +1,5 @@
 // Relokates Removals — Quote form API
-// Supabase (leads table) + Nodemailer/Gmail (email) + HubSpot (CRM)
+// Neon Postgres (leads table) + Nodemailer/Gmail (email)
 
 import nodemailer from 'nodemailer';
 import { q } from './admin/_sql.js';
@@ -121,30 +121,6 @@ export default async function handler(req, res) {
     });
   } catch (e) {
     console.error('Auto-reply failed:', e.message);
-  }
-
-  // ── 4. HUBSPOT CRM ──
-  try {
-    const hsRes = await fetch('https://api.hubapi.com/crm/v3/objects/contacts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.HUBSPOT_TOKEN}`
-      },
-      body: JSON.stringify({
-        properties: {
-          firstname: name.split(' ')[0] || name,
-          lastname: name.split(' ').slice(1).join(' ') || '',
-          email,
-          phone,
-          hs_lead_status: 'NEW',
-          lifecyclestage: 'lead'
-        }
-      })
-    });
-    if (!hsRes.ok) errors.push('hubspot');
-  } catch (e) {
-    errors.push('hubspot');
   }
 
   return res.status(200).json({ success: true, errors });
