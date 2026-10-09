@@ -1,6 +1,6 @@
 // Create a survey or move appointment.
 // Steps (errors after step 1 do not roll back the row):
-//   1. Supabase row in relokates_appointments
+//   1. Database row in relokates_appointments
 //   2. Google Calendar event
 //   3. Customer email confirmation
 //   4. Quote status auto-advance
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'lead not found' });
     }
   } catch (e) {
-    return res.status(500).json({ error: `supabase: ${e.message}` });
+    return res.status(500).json({ error: `database: ${e.message}` });
   }
   const customer = { name: quote.name, email: quote.email, phone: quote.phone };
 
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       notes: notes || null,
     });
   } catch (e) {
-    return res.status(500).json({ error: `supabase appointment: ${e.message}` });
+    return res.status(500).json({ error: `database appointment: ${e.message}` });
   }
 
   // Google Calendar.

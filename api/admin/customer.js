@@ -2,7 +2,7 @@
 // Same shape as a public submission, tagged source="manual-admin".
 
 import { requireAuthWithBranch, actorName } from './_session.js';
-import { appendNote, logActivity } from './_db.js';
+import { appendNote, logActivity, createQuote } from './_db.js';
 
 export default async function handler(req, res) {
   const auth = requireAuthWithBranch(req, res);
@@ -40,22 +40,7 @@ export default async function handler(req, res) {
       if (!isNaN(v) && v >= 0) payload.value = v;
     }
 
-    const r = await fetch(`${process.env.SUPABASE_URL}/rest/v1/relokates_quote_request`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': process.env.SUPABASE_KEY,
-        'Authorization': `Bearer ${process.env.SUPABASE_KEY}`,
-        'Prefer': 'return=representation',
-      },
-      body: JSON.stringify(payload),
-    });
-    if (!r.ok) {
-      const text = await r.text();
-      return res.status(500).json({ error: `supabase: ${text.slice(0, 200)}` });
-    }
-    const rows = await r.json();
-    const created = rows[0] || null;
+    const created = await createQuote(payload);
     if (created && created.id != null) {
       const actor = actorName(req);
       try {
