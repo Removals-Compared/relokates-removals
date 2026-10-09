@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: 'lead not found' });
     }
   } catch (e) {
-    return res.status(500).json({ error: `supabase: ${e.message}` });
+    return res.status(500).json({ error: `database: ${e.message}` });
   }
   const customer = { name: quote.name, email: quote.email, phone: quote.phone };
 
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
       notes: notes || null,
     });
   } catch (e) {
-    return res.status(500).json({ error: `supabase appointment: ${e.message}` });
+    return res.status(500).json({ error: `database appointment: ${e.message}` });
   }
 
   // Google Calendar.

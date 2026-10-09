@@ -2,6 +2,7 @@
 // Supabase (leads table) + Nodemailer/Gmail (email) + HubSpot (CRM)
 
 import nodemailer from 'nodemailer';
+import { q } from './admin/_sql.js';
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -42,26 +43,18 @@ export default async function handler(req, res) {
   const timestamp = new Date().toISOString();
   const errors = [];
 
-  // ── 1. SUPABASE ──
+  // ── 1. DATABASE (Neon) ──
   try {
-    const sbRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/relokates_quote_request`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': process.env.SUPABASE_KEY,
-        'Authorization': `Bearer ${process.env.SUPABASE_KEY}`,
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({
-        name, email, phone, service,
-        move_from, move_to, move_date, property, message,
-        source,
-        created_at: timestamp
-      })
-    });
-    if (!sbRes.ok) errors.push('supabase');
+    await q(
+      `INSERT INTO relokates_quote_request
+         (name, email, phone, service, move_from, move_to, move_date, property, message, source, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      [name, email, phone, service, move_from, move_to, move_date, property, message, source, timestamp]
+        .map((v) => (v === undefined ? null : v)),
+    );
   } catch (e) {
-    errors.push('supabase');
+    console.error('database insert failed:', e);
+    errors.push('database');
   }
 
   // ── 2. INTERNAL NOTIFICATION EMAIL ──
