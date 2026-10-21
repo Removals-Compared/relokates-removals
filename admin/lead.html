@@ -209,8 +209,26 @@ button.review:hover{background:#FEF08A}
               </optgroup>
             </select>
           </div>
-          <div><label>Moving from</label><input type="text" name="move_from" placeholder="Postcode or address"></div>
-          <div><label>Moving to</label><input type="text" name="move_to" placeholder="Postcode or address"></div>
+          <div>
+            <label>Moving from</label>
+            <input type="text" name="move_from" id="editMoveFrom" placeholder="Full address">
+            <div class="addr-row">
+              <input type="text" class="addr-pc" data-target="editMoveFrom" placeholder="Postcode" maxlength="8" autocomplete="off">
+              <button type="button" class="addr-find" data-target="editMoveFrom">Find address</button>
+            </div>
+            <select class="addr-select" data-target="editMoveFrom" hidden></select>
+            <p class="addr-note" data-target="editMoveFrom" hidden></p>
+          </div>
+          <div>
+            <label>Moving to</label>
+            <input type="text" name="move_to" id="editMoveTo" placeholder="Full address">
+            <div class="addr-row">
+              <input type="text" class="addr-pc" data-target="editMoveTo" placeholder="Postcode" maxlength="8" autocomplete="off">
+              <button type="button" class="addr-find" data-target="editMoveTo">Find address</button>
+            </div>
+            <select class="addr-select" data-target="editMoveTo" hidden></select>
+            <p class="addr-note" data-target="editMoveTo" hidden></p>
+          </div>
           <div><label>Move date</label><input type="text" name="move_date" placeholder="YYYY-MM-DD or text"></div>
           <div><label>Property</label>
             <select name="property" id="editProperty">
@@ -1088,5 +1106,6 @@ document.getElementById('remSet').addEventListener('click', async () => {
 
 load();
 </script>
+<script src="/admin/postcode-picker.js" defer></script>
 </body>
 </html>
