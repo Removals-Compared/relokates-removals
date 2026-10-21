@@ -357,6 +357,21 @@ async function load(){
     myRole = data.role || 'admin';
     document.body.classList.toggle('staff', myRole === 'staff');
     showChip(data.display_name || 'Admin');
+    // Unmissable banner when a BRANCH session is viewing this dashboard, so a
+    // branch login is never mistaken for the head-office view.
+    (function(){
+      var b = document.getElementById('branch-banner');
+      if (myRole === 'branch') {
+        var nm = (data.branch || 'branch').replace(/^./, function(c){ return c.toUpperCase(); });
+        if (!b) {
+          b = document.createElement('div');
+          b.id = 'branch-banner';
+          b.style.cssText = 'background:#B8932A;color:#fff;font-family:Montserrat,sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;text-align:center;padding:10px 16px';
+          document.body.prepend(b);
+        }
+        b.innerHTML = '&#127961;&#65039; ' + nm + ' branch dashboard &mdash; this is NOT the head-office view. <a href="#" onclick="fetch(\'/api/admin/login\',{method:\'DELETE\'}).then(function(){location.href=\'/admin\'});return false" style="color:#fff;text-decoration:underline">Switch account</a>';
+      } else if (b) { b.remove(); }
+    })();
     allRows = sortLeads(data.quotes || []);
     renderRows(allRows);
     renderToday(allRows);
