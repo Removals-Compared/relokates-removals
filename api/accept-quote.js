@@ -5,6 +5,7 @@
 import crypto from 'node:crypto';
 import nodemailer from 'nodemailer';
 import { getQuote, updateQuote, appendNote, logActivity } from './admin/_db.js';
+import { useDb, branchDbUrl } from './admin/_sql.js';
 
 const PHONE = '07359 724844';
 const WA = '447359724844';
@@ -59,8 +60,23 @@ export default async function handler(req, res) {
 
   if (!id || !t || t !== token(id)) return fail();
 
-  let q;
-  try { q = await getQuote(id); } catch (_) { return fail(); }
+  // The lead may live in the head-office database or a branch's own database
+  // (e.g. Birmingham) - try head office first, then each branch DB. useDb
+  // stays switched for the rest of the invocation so the status update and
+  // notes land in the same database the lead was found in.
+  let q = null;
+  useDb(null);
+  try { q = await getQuote(id); } catch (_) { /* try branches */ }
+  if (!q) {
+    for (const slug of ['birmingham']) {
+      const url = branchDbUrl(slug);
+      if (!url) continue;
+      useDb(url);
+      try { q = await getQuote(id); } catch (_) { q = null; }
+      if (q) break;
+    }
+    if (!q) useDb(null);
+  }
   if (!q || q.status === 'deleted') return fail();
 
   const first = String(q.name || 'there').trim().split(/\s+/)[0] || 'there';

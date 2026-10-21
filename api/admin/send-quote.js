@@ -3,7 +3,7 @@
 // as a sent record, appends a note, and moves the lead to "quote_sent".
 
 import nodemailer from 'nodemailer';
-import { requireAuthWithBranch } from './_session.js';
+import { requireAuthWithBranch, selectBranchDb } from './_session.js';
 import { appendNote, updateQuote, getQuote } from './_db.js';
 
 const FROM = 'Relokates Removals <info@relokates.co.uk>';
@@ -45,6 +45,7 @@ function htmlWrap(body) {
 export default async function handler(req, res) {
   const auth = requireAuthWithBranch(req, res);
   if (!auth) return;
+  if (!selectBranchDb(auth, res)) return;
   if (auth.role === 'staff') return res.status(403).json({ error: 'staff cannot send priced documents' });
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 

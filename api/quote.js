@@ -2,7 +2,7 @@
 // Neon Postgres (leads table) + Nodemailer/Gmail (email)
 
 import nodemailer from 'nodemailer';
-import { q } from './admin/_sql.js';
+import { q, useDb, branchDbUrl } from './admin/_sql.js';
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
@@ -33,6 +33,10 @@ export default async function handler(req, res) {
   const BRANCHES = ['birmingham'];
   const leadBranch = BRANCHES.includes(branch) ? branch : null;
   const source = leadBranch ? `relokates.co.uk/${leadBranch}` : 'relokates.co.uk';
+  // Branch enquiries are stored in the branch's OWN database. If that branch
+  // database isn't configured the lead still lands (tagged) in head office
+  // rather than being lost.
+  useDb(leadBranch ? branchDbUrl(leadBranch) : null);
   // Branch notification address (e.g. BIRMINGHAM_NOTIFY_EMAIL) - falls back to
   // head office until the branch owner's email is configured.
   const notifyTo = (leadBranch && process.env[`${leadBranch.toUpperCase()}_NOTIFY_EMAIL`]) || 'info@relokates.co.uk';

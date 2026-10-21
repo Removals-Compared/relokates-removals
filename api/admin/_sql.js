@@ -14,13 +14,27 @@ const typeConfig = {
   getTypeParser: (oid, fmt) => parsers[oid] || types.getTypeParser(oid, fmt),
 };
 
-let _sql;
+// Franchise branches have their OWN databases (e.g. BIRMINGHAM_DATABASE_URL)
+// so branch data physically never mixes with head office. useDb() routes the
+// rest of the current invocation at a branch database; useDb(null) routes
+// back to head office. Vercel serves one request per instance at a time, so
+// a module-level switch is safe.
+const _clients = Object.create(null);
+let _activeUrl = null;
+
+export function useDb(url) { _activeUrl = url || null; }
+
+// Connection string for a branch slug, or null when not configured.
+export function branchDbUrl(slug) {
+  if (!slug) return null;
+  return process.env[`${String(slug).toUpperCase().replace(/-/g, '_')}_DATABASE_URL`] || null;
+}
+
 function client() {
-  if (!_sql) {
-    if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
-    _sql = neon(process.env.DATABASE_URL);
-  }
-  return _sql;
+  const url = _activeUrl || process.env.DATABASE_URL;
+  if (!url) throw new Error('DATABASE_URL is not set');
+  if (!_clients[url]) _clients[url] = neon(url);
+  return _clients[url];
 }
 
 // q('select * from t where id = $1', [id]) -> array of row objects.

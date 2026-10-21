@@ -7,6 +7,7 @@ import {
   fetchDueReminders, markReminderSent, getQuote,
   fetchExpiredDeleted, deleteQuote, logActivity,
 } from './_db.js';
+import { useDb, branchDbUrl } from './_sql.js';
 
 const TO = 'info@relokates.co.uk';
 const FROM = 'Relokates Reminders <info@relokates.co.uk>';
@@ -53,37 +54,50 @@ export default async function handler(req, res) {
   const today = new Date().toISOString().slice(0, 10);
   const results = { checked: 0, sent: 0, purged: 0, errors: [] };
 
-  try {
-    const due = await fetchDueReminders(today);
-    results.checked = due.length;
-    for (const rem of due) {
-      try {
-        const lead = await getQuote(rem.lead_id);
-        await transporter.sendMail({
-          from: FROM,
-          to: TO,
-          subject: `Call reminder: ${(lead && lead.name) || 'Customer'}${rem.note ? ' - ' + rem.note : ''}`,
-          html: emailHtml(lead, rem),
-        });
-        await markReminderSent(rem.id);
-        results.sent += 1;
-      } catch (e) {
-        results.errors.push({ id: rem.id, message: String(e.message || e) });
-      }
-    }
+  // One pass per database: head office first, then each configured branch DB
+  // (branches keep their own data, but reminders still need running).
+  const passes = [{ label: 'head-office', url: null, notify: TO }];
+  for (const slug of ['birmingham']) {
+    const url = branchDbUrl(slug);
+    if (url) passes.push({ label: slug, url, notify: process.env[`${slug.toUpperCase()}_NOTIFY_EMAIL`] || TO });
+  }
 
-    // Recycle-bin housekeeping: purge leads soft-deleted more than 30 days ago.
-    try {
-      const expired = await fetchExpiredDeleted(30);
-      for (const q of expired) {
-        await deleteQuote(q.id);
-        await logActivity({ actor: 'System', action: 'purged', lead_id: q.id, lead_name: q.name, detail: 'recycle bin, 30 days' });
+  try {
+    for (const pass of passes) {
+      useDb(pass.url);
+      const due = await fetchDueReminders(today);
+      results.checked += due.length;
+      for (const rem of due) {
+        try {
+          const lead = await getQuote(rem.lead_id);
+          await transporter.sendMail({
+            from: FROM,
+            to: pass.notify,
+            subject: `Call reminder: ${(lead && lead.name) || 'Customer'}${rem.note ? ' - ' + rem.note : ''}`,
+            html: emailHtml(lead, rem),
+          });
+          await markReminderSent(rem.id);
+          results.sent += 1;
+        } catch (e) {
+          results.errors.push({ db: pass.label, id: rem.id, message: String(e.message || e) });
+        }
       }
-      results.purged = expired.length;
-    } catch (e) { results.purge_error = String(e.message || e); }
+
+      // Recycle-bin housekeeping: purge leads soft-deleted more than 30 days ago.
+      try {
+        const expired = await fetchExpiredDeleted(30);
+        for (const q of expired) {
+          await deleteQuote(q.id);
+          await logActivity({ actor: 'System', action: 'purged', lead_id: q.id, lead_name: q.name, detail: 'recycle bin, 30 days' });
+        }
+        results.purged += expired.length;
+      } catch (e) { results.purge_error = String(e.message || e); }
+    }
+    useDb(null);
 
     return res.status(200).json({ ok: true, ...results });
   } catch (e) {
+    useDb(null);
     return res.status(500).json({ ok: false, error: String(e.message || e), ...results });
   }
 }

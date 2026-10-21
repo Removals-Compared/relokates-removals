@@ -1,4 +1,5 @@
-import { requireAuth, actorName, verifySession } from './_session.js';
+import { requireAuth, actorName, verifySession, selectBranchDb } from './_session.js';
+import { useDb } from './_sql.js';
 import { listQuotes, fetchPendingReminders, getQuote, updateQuote, appendNote, logActivity } from './_db.js';
 
 // ── Franchise branch flow ────────────────────────────────────────────────
@@ -45,13 +46,16 @@ async function branchHandler(req, res, branch, actorOverride, stripValue) {
 // ── Head-office flow ─────────────────────────────────────────────────────
 export default async function handler(req, res) {
   // Branch sessions divert to their scoped flow before requireAuth (which
-  // rejects the branch role everywhere else).
+  // rejects the branch role everywhere else). Their queries run against the
+  // branch's OWN database - branch data is physically separate.
   if (verifySession(req) === 'branch' && req._branchName) {
+    if (!selectBranchDb({ branchName: req._branchName }, res)) return;
     return branchHandler(req, res, req._branchName);
   }
 
   const role = requireAuth(req, res);
   if (!role) return;
+  useDb(null); // head-office sessions always use the head-office database
 
   // A head-office session viewing a branch dashboard (?branch=... on GET, or
   // branch in the PATCH body) gets the SAME scoped flow as a branch login -

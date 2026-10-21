@@ -1,12 +1,13 @@
 // Manually create a quote / lead from the admin area.
 // Same shape as a public submission, tagged source="manual-admin".
 
-import { requireAuthWithBranch, actorName } from './_session.js';
+import { requireAuthWithBranch, selectBranchDb, actorName } from './_session.js';
 import { appendNote, logActivity, createQuote } from './_db.js';
 
 export default async function handler(req, res) {
   const auth = requireAuthWithBranch(req, res);
   if (!auth) return;
+  if (!selectBranchDb(auth, res)) return;
   const { branchSource } = auth;
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 

@@ -5,7 +5,7 @@
 //   3. Customer email confirmation
 //   4. Quote status auto-advance
 
-import { requireAuthWithBranch, actorName } from './_session.js';
+import { requireAuthWithBranch, selectBranchDb, actorName } from './_session.js';
 import { getQuote, createAppointment, updateAppointment, updateQuote, fetchMovesOnDate, appendNote, logActivity } from './_db.js';
 import { createEvent, buildAppointmentEvent, isGcalConfigured } from './_gcal.js';
 import { sendSurveyConfirmation, sendBookingConfirmation, sendPackingConfirmation } from './_email.js';
@@ -13,6 +13,7 @@ import { sendSurveyConfirmation, sendBookingConfirmation, sendPackingConfirmatio
 export default async function handler(req, res) {
   const auth = requireAuthWithBranch(req, res);
   if (!auth) return;
+  if (!selectBranchDb(auth, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
   const { lead_id, type, scheduled_for, duration_minutes = 60, address, notes } = req.body || {};

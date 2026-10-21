@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { requireAuthWithBranch, actorName } from '../_session.js';
+import { requireAuthWithBranch, selectBranchDb, actorName } from '../_session.js';
 import {
   getQuote, updateQuote, deleteQuote, appendNote, logActivity,
   fetchRemindersByLeadIds, fetchDuplicates,
@@ -34,6 +34,7 @@ const stripMoney = (q, role) => { if (q && role === 'staff') { delete q.value; d
 export default async function handler(req, res) {
   const auth = requireAuthWithBranch(req, res);
   if (!auth) return;
+  if (!selectBranchDb(auth, res)) return;
   const { role, branchSource } = auth;
   const id = req.query.id;
   if (!id) return res.status(400).json({ error: 'id required' });

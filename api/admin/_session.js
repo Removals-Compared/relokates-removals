@@ -6,6 +6,7 @@
 // be attributed. Older two-part cookies (issued before roles existed) still
 // verify as admin, so existing sessions keep working.
 import crypto from 'node:crypto';
+import { useDb, branchDbUrl } from './_sql.js';
 
 const COOKIE = 'rlk_admin';
 const MAX_AGE = 60 * 60 * 24 * 30; // 30 days
@@ -115,6 +116,21 @@ export function requireAuthWithBranch(req, res) {
     return { role, branchName: req._branchName, branchSource: `relokates.co.uk/${req._branchName}` };
   }
   return { role, branchName: null, branchSource: null };
+}
+
+// Point this invocation's queries at the right database: the branch's own DB
+// for a branch session, head office otherwise. Returns false (and responds)
+// if a branch session has no database configured - NEVER fall back to the
+// head-office database for a branch, that would re-mix the data.
+export function selectBranchDb(auth, res) {
+  if (!auth.branchName) { useDb(null); return true; }
+  const url = branchDbUrl(auth.branchName);
+  if (!url) {
+    res.status(500).json({ error: 'branch database not configured' });
+    return false;
+  }
+  useDb(url);
+  return true;
 }
 
 // Auth for the branch dashboard endpoint. Returns the branch slug the caller

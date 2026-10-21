@@ -1,12 +1,13 @@
 // Call-back reminders for a lead. POST creates one (and a "Call <name>"
 // Google Calendar event so you get alerted); DELETE removes it and the event.
-import { requireAuthWithBranch } from './_session.js';
+import { requireAuthWithBranch, selectBranchDb } from './_session.js';
 import { createReminder, updateReminder, deleteReminder, fetchReminder, getQuote } from './_db.js';
 import { isGcalConfigured, createReminderEvent, deleteEvent } from './_gcal.js';
 
 export default async function handler(req, res) {
   const auth = requireAuthWithBranch(req, res);
   if (!auth) return;
+  if (!selectBranchDb(auth, res)) return;
   const { branchSource } = auth;
   try {
     if (req.method === 'POST') {
