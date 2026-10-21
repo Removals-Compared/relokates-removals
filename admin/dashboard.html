@@ -266,8 +266,26 @@ body.staff .del,body.staff .bulkbar,body.staff td.cb-col,body.staff th.cb-col,bo
         </optgroup>
       </select>
       <div class="row">
-        <div><label>Moving from</label><input type="text" name="move_from" placeholder="e.g. Chelmsford CM1"></div>
-        <div><label>Moving to</label><input type="text" name="move_to" placeholder="e.g. Bromley BR1"></div>
+        <div>
+          <label>Moving from</label>
+          <input type="text" name="move_from" id="addMoveFrom" placeholder="Full address (or use postcode finder below)">
+          <div class="addr-row">
+            <input type="text" class="addr-pc" data-target="addMoveFrom" placeholder="Postcode" maxlength="8" autocomplete="off">
+            <button type="button" class="addr-find" data-target="addMoveFrom">Find address</button>
+          </div>
+          <select class="addr-select" data-target="addMoveFrom" hidden></select>
+          <p class="addr-note" data-target="addMoveFrom" hidden></p>
+        </div>
+        <div>
+          <label>Moving to</label>
+          <input type="text" name="move_to" id="addMoveTo" placeholder="Full address (or use postcode finder below)">
+          <div class="addr-row">
+            <input type="text" class="addr-pc" data-target="addMoveTo" placeholder="Postcode" maxlength="8" autocomplete="off">
+            <button type="button" class="addr-find" data-target="addMoveTo">Find address</button>
+          </div>
+          <select class="addr-select" data-target="addMoveTo" hidden></select>
+          <p class="addr-note" data-target="addMoveTo" hidden></p>
+        </div>
       </div>
       <div class="row">
         <div><label>Preferred move date</label><input type="date" name="move_date"></div>
@@ -581,5 +599,6 @@ $('logoutBtn').addEventListener('click', async (e) => { e.preventDefault(); awai
 
 load();
 </script>
+<script src="/admin/postcode-picker.js" defer></script>
 </body>
 </html>
