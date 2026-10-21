@@ -426,11 +426,7 @@ function fill(q){
 
   document.getElementById('gHi').textContent='Hello '+firstName(q.name)+',';
   const total=money(q.value);
-  document.getElementById('gBody').textContent=
-    'thank you for choosing Relokates Removals. We are pleased to provide the fixed-price quotation below for your move'
-    + (q.move_from? ' from '+q.move_from:'')
-    + (q.move_to? ' to '+q.move_to:'')
-    + '. Everything listed is included in your price, with no hidden charges.';
+  // (greeting body is set below alongside the service-specific copy map)
 
   // Prepared For card
   const cust=[];
@@ -448,10 +444,42 @@ function fill(q){
   if(q.move_date) mv.push('Preferred date: '+esc(fmtDate(q.move_date)));
   document.getElementById('cardMove').innerHTML=mv.join('<br>');
 
-  // Row description tuned to the actual route
-  if(q.move_from||q.move_to){
-    document.getElementById('rowRemoval').textContent=
-      'Full removal of your belongings'
+  // Service-specific copy map. Each entry gives:
+  //   intro  — swap for the opening clause of the greeting paragraph
+  //   header — first service row header on the quote table
+  //   desc   — first service row description (tuned per service)
+  const SERVICE_COPY = {
+    'House Removals':             { intro:'thank you for choosing Relokates Removals for your house move. We are pleased to provide the fixed-price quotation below', header:'Professional house removal', desc:'Full house removal of your belongings including furniture wrap, dismantle and reassemble' },
+    'Flat Removals':              { intro:'thank you for choosing Relokates Removals for your flat move. We are pleased to provide the fixed-price quotation below', header:'Professional flat removal', desc:'Flat removal including lift coordination, parking arrangements and careful stair handling where required' },
+    'Man and Van':                { intro:'thank you for choosing Relokates Removals for your man-and-van job. We are pleased to provide the fixed-price quotation below', header:'Man and van service', desc:'Flexible man-and-van service with blankets, straps and protective covers included' },
+    'Single Item Collection':     { intro:'thank you for choosing Relokates Removals for your single-item collection. We are pleased to provide the fixed-price quotation below', header:'Single item collection and delivery', desc:'Careful collection and delivery of a single item, fully insured in transit from pick-up to drop-off' },
+    'Furniture Disposal':         { intro:'thank you for choosing Relokates Removals for your furniture disposal. We are pleased to provide the fixed-price quotation below', header:'Furniture removal and disposal', desc:'Removal and ethical disposal of unwanted furniture, with recycling and donation routing where possible' },
+    'House Clearance':            { intro:'thank you for choosing Relokates Removals for your house clearance. We are pleased to provide the fixed-price quotation below', header:'Full house clearance', desc:'Full property clearance including removal of all contents, ethical disposal, recycling and donation routing' },
+    'Office Removals':            { intro:'thank you for choosing Relokates Removals for your office relocation. We are pleased to provide the fixed-price quotation below', header:'Office relocation', desc:'Commercial office relocation including IT, server rooms, archives and furniture, with evening and weekend availability' },
+    'Packing Services':           { intro:'thank you for choosing Relokates Removals for your packing. We are pleased to provide the fixed-price quotation below', header:'Professional packing service', desc:'Premium double-walled boxes, bubble wrap, acid-free paper and specialist covers; packed items covered by goods-in-transit insurance' },
+    'Secure Storage':             { intro:'thank you for choosing Relokates Removals for your storage. We are pleased to provide the fixed-price quotation below', header:'Secure storage', desc:'Insured, monitored short or long-term storage in our secure facility' },
+    'Luxury Removals':            { intro:'thank you for choosing Relokates Removals for your luxury move. We are pleased to provide the fixed-price quotation below', header:'Luxury removal service', desc:'Discreet, white-glove removal with specialist handling for high-value items, art, antiques and musical instruments' },
+    'Same Day Removals':          { intro:'thank you for choosing Relokates Removals for your same-day move. We are pleased to provide the fixed-price quotation below', header:'Same-day removal', desc:'Priority same-day move with dedicated crew and vehicle, subject to availability' },
+    'Student Removals':           { intro:'thank you for choosing Relokates Removals for your student move. We are pleased to provide the fixed-price quotation below', header:'Student move', desc:'Student room move with careful handling of personal items, electronics, books and bedding' },
+    'International Removal - Dubai': { intro:'thank you for choosing Relokates Removals for your relocation to Dubai. We are pleased to provide the fixed-price quotation below', header:'International removal to Dubai', desc:'London-to-Dubai relocation including packing, customs documentation, secure shipping and UAE destination support' },
+    'International Removal - Other': { intro:'thank you for choosing Relokates Removals for your international move. We are pleased to provide the fixed-price quotation below', header:'International removal', desc:'International removal including packing, customs documentation and secure shipping to your destination' },
+    'Other':                      { intro:'thank you for choosing Relokates Removals. We are pleased to provide the fixed-price quotation below', header:'Removal service', desc:'Removal service as discussed with you' }
+  };
+  const sc = SERVICE_COPY[q.service] || SERVICE_COPY['Other'];
+
+  // Rewrite the greeting with the service-specific intro
+  document.getElementById('gBody').textContent =
+    sc.intro + ' for your move'
+    + (q.move_from? ' from '+q.move_from:'')
+    + (q.move_to? ' to '+q.move_to:'')
+    + '. Everything listed is included in your price, with no hidden charges.';
+
+  // Rewrite the first service row header + description to match the service
+  const svcRow = document.querySelector('#qBody tr:first-child .svc');
+  if (svcRow) svcRow.textContent = sc.header;
+  const descEl = document.getElementById('rowRemoval');
+  if (descEl) {
+    descEl.textContent = sc.desc
       + (q.move_from? ' from '+q.move_from:'')
       + (q.move_to? ' to '+q.move_to:'');
   }

@@ -235,15 +235,35 @@ body.staff .del,body.staff .bulkbar,body.staff td.cb-col,body.staff th.cb-col,bo
       <label>Service</label>
       <select name="service">
         <option value="">Choose a service</option>
-        <option value="House Removal">House Removal</option>
-        <option value="Office Removal">Office Removal</option>
-        <option value="International Removal - Dubai">International Removal - Dubai</option>
-        <option value="International Removal - Other">International Removal - Other</option>
-        <option value="Packing Service">Packing Service</option>
-        <option value="Man and Van">Man and Van</option>
-        <option value="Secure Storage">Secure Storage</option>
-        <option value="Luxury Removals">Luxury Removals</option>
-        <option value="House Clearance">House Clearance</option>
+        <optgroup label="Residential moves">
+          <option value="House Removals">House Removals (house to house)</option>
+          <option value="Flat Removals">Flat Removals (lift, stairs, parking)</option>
+          <option value="Man and Van">Man and Van (small / short)</option>
+          <option value="Single Item Collection">Single Item Collection</option>
+          <option value="Student Removals">Student Removals</option>
+        </optgroup>
+        <optgroup label="Clearance &amp; disposal">
+          <option value="House Clearance">House Clearance (full property)</option>
+          <option value="Furniture Disposal">Furniture Disposal</option>
+        </optgroup>
+        <optgroup label="Commercial">
+          <option value="Office Removals">Office Removals</option>
+        </optgroup>
+        <optgroup label="Add-ons">
+          <option value="Packing Services">Packing Services</option>
+          <option value="Secure Storage">Secure Storage</option>
+        </optgroup>
+        <optgroup label="Specialist">
+          <option value="Luxury Removals">Luxury Removals</option>
+          <option value="Same Day Removals">Same Day Removals</option>
+        </optgroup>
+        <optgroup label="International">
+          <option value="International Removal - Dubai">International Removal - Dubai</option>
+          <option value="International Removal - Other">International Removal - Other</option>
+        </optgroup>
+        <optgroup label="Other">
+          <option value="Other">Other</option>
+        </optgroup>
       </select>
       <div class="row">
         <div><label>Moving from</label><input type="text" name="move_from" placeholder="e.g. Chelmsford CM1"></div>
@@ -254,13 +274,17 @@ body.staff .del,body.staff .bulkbar,body.staff td.cb-col,body.staff th.cb-col,bo
         <div><label>Property type</label>
           <select name="property">
             <option value="">Choose</option>
+            <option value="Single room / single item">Single room / single item</option>
             <option value="Studio / 1-bed flat">Studio / 1-bed flat</option>
             <option value="2-bed flat">2-bed flat</option>
+            <option value="3-bed flat">3-bed flat</option>
+            <option value="2-bed house">2-bed house</option>
             <option value="3-bed house">3-bed house</option>
             <option value="4-bed house">4-bed house</option>
             <option value="5+ bed house">5+ bed house</option>
             <option value="Office">Office</option>
-            <option value="Storage">Storage</option>
+            <option value="Storage unit">Storage unit</option>
+            <option value="Other">Other</option>
           </select>
         </div>
       </div>
