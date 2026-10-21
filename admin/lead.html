@@ -175,11 +175,59 @@ button.review:hover{background:#FEF08A}
           <div><label>Name</label><input type="text" name="name" required></div>
           <div><label>Phone</label><input type="text" name="phone"></div>
           <div><label>Email</label><input type="email" name="email"></div>
-          <div><label>Service</label><input type="text" name="service" placeholder="House Removal, Office Removal..."></div>
+          <div><label>Service</label>
+            <select name="service" id="editService">
+              <option value="">Choose a service</option>
+              <optgroup label="Residential moves">
+                <option value="House Removals">House Removals (house to house)</option>
+                <option value="Flat Removals">Flat Removals (lift, stairs, parking)</option>
+                <option value="Man and Van">Man and Van (small / short)</option>
+                <option value="Single Item Collection">Single Item Collection</option>
+                <option value="Student Removals">Student Removals</option>
+              </optgroup>
+              <optgroup label="Clearance &amp; disposal">
+                <option value="House Clearance">House Clearance (full property)</option>
+                <option value="Furniture Disposal">Furniture Disposal</option>
+              </optgroup>
+              <optgroup label="Commercial">
+                <option value="Office Removals">Office Removals</option>
+              </optgroup>
+              <optgroup label="Add-ons">
+                <option value="Packing Services">Packing Services</option>
+                <option value="Secure Storage">Secure Storage</option>
+              </optgroup>
+              <optgroup label="Specialist">
+                <option value="Luxury Removals">Luxury Removals</option>
+                <option value="Same Day Removals">Same Day Removals</option>
+              </optgroup>
+              <optgroup label="International">
+                <option value="International Removal - Dubai">International Removal - Dubai</option>
+                <option value="International Removal - Other">International Removal - Other</option>
+              </optgroup>
+              <optgroup label="Other">
+                <option value="Other">Other</option>
+              </optgroup>
+            </select>
+          </div>
           <div><label>Moving from</label><input type="text" name="move_from" placeholder="Postcode or address"></div>
           <div><label>Moving to</label><input type="text" name="move_to" placeholder="Postcode or address"></div>
           <div><label>Move date</label><input type="text" name="move_date" placeholder="YYYY-MM-DD or text"></div>
-          <div><label>Property</label><input type="text" name="property" placeholder="2 bed flat, 4 bed house..."></div>
+          <div><label>Property</label>
+            <select name="property" id="editProperty">
+              <option value="">Choose property type</option>
+              <option value="Single room / single item">Single room / single item</option>
+              <option value="Studio / 1-bed flat">Studio / 1-bed flat</option>
+              <option value="2-bed flat">2-bed flat</option>
+              <option value="3-bed flat">3-bed flat</option>
+              <option value="2-bed house">2-bed house</option>
+              <option value="3-bed house">3-bed house</option>
+              <option value="4-bed house">4-bed house</option>
+              <option value="5+ bed house">5+ bed house</option>
+              <option value="Office">Office</option>
+              <option value="Storage unit">Storage unit</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
         </div>
         <label style="margin-top:10px">Message / notes</label>
         <textarea name="message" rows="3" placeholder="Any context from the customer..."></textarea>
@@ -908,9 +956,26 @@ function setEditMode(on) {
   editFlash.textContent = '';
   editFlash.className = 'flash';
   if (on) {
+    // Strip previously-added legacy options so they don't accumulate
+    for (const sel of editForm.querySelectorAll('select')) {
+      Array.from(sel.querySelectorAll('option[data-legacy]')).forEach(o => o.remove());
+    }
     for (const f of EDIT_FIELDS) {
       const el = editForm.elements[f];
-      if (el) el.value = (quote && quote[f] != null) ? quote[f] : '';
+      if (!el) continue;
+      const v = (quote && quote[f] != null) ? String(quote[f]) : '';
+      // For <select> fields (service, property), preserve a legacy value
+      // that isn't in the current option list by inserting it as a
+      // one-off option so the saved record isn't silently reset.
+      if (el.tagName === 'SELECT' && v) {
+        const match = Array.from(el.options).some(o => o.value === v);
+        if (!match) {
+          const opt = document.createElement('option');
+          opt.value = v; opt.textContent = v + ' (legacy)'; opt.dataset.legacy = '1';
+          el.insertBefore(opt, el.options[1] || null);
+        }
+      }
+      el.value = v;
     }
   }
 }
