@@ -90,3 +90,93 @@ document.querySelectorAll('.cy').forEach(function(el){ el.textContent = new Date
   function place(){ document.body.appendChild(btn); }
   if (document.body) place(); else document.addEventListener('DOMContentLoaded', place);
 })();
+
+/* Postcode -> address picker on public quote forms.
+   Looks for .addr-find[data-target=...] + .addr-pc[data-target=...] siblings,
+   and populates the <input id="<target>"> with a cleaned address from
+   /api/address-lookup. Delegated handlers so it works for any form on the page. */
+(function () {
+  var CSS =
+    ".addr-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center}"
+    + ".addr-pc{flex:1 1 160px;min-width:140px;padding:12px 14px;border:1px solid var(--border,#dcdde0);border-radius:8px;font:600 14px/1.2 var(--ff-sans,system-ui,sans-serif);text-transform:uppercase;letter-spacing:0.5px;background:#fff;color:var(--navy,#1a3c6e)}"
+    + ".addr-pc:focus{outline:none;border-color:var(--gold,#c89f3d);box-shadow:0 0 0 3px rgba(200,159,61,0.15)}"
+    + ".addr-find{padding:12px 20px;border:0;border-radius:8px;background:var(--navy,#1a3c6e);color:#fff;font:700 13px/1 var(--ff-sans,system-ui,sans-serif);letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;min-height:44px}"
+    + ".addr-find:hover{background:var(--gold,#c89f3d)}"
+    + ".addr-find:disabled{opacity:0.55;cursor:default}"
+    + ".addr-select{width:100%;margin-top:8px;padding:12px 14px;border:1px solid var(--border,#dcdde0);border-radius:8px;font:500 14px/1.3 var(--ff-sans,system-ui,sans-serif);background:#fff;color:var(--navy,#1a3c6e)}"
+    + ".addr-note{margin:6px 2px 0;font-size:12.5px;color:#a4281d}"
+    + ".addr-note.ok{color:#1f6b43}";
+  if (!document.getElementById("addr-picker-css")) {
+    var s = document.createElement("style");
+    s.id = "addr-picker-css";
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+  function note(target, msg, ok) {
+    var n = document.querySelector('.addr-note[data-target="' + target + '"]');
+    if (!n) return;
+    n.textContent = msg || "";
+    n.hidden = !msg;
+    n.classList.toggle("ok", !!ok);
+  }
+  function esc(x) {
+    return String(x).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+  document.addEventListener("click", async function (e) {
+    var btn = e.target.closest(".addr-find");
+    if (!btn) return;
+    e.preventDefault();
+    var target = btn.dataset.target;
+    if (!target) return;
+    var input = document.getElementById(target);
+    var pcEl = document.querySelector('.addr-pc[data-target="' + target + '"]');
+    var sel = document.querySelector('.addr-select[data-target="' + target + '"]');
+    note(target, "");
+    if (sel) sel.hidden = true;
+    var pc = ((pcEl && pcEl.value) || (input && input.value) || "").trim();
+    if (!pc) {
+      note(target, "Enter a postcode first.");
+      (pcEl || input) && (pcEl || input).focus();
+      return;
+    }
+    var label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Finding...";
+    try {
+      var r = await fetch("/api/address-lookup?postcode=" + encodeURIComponent(pc));
+      if (r.status === 501) { note(target, "Address lookup is unavailable. Please type your address."); return; }
+      var j = {};
+      try { j = await r.json(); } catch (_) {}
+      if (r.status === 400) { note(target, j.error || "Enter a valid UK postcode."); return; }
+      if (!r.ok) { note(target, "Lookup unavailable. Please type your address."); return; }
+      var list = (j && j.addresses) || [];
+      if (!list.length) { note(target, "No addresses found for " + (j.postcode || pc) + ". Please type your address."); return; }
+      if (sel) {
+        sel.innerHTML = '<option value="">' + list.length + " addresses found, select yours</option>"
+          + list.map(function (a) { return "<option>" + esc(a) + "</option>"; }).join("");
+        sel.hidden = false;
+        sel.focus();
+        note(target, "Pick your address from the list.", true);
+      }
+    } catch (_) {
+      note(target, "Lookup unavailable. Please type your address.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  });
+  document.addEventListener("change", function (e) {
+    var sel = e.target.closest(".addr-select");
+    if (!sel || !sel.value) return;
+    var input = document.getElementById(sel.dataset.target);
+    if (input) {
+      input.value = sel.value;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    sel.hidden = true;
+    note(sel.dataset.target, "");
+  });
+})();
