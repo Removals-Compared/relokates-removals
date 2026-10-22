@@ -153,12 +153,24 @@
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
             <div class="form-group">
-              <label class="form-label" for="move_from">Moving from (postcode or town) *</label>
-              <input class="form-input" type="text" id="move_from" name="move_from" placeholder="e.g. Chelmsford CM1" required>
+              <label class="form-label" for="move_from">Moving from (full address) *</label>
+              <input class="form-input" type="text" id="move_from" name="move_from" placeholder="Enter postcode then Find address, or type your address" required>
+              <div class="addr-row">
+                <input class="addr-pc" data-target="move_from" type="text" placeholder="Postcode (e.g. CM1 1AA)" autocomplete="off">
+                <button type="button" class="addr-find" data-target="move_from">Find address</button>
+              </div>
+              <select class="addr-select" data-target="move_from" aria-label="Select the collection address" hidden></select>
+              <p class="addr-note" data-target="move_from" role="status" aria-live="polite" hidden></p>
             </div>
             <div class="form-group">
-              <label class="form-label" for="move_to">Moving to (postcode or town) *</label>
-              <input class="form-input" type="text" id="move_to" name="move_to" placeholder="e.g. Bromley BR1">
+              <label class="form-label" for="move_to">Moving to (full address) *</label>
+              <input class="form-input" type="text" id="move_to" name="move_to" placeholder="Enter postcode then Find address, or type your address">
+              <div class="addr-row">
+                <input class="addr-pc" data-target="move_to" type="text" placeholder="Postcode (e.g. BR1 1AA)" autocomplete="off">
+                <button type="button" class="addr-find" data-target="move_to">Find address</button>
+              </div>
+              <select class="addr-select" data-target="move_to" aria-label="Select the delivery address" hidden></select>
+              <p class="addr-note" data-target="move_to" role="status" aria-live="polite" hidden></p>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
