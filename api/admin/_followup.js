@@ -48,3 +48,31 @@ relokates.co.uk`;
     subject: 'Your removal quote from Relokates Removals', text, html,
   });
 }
+
+// General follow-up letter in the same branded shell. The admin writes
+// (or accepts) the exact text; waText prefills the customer's side of
+// the WhatsApp chat behind the green button.
+export async function sendLetter(quote, subject, bodyText, waText) {
+  const esc = (x) => String(x || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const waHref = WA + (waText ? '?text=' + encodeURIComponent(waText) : '');
+  const text = bodyText;
+  const html = `
+    <div style="font-family:Inter,Arial,sans-serif;max-width:600px;margin:0 auto;padding:24px">
+      <div style="background:#1A3C6E;padding:20px 24px;border-radius:8px 8px 0 0">
+        <h2 style="color:#A8C5BC;margin:0;font-size:18px">Relokates Removals</h2>
+      </div>
+      <div style="background:#fff;padding:28px;border:1px solid #c8ddd8;border-top:none;border-radius:0 0 8px 8px;color:#1f2937;font-size:15px;line-height:1.7">
+        <div style="white-space:pre-wrap">${esc(text)}</div>
+        <div style="text-align:center;margin:20px 0 4px">
+          <a href="tel:07359724844" style="background:#B8932A;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 22px;border-radius:9px;display:inline-block;margin:4px">&#128222; Call ${PHONE}</a>
+          <a href="${waHref}" style="background:#25D366;color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 22px;border-radius:9px;display:inline-block;margin:4px">&#128172; WhatsApp us</a>
+        </div>
+        <hr style="border:none;border-top:1px solid #c8ddd8;margin:24px 0">
+        <p style="font-size:12px;color:#556070;margin:0">Relokates Removals &middot; Company No. 13441775 &middot; ${PHONE} &middot; info@relokates.co.uk</p>
+      </div>
+    </div>`;
+  return transporter.sendMail({
+    from: FROM, to: quote.email, bcc: [OFFICE_INBOX], replyTo: OFFICE_INBOX,
+    subject, text, html,
+  });
+}

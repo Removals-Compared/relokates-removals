@@ -5,7 +5,7 @@ import {
   fetchRemindersByLeadIds, fetchDuplicates,
 } from '../_db.js';
 import { sendReviewRequest } from '../_review.js';
-import { sendFollowup } from '../_followup.js';
+import { sendFollowup, sendLetter } from '../_followup.js';
 
 const ALLOWED_STATUS = ['new', 'accepted', 'contacted', 'survey_booked', 'move_booked', 'quote_sent', 'prospecting', 'won', 'lost'];
 
@@ -99,6 +99,34 @@ export default async function handler(req, res) {
         await appendNote(id, `Restored by ${actor}`);
         await logActivity({ actor, action: 'restored', lead_id: id, lead_name: quote.name, detail: '' });
         return res.status(200).json({ quote: stripMoney(updated, role) });
+      }
+
+      // Templated follow-up letters: the admin previews and edits the
+      // exact text client side; the key sets the note label and the
+      // WhatsApp prefill on the green button.
+      const LETTER_KINDS = {
+        cant_reach: { label: 'Could-not-reach-you', wa: (q) => `Hi, it's ${q.name || 'a customer'}. You tried to reach me about my removals quote.` },
+        nudge:      { label: 'Nudge',               wa: (q) => `Hi, it's ${q.name || 'a customer'} about my removals enquiry.` },
+        after_call: { label: 'After-call follow-up', wa: (q) => `Hi, it's ${q.name || 'a customer'}. Following up on our call about my move.` },
+        still_need: { label: 'Still-need-us',        wa: (q) => `Hi, it's ${q.name || 'a customer'} about my removals enquiry.` },
+      };
+      if (typeof body.send_letter === 'string') {
+        const kind = LETTER_KINDS[body.send_letter];
+        if (!kind) return res.status(400).json({ error: 'unknown letter template' });
+        const subject = String(body.subject || '').trim().slice(0, 150);
+        const bodyText = String(body.body || '').trim().slice(0, 6000);
+        if (!subject || !bodyText) return res.status(400).json({ error: 'subject and body are required' });
+        const quote = await getQuote(id);
+        if (!quote) return res.status(404).json({ error: 'not found' });
+        if (!quote.email) return res.status(400).json({ error: 'no email on this lead' });
+        try {
+          await sendLetter(quote, subject, bodyText, kind.wa(quote));
+          await appendNote(id, `${kind.label} email sent to ${quote.email} by ${actor}`);
+          await logActivity({ actor, action: `sent ${kind.label.toLowerCase()} email`, lead_id: id, lead_name: quote.name, detail: '' });
+          return res.status(200).json({ letter: 'sent' });
+        } catch (e) {
+          return res.status(502).json({ error: 'letter email failed: ' + e.message });
+        }
       }
 
       // Gentle quote follow-up email (staff allowed - no price content).
