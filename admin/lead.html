@@ -295,6 +295,12 @@ button.review:hover{background:#FEF08A}
 
       <button class="k grey full" id="sendFollowup" style="margin-top:12px">&#9203; Send quote follow-up</button>
       <div class="btn-grid">
+        <button class="k grey" data-letter="cant_reach">&#128245; Can't reach you</button>
+        <button class="k grey" data-letter="nudge">&#128075; Gentle nudge</button>
+        <button class="k grey" data-letter="after_call">&#128222; After our call</button>
+        <button class="k grey" data-letter="still_need">&#128737;&#65039; Still need us?</button>
+      </div>
+      <div class="btn-grid">
         <button class="k grey" id="sendReview">&#11088; Review request</button>
         <button class="k grey" id="reviewReceived">&#10003; Review received</button>
       </div>
@@ -427,6 +433,22 @@ button.review:hover{background:#FEF08A}
   </div>
 </div>
 
+<!-- Follow-up email preview: read it through, edit, then send -->
+<div id="lt-overlay" style="display:none;position:fixed;inset:0;background:rgba(26,60,110,.45);z-index:80;align-items:flex-start;justify-content:center;padding:24px 14px;overflow:auto">
+  <div style="background:#fff;border-radius:16px;max-width:620px;width:100%;padding:20px 22px;box-shadow:0 18px 50px rgba(26,60,110,.35)">
+    <h3 id="lt-title" style="margin:0 0 4px;font-size:16.5px">Email preview</h3>
+    <p id="lt-to" style="font-size:13px;color:#556070;margin:0 0 10px"></p>
+    <label style="display:block;font-size:12.5px;font-weight:700;color:#556070;margin:10px 0 4px">Subject</label>
+    <input id="lt-subject" style="width:100%;border:1px solid #c8ddd8;border-radius:9px;padding:9px 10px;font-size:14px;font-family:inherit;box-sizing:border-box">
+    <label style="display:block;font-size:12.5px;font-weight:700;color:#556070;margin:10px 0 4px">Email text</label>
+    <textarea id="lt-body" style="width:100%;min-height:300px;border:1px solid #c8ddd8;border-radius:9px;padding:9px 10px;font-size:14px;line-height:1.55;font-family:inherit;box-sizing:border-box"></textarea>
+    <p style="font-size:12px;color:#7a8599;margin:8px 0 0">A Call button and a green WhatsApp chat button are added underneath automatically. Edit anything above before sending.</p>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button type="button" class="k green" id="lt-send">Send email</button>
+      <button type="button" class="k grey" id="lt-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
 <script>
 const id = window.location.pathname.split('/').pop();
 let quote = null;
@@ -812,6 +834,90 @@ document.getElementById('sendFollowup').addEventListener('click', async () => {
     const d = await res.json().catch(() => ({}));
     if (!res.ok) alert(d.error || 'Could not send follow-up');
     else { alert('Follow-up sent.'); load(); }
+  } finally { btn.disabled = false; }
+});
+
+// ── Follow-up email templates with a read-through preview. Nothing is
+//    sent until "Send email" in the preview; subject and text are
+//    editable and the server adds Call + WhatsApp buttons underneath. ──
+const LT_SIGN_OFF = ['Kind regards,', 'The Relokates Removals Team', '07359 724844 | WhatsApp 07359 724844', 'relokates.co.uk'];
+const LETTERS = {
+  cant_reach: {
+    title: "Can't reach you email",
+    subject: () => 'We could not reach you about your removals quote',
+    body: (q, first) => [
+      `Hi ${first},`, '',
+      `Thank you for your ${q.service || 'removals'} enquiry. We have been trying to reach you on ${q.phone || 'the number on your enquiry'}, but calls are not connecting and WhatsApp does not recognise the number, so it may have a small typo in it.`, '',
+      'We would still love to help. You can:',
+      '- Reply to this email with your best contact number',
+      '- Tap the green WhatsApp button below to start a chat with us straight away',
+      '- Call us on 07359 724844', '',
+      ...LT_SIGN_OFF,
+    ],
+  },
+  nudge: {
+    title: 'Gentle nudge email',
+    subject: () => 'Your removals enquiry with Relokates Removals',
+    body: (q, first) => [
+      `Hi ${first},`, '',
+      `Just a friendly nudge about your ${q.service || 'removals'} enquiry${q.move_date ? ' for ' + q.move_date : ''}. We are ready when you are, and popular dates do book up quickly, so it is worth locking yours in early.`, '',
+      'If you have any questions, or anything about the move has changed, just reply to this email, call us, or tap the WhatsApp button below and we will sort it the same day.', '',
+      ...LT_SIGN_OFF,
+    ],
+  },
+  after_call: {
+    title: 'After-our-call email',
+    subject: () => 'Good to speak with you about your move',
+    body: (q, first) => [
+      `Hi ${first},`, '',
+      `Thank you for taking the time to speak with us about your ${q.service || 'move'}${(q.move_from && q.move_to) ? ' from ' + q.move_from + ' to ' + q.move_to : ''}. Here is a quick note so you have everything in writing.`, '',
+      'When you are ready for the next step, just reply to this email, call us on 07359 724844, or tap the WhatsApp button below and we will take it from there.', '',
+      ...LT_SIGN_OFF,
+    ],
+  },
+  still_need: {
+    title: 'Still need us? email',
+    subject: () => 'Do you still need a hand with your move?',
+    body: (q, first) => [
+      `Hi ${first},`, '',
+      `A little while ago you asked us about ${q.service || 'a removal'}, and I wanted to check whether you still need a hand.`, '',
+      'If you are still comparing companies, it is worth knowing that every job we do is carried out by our own trained crew and is fully insured, including goods in transit cover for your belongings while we move them and public liability insurance.', '',
+      'If the move is still on, reply to this email, call us, or tap the WhatsApp button below and we will get you a fresh fixed price with no hidden charges.', '',
+      ...LT_SIGN_OFF,
+    ],
+  },
+};
+let ltKind = null;
+function openLetter(kind){
+  const t = LETTERS[kind];
+  if (!t || !quote) return;
+  if (!quote.email){ alert('No customer email on file.'); return; }
+  ltKind = kind;
+  const first = String(quote.name || 'there').trim().split(/\s+/)[0] || 'there';
+  document.getElementById('lt-title').textContent = t.title;
+  document.getElementById('lt-to').textContent = 'To: ' + quote.email;
+  document.getElementById('lt-subject').value = t.subject(quote);
+  document.getElementById('lt-body').value = t.body(quote, first).join('\n');
+  document.getElementById('lt-overlay').style.display = 'flex';
+}
+document.querySelectorAll('[data-letter]').forEach((b) =>
+  b.addEventListener('click', () => openLetter(b.dataset.letter)));
+document.getElementById('lt-cancel').addEventListener('click', () => {
+  document.getElementById('lt-overlay').style.display = 'none';
+});
+document.getElementById('lt-send').addEventListener('click', async () => {
+  const subject = document.getElementById('lt-subject').value.trim();
+  const bodyTxt = document.getElementById('lt-body').value.trim();
+  if (!subject || !bodyTxt){ alert('Subject and email text are both needed.'); return; }
+  const btn = document.getElementById('lt-send'); btn.disabled = true;
+  try {
+    const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ send_letter: ltKind, subject, body: bodyTxt }),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || d.letter !== 'sent') alert(d.error || 'Could not send the email.');
+    else { document.getElementById('lt-overlay').style.display = 'none'; alert('Email sent to ' + quote.email + '.'); load(); }
   } finally { btn.disabled = false; }
 });
 
