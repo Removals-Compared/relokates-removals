@@ -111,9 +111,10 @@ export default async function handler(req, res) {
           <div style="background:#fff;padding:28px;border:1px solid #c8ddd8;border-top:none;border-radius:0 0 8px 8px">
             <p style="color:#1A3C6E;font-size:16px;font-weight:600">Hi ${name},</p>
             <p style="color:#556070;line-height:1.8">Thank you for requesting a quote from Relokates Removals. We have received your enquiry and a member of our team will be in touch within 60 minutes during business hours.</p>
-            <p style="color:#556070;line-height:1.8">If your move is urgent or you would like to speak to us immediately, please call us directly:</p>
+            <p style="color:#556070;line-height:1.8">If your move is urgent or you would like to speak to us immediately, call us or start a WhatsApp chat:</p>
             <div style="text-align:center;margin:24px 0">
-              <a href="tel:${phoneTel}" style="display:inline-block;background:#B8932A;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px">&#9990; ${phoneDisplay}</a>
+              <a href="tel:${phoneTel}" style="display:inline-block;background:#B8932A;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;margin:4px">&#9990; ${phoneDisplay}</a>
+              <a href="https://wa.me/${phoneTel.replace(/^0/, '44')}?text=${encodeURIComponent(`Hi, it's ${name} about my removals enquiry.`)}" style="display:inline-block;background:#25D366;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:16px;margin:4px">&#128172; WhatsApp us</a>
             </div>
             <p style="color:#556070;line-height:1.8">Our office hours are Monday to Friday 7am to 7pm, Saturday 8am to 5pm, and Sunday 9am to 2pm.</p>
             <p style="color:#556070;line-height:1.8">We look forward to helping with your move.</p>
