@@ -39,7 +39,7 @@ button:disabled{opacity:.5;cursor:not-allowed}
     <p class="sub">Enter the admin password to access the quote and booking dashboard.</p>
     <form id="loginForm">
       <label for="pw">Password</label>
-      <input type="password" id="pw" name="password" required autocomplete="current-password">
+      <div style="position:relative"><input type="password" id="pw" name="password" required style="padding-right:64px" autocomplete="current-password"><button type="button" id="toggle-pw" aria-label="Show password" aria-pressed="false" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:auto;margin:0;padding:6px 10px;background:none;border:none;color:#5b6880;font-size:12.5px;font-weight:700;cursor:pointer">Show</button></div>
       <div class="err" id="err"></div>
       <button type="submit" id="btn">Sign in</button>
     </form>
@@ -73,6 +73,21 @@ form.addEventListener('submit', async (e) => {
     btn.disabled = false; btn.textContent = 'Sign in';
   }
 });
+</script>
+<script>
+  (function () {
+    var pw = document.getElementById('pw');
+    var t = document.getElementById('toggle-pw');
+    if (!pw || !t) return;
+    t.addEventListener('click', function () {
+      var show = pw.type === 'password';
+      pw.type = show ? 'text' : 'password';
+      t.textContent = show ? 'Hide' : 'Show';
+      t.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      t.setAttribute('aria-pressed', String(show));
+      pw.focus();
+    });
+  })();
 </script>
 </body>
 </html>
