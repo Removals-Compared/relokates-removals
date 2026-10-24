@@ -5,10 +5,9 @@
 import nodemailer from 'nodemailer';
 import {
   fetchDueReminders, markReminderSent, getQuote,
-  fetchExpiredDeleted, deleteQuote, logActivity, appendNote,
+  fetchExpiredDeleted, deleteQuote, logActivity,
 } from './_db.js';
-import { useDb, branchDbUrl, q } from './_sql.js';
-import { sendLetter } from './_followup.js';
+import { useDb, branchDbUrl } from './_sql.js';
 
 const TO = 'info@relokates.co.uk';
 const FROM = 'Relokates Reminders <info@relokates.co.uk>';
@@ -51,50 +50,6 @@ export default async function handler(req, res) {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.authorization || '';
   if (!secret || auth !== `Bearer ${secret}`) return res.status(401).json({ error: 'unauthorized' });
-
-  // ?welcome=1 (cron, every 5 minutes): a follow-up to the instant
-  // auto-reply, sent 5 to 60 minutes after a head-office website enquiry
-  // while it is still status new. The "Welcome follow-up sent" note is
-  // the dedupe marker. Branch (franchise) leads are left alone.
-  if (req.query && req.query.welcome) {
-    useDb(null);
-    const out = { checked: 0, sent: 0, errors: [] };
-    try {
-      const fresh = await q(
-        `SELECT * FROM relokates_quote_request
-          WHERE created_at <= now() - interval '5 minutes'
-            AND created_at >  now() - interval '60 minutes'
-            AND coalesce(email, '') <> ''
-            AND source = 'relokates.co.uk'
-            AND (status IS NULL OR status = 'new')
-          ORDER BY created_at ASC LIMIT 20`,
-      );
-      for (const lead of fresh) {
-        out.checked++;
-        const notes = Array.isArray(lead.notes) ? lead.notes : [];
-        if (notes.some((n) => /^Welcome follow-up sent/.test(String(n && n.text)))) continue;
-        const first = String(lead.name || 'there').split(/\s+/)[0];
-        const lines = [
-          `Hi ${first},`, '',
-          `A quick follow-up on your ${lead.service || 'removals'} enquiry: it is with the team now and one of us will be in touch with you shortly.`, '',
-          'If it is easier, you can start a WhatsApp chat with us right away using the green button below, or call us on 07359 724844.', '',
-          'Kind regards,', 'The Relokates Removals Team', '07359 724844 | WhatsApp 07359 724844', 'relokates.co.uk',
-        ].join('\n');
-        try {
-          await sendLetter(lead, 'We are on your removals enquiry', lines, `Hi, it's ${lead.name || 'a customer'} about my removals enquiry.`);
-          await appendNote(lead.id, `Welcome follow-up sent to ${lead.email} (automatic, 5 minutes after the enquiry)`);
-          await logActivity({ actor: 'welcome-bot', action: 'sent welcome follow-up', lead_id: lead.id, lead_name: lead.name, detail: '' });
-          out.sent++;
-        } catch (e) {
-          out.errors.push({ id: lead.id, message: String(e.message || e) });
-        }
-      }
-      return res.status(200).json(out);
-    } catch (e) {
-      console.error('welcome cron', e);
-      return res.status(500).json({ error: String(e.message || e) });
-    }
-  }
 
   const today = new Date().toISOString().slice(0, 10);
   const results = { checked: 0, sent: 0, purged: 0, errors: [] };

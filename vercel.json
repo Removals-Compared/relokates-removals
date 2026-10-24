@@ -2,8 +2,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "crons": [
-    { "path": "/api/admin/reminders-run", "schedule": "30 8 * * *" },
-    { "path": "/api/admin/reminders-run?welcome=1", "schedule": "*/5 * * * *" }
+    { "path": "/api/admin/reminders-run", "schedule": "30 8 * * *" }
   ],
   "headers": [
     {
