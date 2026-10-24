@@ -21,7 +21,7 @@ async function branchHandler(req, res, branch, actorOverride, stripValue) {
       const rows = await listQuotes({ status: req.query.status, search: req.query.search, source });
       // Belt and braces: never return a row that isn't this branch's.
       const quotes = rows.filter((q) => q.source === source);
-      if (stripValue) quotes.forEach((q) => { delete q.value; delete q.costs; });
+      if (stripValue) quotes.forEach((q) => stripMoney(q, 'staff'));
       // role lets the shared dashboard UI render for branch sessions too.
       return res.status(200).json({ quotes, branch, role: 'branch', display_name: `${prettyBranch(branch)} (Richard Jones)` });
     }
@@ -44,6 +44,17 @@ async function branchHandler(req, res, branch, actorOverride, stripValue) {
 }
 
 // ── Head-office flow ─────────────────────────────────────────────────────
+// Staff see the quoted price only while a lead is new, quote sent or
+// survey booked; costs and every other money field stay admin-only.
+const STAFF_VALUE_STATUSES = ['new', 'quote_sent', 'survey_booked'];
+const stripMoney = (q, role) => {
+  if (q && role === 'staff') {
+    delete q.costs;
+    if (!STAFF_VALUE_STATUSES.includes(q.status || 'new')) delete q.value;
+  }
+  return q;
+};
+
 export default async function handler(req, res) {
   // Branch sessions divert to their scoped flow before requireAuth (which
   // rejects the branch role everywhere else). Their queries run against the
@@ -86,7 +97,7 @@ export default async function handler(req, res) {
     rows.forEach((q) => { if (map[q.id]) q.reminder = map[q.id]; });
 
     // Staff never see money.
-    if (role === 'staff') rows.forEach((q) => { delete q.value; delete q.costs; });
+    if (role === 'staff') rows.forEach((q) => stripMoney(q, 'staff'));
 
     return res.status(200).json({
       quotes: rows,

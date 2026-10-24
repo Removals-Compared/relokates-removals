@@ -647,6 +647,7 @@ function renderCustomer(q) {
     ['Move date', esc(q.move_date || '-')],
     ['Property', esc(q.property || '-')],
     ['Source', esc(q.source || '-')],
+    ...(document.body.classList.contains('staff') && q.value !== undefined && q.value !== null && q.value !== '' ? [['Quoted price', fmtMoney(q.value)]] : []),
     ['Message', q.message ? `<div style="white-space:pre-wrap">${esc(q.message)}</div>` : '-'],
     ['Submitted', `<span id="received-stamp" title="Click to change the received date" style="cursor:pointer;border-bottom:1px dashed var(--muted)">${fmt(q.created_at)}</span>`],
   ].map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');

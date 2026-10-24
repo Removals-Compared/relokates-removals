@@ -29,7 +29,16 @@ function priorStatusFromNotes(quote) {
   }
   return 'new';
 }
-const stripMoney = (q, role) => { if (q && role === 'staff') { delete q.value; delete q.costs; } return q; };
+// Staff see the quoted price only while a lead is new, quote sent or
+// survey booked; costs and every other money field stay admin-only.
+const STAFF_VALUE_STATUSES = ['new', 'quote_sent', 'survey_booked'];
+const stripMoney = (q, role) => {
+  if (q && role === 'staff') {
+    delete q.costs;
+    if (!STAFF_VALUE_STATUSES.includes(q.status || 'new')) delete q.value;
+  }
+  return q;
+};
 
 export default async function handler(req, res) {
   const auth = requireAuthWithBranch(req, res);
