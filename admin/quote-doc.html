@@ -217,6 +217,10 @@ body.pdfx .qfoot{margin-top:56px;padding-top:18px;padding-bottom:12px}
   <p class="hint">The exact printed document is attached as a PDF. Edit the message below before sending.</p>
   <label>To</label>
   <input type="email" id="cTo" placeholder="customer@example.com">
+  <label>Cc</label>
+  <input type="text" id="cCc" placeholder="optional, separate with commas">
+  <label>Bcc</label>
+  <input type="text" id="cBcc" placeholder="optional, separate with commas">
   <label>Subject</label>
   <input type="text" id="cSubject">
   <label>Message</label>
@@ -628,7 +632,7 @@ document.getElementById('sendBtn').addEventListener('click',async()=>{
     const res=await fetch('/api/admin/send-quote',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({lead_id:id,to,subject,body:bodyText,pdf_base64,filename})
+      body:JSON.stringify({lead_id:id,to,cc:document.getElementById('cCc').value,bcc:document.getElementById('cBcc').value,subject,body:bodyText,pdf_base64,filename})
     });
     const d=await res.json().catch(()=>({}));
     if(res.status===401){ window.location.href='/admin'; return; }

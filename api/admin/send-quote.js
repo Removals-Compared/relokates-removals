@@ -49,7 +49,12 @@ export default async function handler(req, res) {
   if (auth.role === 'staff') return res.status(403).json({ error: 'staff cannot send priced documents' });
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
-  const { lead_id, to, subject, body, pdf_base64, filename } = req.body || {};
+  const { lead_id, to, cc, bcc, subject, body, pdf_base64, filename } = req.body || {};
+  // Optional CC/BCC: comma or semicolon separated, validated, max 5 each.
+  const parseEmails = (v) => String(v || '').split(/[,;]+/).map((e) => e.trim())
+    .filter((e) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e)).slice(0, 5);
+  const ccList = parseEmails(cc);
+  const bccList = parseEmails(bcc);
   if (!lead_id) return res.status(400).json({ error: 'lead_id required' });
   // Branch sessions may only send documents for their own branch's leads.
   if (auth.branchSource) {
@@ -68,7 +73,8 @@ export default async function handler(req, res) {
     await transporter.sendMail({
       from: FROM,
       to,
-      bcc: [OFFICE_INBOX],
+      cc: ccList.length ? ccList : undefined,
+      bcc: [...new Set([OFFICE_INBOX, ...bccList])],
       replyTo: OFFICE_INBOX,
       subject: subject.trim(),
       text: body,
