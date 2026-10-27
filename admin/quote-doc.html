@@ -125,7 +125,10 @@ table.q tbody tr:last-child td{border-bottom:none}
 
 .assure{background:#eef4f0;border:1px solid #c8ddd8;border-radius:10px;padding:12px 18px;margin:12px 0 10px}
 .assure .section-title{margin-bottom:6px}
-.assure-lede{font-size:12.5px;color:#2c5540;line-height:1.55;margin:0}
+.assure-lede{font-size:12.5px;color:#2c5540;line-height:1.55;margin:0 0 7px}
+.assure-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:3px 16px;margin:0;padding:0}
+.assure-list li{font-size:12px;color:#2c5540;line-height:1.5}
+.assure-list li::before{content:"\2713";color:#16a34a;font-weight:800;margin-right:6px}
 /* terms */
 .terms{margin-top:8px}
 .terms ol{margin:0;padding-left:20px}
@@ -171,13 +174,14 @@ table.q tbody tr:last-child td{border-bottom:none}
   .cards{margin-top:22px}
   .info-card{padding:18px 20px}
   table.q tbody td{padding:15px 14px}
-  .section-title{margin:28px 0 12px}
+  .section-title{margin:20px 0 10px}
   .totals{margin-top:8px}
   .includes{margin-top:16px;padding:20px}
-  .includes li{padding-top:7px;padding-bottom:7px}
+  .includes li{padding-top:4px;padding-bottom:4px}
   .terms li{margin-bottom:10px}
   .assure{padding:8px 14px;margin:8px 0 6px}
-  .assure-lede{font-size:11px;line-height:1.45}
+  .assure-lede{font-size:11px;line-height:1.45;margin-bottom:5px}
+  .assure-list li{font-size:10.5px;line-height:1.4}
   .terms li{margin-bottom:5px;line-height:1.55}
   .cta{margin-top:44px;padding:30px 28px}
   .qfoot{margin-top:56px;padding-top:18px;padding-bottom:12px}
@@ -200,13 +204,14 @@ body.pdfx .greeting{margin-top:22px;font-size:14px;line-height:1.85}
 body.pdfx .cards{margin-top:22px}
 body.pdfx .info-card{padding:18px 20px}
 body.pdfx table.q tbody td{padding:15px 14px}
-body.pdfx .section-title{margin:28px 0 12px}
+body.pdfx .section-title{margin:20px 0 10px}
 body.pdfx .totals{margin-top:8px}
 body.pdfx .includes{margin-top:16px;padding:20px}
-body.pdfx .includes li{padding-top:7px;padding-bottom:7px}
+body.pdfx .includes li{padding-top:4px;padding-bottom:4px}
 body.pdfx .terms li{margin-bottom:10px}
 body.pdfx .assure{padding:8px 14px;margin:8px 0 6px}
-body.pdfx .assure-lede{font-size:11px;line-height:1.45}
+body.pdfx .assure-lede{font-size:11px;line-height:1.45;margin-bottom:5px}
+body.pdfx .assure-list li{font-size:10.5px;line-height:1.4}
 body.pdfx .terms li{margin-bottom:5px;line-height:1.55}
 body.pdfx .cta{margin-top:44px;padding:30px 28px}
 body.pdfx .qfoot{margin-top:56px;padding-top:18px;padding-bottom:12px}
@@ -350,7 +355,13 @@ body.pdfx .qfoot{margin-top:56px;padding-top:18px;padding-bottom:12px}
 
       <!-- INSURANCE ASSURANCE -->
       <div class="assure"><div class="section-title">Your Move Is Fully Insured</div>
-        <p class="assure-lede" contenteditable="true">From the first item our crew lifts to the last one placed in its room, you are protected. Our goods in transit insurance covers your belongings while we load, drive and unload them, and our public liability cover protects your property throughout, so you can relax knowing everything you own is in safe, insured hands.</p></div>
+        <p class="assure-lede" contenteditable="true">From the first item our crew lifts to the last one placed in its room, you are protected. Our goods in transit insurance covers your belongings while we load, drive and unload them, and our public liability cover protects your property throughout, so you can relax knowing everything you own is in safe, insured hands.</p>
+        <ul class="assure-list" contenteditable="true">
+        <li><strong>Goods in transit insurance</strong>: your belongings, covered throughout the move</li>
+        <li><strong>Public &amp; product liability</strong>: &pound;1,000,000 of cover</li>
+        <li><strong>Employers' liability</strong>: &pound;10,000,000 of cover</li>
+        <li><strong>Professional indemnity</strong>: &pound;100,000 of cover</li>
+      </ul></div>
 
       <!-- TERMS -->
       <div class="section-title">Terms &amp; Booking</div>
