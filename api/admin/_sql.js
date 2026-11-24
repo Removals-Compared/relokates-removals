@@ -24,6 +24,10 @@ let _activeUrl = null;
 
 export function useDb(url) { _activeUrl = url || null; }
 
+// Identifies the database this invocation is routed at ('' = head office),
+// for per-database memoisation such as lazy column creation.
+export function activeDbKey() { return _activeUrl || ''; }
+
 // Connection string for a branch slug, or null when not configured.
 export function branchDbUrl(slug) {
   if (!slug) return null;

@@ -269,7 +269,7 @@ body.pdfx .qfoot{margin-top:16px !important;padding-top:12px}
     <div class="k">Account number</div><div class="v editable" contenteditable="true">35950700</div>
     <div class="k">Payment reference</div><div class="v" id="payRef">-</div>
   </div>
-  <div class="pnote editable" contenteditable="true">Card and cash are also accepted on completion day. Please use the payment reference above so we can match your payment. A 10% deposit secures your booking, with the remaining 90% payable on the move date.</div>
+  <div class="pnote editable" contenteditable="true">Card and cash are also accepted on completion day. Please use the payment reference above so we can match your payment. A <span id="pn-dep-pct">10</span>% deposit secures your booking, with the remaining <span id="pn-bal-pct">90</span>% payable on the move date.</div>
 </div>
 <div class="subtle editable" contenteditable="true">Thank you for choosing Relokates Removals. If you have any questions about this invoice, call us on 07359 724844 or email info@relokates.co.uk.</div>
 <div class="qfoot">Relokates Removals &middot; Company No. 13441775 &middot; info@relokates.co.uk &middot; relokates.co.uk</div>
@@ -376,6 +376,12 @@ function fill(q){
   document.getElementById('tSub').textContent=total;
   document.getElementById('tTotal').textContent=total;
   document.getElementById('payRef').textContent=refCode;
+  // Deposit wording follows this lead's own percentage (blank = 10%). The
+  // note is editable, so the spans may have been typed over: skip if gone.
+  let dP=Number(q.deposit_pct); if(!(isFinite(dP)&&dP>0&&dP<=100)) dP=10;
+  const pnD=document.getElementById('pn-dep-pct'), pnB=document.getElementById('pn-bal-pct');
+  if(pnD) pnD.textContent=String(+dP.toFixed(2));
+  if(pnB) pnB.textContent=String(+(100-dP).toFixed(2));
   document.title='Invoice '+refCode+' | Relokates';
 }
 

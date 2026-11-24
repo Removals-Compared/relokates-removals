@@ -368,7 +368,7 @@ body.pdfx .qfoot{margin-top:56px;padding-top:18px;padding-bottom:12px}
       <div class="terms">
         <ol>
           <li>This fixed price is held provided the contents and access are as described at the time of quoting.</li>
-          <li>A 10% deposit (<span id="t-deposit">&mdash;</span>) secures your booking, with the remaining 90% (<span id="t-balance">&mdash;</span>) payable on the move date.</li>
+          <li>A <span id="t-dep-pct">10</span>% deposit (<span id="t-deposit">&mdash;</span>) secures your booking, with the remaining <span id="t-bal-pct">90</span>% (<span id="t-balance">&mdash;</span>) payable on the move date.</li>
           <li>Please have all boxes packed before the crew arrives, unless you have arranged packing with us.</li>
           <li>Let us know about parking restrictions or permits in advance so we can plan access.</li>
           <li>This quote is valid for 14 days from the date of issue.</li>
@@ -441,6 +441,10 @@ async function load(){
   document.getElementById('loading').style.display='none';
   document.getElementById('sheetWrap').style.display='';
 }
+
+// Each lead can carry its own deposit percentage (blank = the standard 10%).
+function depPct(q){ const p=Number(q&&q.deposit_pct); return isFinite(p)&&p>0&&p<=100 ? p : 10; }
+function pctText(p){ return String(+Number(p).toFixed(2)); }
 
 function fill(q){
   const issued=new Date();
@@ -516,12 +520,16 @@ function fill(q){
   document.getElementById('tSub').textContent=total||'On request';
   document.getElementById('tTotal').textContent=total||'On request';
 
-  // Deposit terms: 10% now, 90% on the move date.
-  const depV=Number(q.value)||0;
+  // Deposit terms: this lead's percentage now (10% unless set on the lead
+  // page), the rest on the move date.
+  const depV=Number(q.value)||0, dP=depPct(q);
   const tDep=document.getElementById('t-deposit'), tBal=document.getElementById('t-balance');
+  const tDp=document.getElementById('t-dep-pct'), tBp=document.getElementById('t-bal-pct');
+  if(tDp) tDp.textContent=pctText(dP);
+  if(tBp) tBp.textContent=pctText(100-dP);
   if(tDep&&tBal){
-    if(depV){ const dep=Math.round(depV*0.10); tDep.textContent=money(dep); tBal.textContent=money(depV-dep); }
-    else { tDep.textContent='10% of the total'; tBal.textContent='the remaining 90%'; }
+    if(depV){ const dep=Math.round(depV*dP/100); tDep.textContent=money(dep); tBal.textContent=money(depV-dep); }
+    else { tDep.textContent=pctText(dP)+'% of the total'; tBal.textContent='the remaining '+pctText(100-dP)+'%'; }
   }
 
   document.title='Quote '+refCode+' | Relokates';
@@ -569,7 +577,7 @@ function prefillEmail(){
   if(!subj.value) subj.value='Your '+ph[0]+' from Relokates Removals - '+refCode;
   if(!body.value){
     const total=money(quote.value);
-    const depV=Number(quote.value)||0;
+    const depV=Number(quote.value)||0, dP=depPct(quote), depA=Math.round(depV*dP/100);
     const route=(quote.move_from&&quote.move_to)? (' from '+quote.move_from+' to '+quote.move_to)
       : (quote.move_from? ' at '+quote.move_from : '');
     const dateLine=quote.move_date? ('Your preferred '+(ph[2]?'move date':'date')+' is '+fmtDate(quote.move_date)+'. '):'';
@@ -581,7 +589,7 @@ Thank you for getting in touch with Relokates Removals. Please find your fixed-p
 
 It covers ${ph[1]}${route}. ${dateLine}${total? 'The total price is '+total+', fully inclusive with no hidden charges.':'Your price is set out in the attached quotation.'}
 
-To secure your date, a 10% deposit${depV? ' ('+money(Math.round(depV*0.10))+')':''} is all that is needed, with the remaining 90%${depV? ' ('+money(depV-Math.round(depV*0.10))+')':''} payable on ${ph[2]?'the move date':'the day'}. This quote is valid for 14 days.${acceptLine}
+To secure your date, a ${pctText(dP)}% deposit${depV? ' ('+money(depA)+')':''} is all that is needed, with the remaining ${pctText(100-dP)}%${depV? ' ('+money(depV-depA)+')':''} payable on ${ph[2]?'the move date':'the day'}. This quote is valid for 14 days.${acceptLine}
 
 If you have any questions or would like to book, just reply to this email or call us on 07359 724844.
 
