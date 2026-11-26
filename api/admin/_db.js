@@ -5,7 +5,7 @@
 // join in appointments separately. If the appointments table doesn't
 // exist yet (schema not fully applied), the page still works - the
 // appointment list just shows empty.
-import { q, insertRow, updateById } from './_sql.js';
+import { q, insertRow, updateById, activeDbKey } from './_sql.js';
 
 const QUOTES = 'relokates_quote_request';
 const APPTS = 'relokates_appointments';
@@ -68,6 +68,20 @@ export async function getQuote(id) {
 
 export async function updateQuote(id, patch) {
   return updateById(QUOTES, id, { ...patch, updated_at: new Date().toISOString() });
+}
+
+// Per-lead deposit percentage (null = the standard 10%). The column is
+// added on first save so no manual SQL step is needed. Memoised per
+// database, because head office and each branch have their own: a warm
+// instance that already altered one must still alter the other.
+const depColReady = new Map();
+export function ensureDepositPct() {
+  const key = activeDbKey();
+  if (!depColReady.has(key)) {
+    depColReady.set(key, q(`ALTER TABLE ${QUOTES} ADD COLUMN IF NOT EXISTS deposit_pct numeric`)
+      .catch((e) => { depColReady.delete(key); throw e; }));
+  }
+  return depColReady.get(key);
 }
 
 // Insert a lead (admin "+ Add customer"); returns the created row.

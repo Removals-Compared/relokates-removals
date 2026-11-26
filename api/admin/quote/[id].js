@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { requireAuthWithBranch, selectBranchDb, actorName } from '../_session.js';
 import {
   getQuote, updateQuote, deleteQuote, appendNote, logActivity,
-  fetchRemindersByLeadIds, fetchDuplicates,
+  fetchRemindersByLeadIds, fetchDuplicates, ensureDepositPct,
 } from '../_db.js';
 import { sendReviewRequest } from '../_review.js';
 import { sendFollowup, sendLetter } from '../_followup.js';
@@ -185,6 +185,20 @@ export default async function handler(req, res) {
         if (n !== null && (isNaN(n) || n < 0)) return res.status(400).json({ error: 'invalid value' });
         patch.value = n;
       }
+      // Deposit percentage for this lead: money, so the same rule as value
+      // (staff never set it). Blank resets to the standard 10%. Kept to 4
+      // decimals so a typed pound amount such as 1500 of 8550 converts back
+      // to the same whole-pound deposit.
+      if (body.deposit_pct !== undefined && role !== 'staff') {
+        let pct = null;
+        if (body.deposit_pct !== '' && body.deposit_pct !== null) {
+          const p = Number(body.deposit_pct);
+          if (!isFinite(p) || p <= 0 || p > 100) return res.status(400).json({ error: 'deposit must be between 1% and 100%' });
+          pct = Math.round(p * 10000) / 10000;
+        }
+        await ensureDepositPct();
+        patch.deposit_pct = pct;
+      }
       // Job cost allocation — money, so staff excluded; validated line items.
       if (body.costs !== undefined && role !== 'staff') {
         patch.costs = Array.isArray(body.costs)
@@ -219,7 +233,7 @@ export default async function handler(req, res) {
         await appendNote(id, `Status changed to ${patch.status} by ${actor}`);
         await logActivity({ actor, action: 'changed status', lead_id: id, lead_name: prior.name, detail: `to ${patch.status}` });
       }
-      if (textChanged.length || patch.value !== undefined) {
+      if (textChanged.length || patch.value !== undefined || patch.deposit_pct !== undefined) {
         await appendNote(id, `Details updated by ${actor}`);
         await logActivity({ actor, action: 'updated details', lead_id: id, lead_name: prior.name, detail: textChanged.join(', ') });
       }

@@ -47,6 +47,13 @@
 .value-input span{color:var(--gold);font-family:Montserrat,sans-serif;font-weight:800;font-size:18px}
 .value-input input{flex:1;max-width:140px;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:16px;font-family:Inter,sans-serif;font-weight:600;color:var(--navy)}
 .value-input input:focus{outline:none;border-color:var(--gold)}
+.value-row.dep-row{margin-top:10px;padding-top:0;border-top:0}
+.dep-row .value-input{flex-wrap:wrap}
+.value-input select{width:auto;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:Inter,sans-serif;font-weight:600;color:var(--navy);background:#fff}
+.value-input select:focus{outline:none;border-color:var(--gold)}
+.dep-row .value-input input{flex:0 1 110px}
+.dep-line{font-size:12px;margin:10px 0 0}
+.dep-save{display:flex;align-items:center;gap:8px;margin-top:10px}
 .cost-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
 .cost-row .cost-label{flex:2;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:Inter,sans-serif}
 .cost-row .cost-amt{flex:1;min-width:0;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:Inter,sans-serif}
@@ -261,9 +268,24 @@ button.review:hover{background:#FEF08A}
         <div class="value-input">
           <span>£</span>
           <input type="number" id="valueInput" min="0" step="1" placeholder="0">
-          <button class="ghost" id="valueSave">Save value</button>
-          <span class="muted" id="valueStatus" style="margin-left:4px"></span>
         </div>
+      </div>
+      <div class="value-row dep-row staff-hide">
+        <label for="depPctSel">Deposit</label>
+        <div class="value-input">
+          <select id="depPctSel" aria-label="Deposit percentage">
+            <option value="10">10%</option><option value="15">15%</option><option value="20">20%</option><option value="25">25%</option><option value="30">30%</option><option value="40">40%</option><option value="50">50%</option>
+            <option value="other">Other…</option>
+          </select>
+          <input type="number" id="depPct" min="1" max="100" step="0.01" placeholder="e.g. 17.5" aria-label="Deposit percentage (other)" style="display:none">
+          <span>£</span>
+          <input type="number" id="depAmt" min="0" step="1" placeholder="0" aria-label="Deposit amount in pounds">
+        </div>
+      </div>
+      <p class="muted dep-line staff-hide" id="depLine"></p>
+      <div class="dep-save staff-hide">
+        <button class="ghost" id="valueSave">Save value &amp; deposit</button>
+        <span class="muted" id="valueStatus"></span>
       </div>
 
       <div class="staff-hide" style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
@@ -278,7 +300,7 @@ button.review:hover{background:#FEF08A}
       <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border)">
         <a id="depositBtn" class="k wa full" href="#" target="_blank" rel="noopener">
           <svg width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><path fill="#fff" d="M16 3C9 3 3.5 8.6 3.5 15.5c0 2.4.7 4.7 1.9 6.7L3 29l7-1.8c1.9 1 4 1.6 6 1.6 6.9 0 12.5-5.6 12.5-12.5S22.9 3 16 3z"/><path fill="#25D366" d="M12.4 9.3c-.3-.6-.5-.6-.8-.6h-.7c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.8s1.2 3.3 1.4 3.5c.2.2 2.4 3.8 5.9 5.2 2.9 1.1 3.5.9 4.2.9.7-.1 2.1-.9 2.4-1.7.3-.8.3-1.5.2-1.7-.1-.2-.3-.2-.7-.4-.4-.2-2.1-1-2.4-1.1-.3-.1-.6-.2-.8.2-.2.3-.9 1.1-1.1 1.4-.2.2-.4.2-.7.1-.4-.2-1.5-.6-2.9-1.8-1.1-1-1.8-2.2-2-2.5-.2-.4 0-.6.2-.7.2-.2.4-.4.5-.6.2-.2.2-.4.4-.6.1-.2.1-.5 0-.6-.1-.2-.8-2-1.1-2.6z"/></svg>
-          Send 10% deposit link on WhatsApp
+          <span>Send <span id="depositBtnPct">10</span>% deposit link on WhatsApp</span>
         </a>
         <span class="muted" style="font-size:12px;display:block;margin-top:8px">Opens WhatsApp to the customer's number with your Monzo deposit link ready to send.</span>
       </div>
@@ -485,14 +507,65 @@ function waNumber(phone){
   if (p.startsWith('0')) return '44' + p.slice(1); // UK national -> international
   return p;
 }
+
+// ── Deposit: each lead can carry its own percentage (blank = 10%) ──
+// Pick a preset or type any figure and the pound amount follows; typing a
+// pound amount works the other way and sets the percentage. Uses the saved
+// lead (quote) for messages, the on-screen fields for the live preview.
+const DEP_PRESETS = [10, 15, 20, 25, 30, 40, 50];
+const depPct = (q) => { const p = Number(q && q.deposit_pct); return isFinite(p) && p > 0 && p <= 100 ? p : 10; };
+const pctText = (p) => String(+Number(p).toFixed(2));
+const depAmount = (value, pct) => Math.round((Number(value) || 0) * pct / 100);
+const depEl = (i) => document.getElementById(i);
+function curPct(){
+  const sel = depEl('depPctSel').value;
+  const p = sel === 'other' ? Number(depEl('depPct').value) : Number(sel);
+  return isFinite(p) && p > 0 && p <= 100 ? p : 10;
+}
+function depShowPct(p){
+  const preset = DEP_PRESETS.includes(p);
+  depEl('depPctSel').value = preset ? String(p) : 'other';
+  depEl('depPct').style.display = preset ? 'none' : '';
+  depEl('depPct').value = p;
+}
+function depSync(fromAmount){
+  const v = Number(depEl('valueInput').value) || 0, p = curPct();
+  if (!fromAmount) depEl('depAmt').value = v ? depAmount(v, p) : '';
+  const dep = Number(depEl('depAmt').value) || 0;
+  depEl('depLine').textContent = v
+    ? pctText(p) + '% deposit of £' + dep.toLocaleString('en-GB') + ', balance £' + Math.max(0, v - dep).toLocaleString('en-GB') + ' on the move date.'
+    : 'Enter a job value to work out the deposit.';
+}
+// Fill the deposit fields and the WhatsApp button label from a saved lead.
+function depHydrate(q){
+  depShowPct(depPct(q));
+  depSync();
+  depEl('depositBtnPct').textContent = pctText(depPct(q));
+}
+depEl('depPctSel').addEventListener('change', () => {
+  const other = depEl('depPctSel').value === 'other';
+  depEl('depPct').style.display = other ? '' : 'none';
+  if (other) depEl('depPct').focus();
+  depSync();
+});
+depEl('depPct').addEventListener('input', () => depSync());
+depEl('valueInput').addEventListener('input', () => depSync());
+depEl('depAmt').addEventListener('input', () => {
+  const v = Number(depEl('valueInput').value) || 0, a = Number(depEl('depAmt').value);
+  if (!v || !isFinite(a) || a <= 0 || a > v) return;
+  depShowPct(Math.round(a / v * 1000000) / 10000);
+  depSync(true);
+});
+
 document.getElementById('depositBtn').addEventListener('click', (e) => {
   e.preventDefault();
   const fn = (quote && quote.name) ? String(quote.name).trim().split(/\s+/)[0] : 'there';
-  const depAmt = Math.round((Number(quote && quote.value) || 0) * 0.10);
-  const msg = 'Hi ' + fn + ', to secure your move with Relokates Removals, please pay your 10% deposit'
+  const depP = depPct(quote);
+  const depAmt = depAmount(quote && quote.value, depP);
+  const msg = 'Hi ' + fn + ', to secure your move with Relokates Removals, please pay your ' + pctText(depP) + '% deposit'
     + (depAmt ? ' of £' + depAmt.toLocaleString('en-GB') : '')
     + ' using this secure link: ' + DEPOSIT_LINK
-    + '. The remaining 90% is payable on the move date. Once received, we will confirm your booking. Thank you.';
+    + '. The remaining ' + pctText(100 - depP) + '% is payable on the move date. Once received, we will confirm your booking. Thank you.';
   const num = waNumber(quote && quote.phone);
   window.open('https://wa.me/' + num + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
 });
@@ -661,6 +734,7 @@ function renderCustomer(q) {
   // Hydrate the value editor.
   document.getElementById('valueInput').value = q.value ?? '';
   document.getElementById('valueStatus').textContent = q.value ? `current: ${fmtMoney(q.value)}` : '';
+  depHydrate(q);
   renderCosts(q);
   calcDistance();
   wireReceivedStamp();
@@ -1050,15 +1124,19 @@ document.getElementById('valueSave').addEventListener('click', async () => {
     const res = await fetch('/api/admin/quote/' + encodeURIComponent(id), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ value: v === '' ? null : Number(v) }),
+      body: JSON.stringify({ value: v === '' ? null : Number(v), deposit_pct: curPct() }),
     });
     if (!res.ok) {
       const d = await res.json().catch(() => ({}));
-      statusEl.textContent = 'Save failed';
+      statusEl.textContent = 'Save failed' + (d.error ? ': ' + d.error : '');
       statusEl.style.color = '#991B1B';
     } else {
       const d = await res.json();
-      statusEl.textContent = d.quote && d.quote.value ? `saved: ${fmtMoney(d.quote.value)}` : 'cleared';
+      // Keep the in-memory lead current so the WhatsApp deposit message and
+      // button label use what was just saved, without a page reload.
+      if (quote && d.quote) { quote.value = d.quote.value; quote.deposit_pct = d.quote.deposit_pct; depHydrate(quote); }
+      statusEl.textContent = d.quote && d.quote.value
+        ? `saved: ${fmtMoney(d.quote.value)}, ${pctText(depPct(d.quote))}% deposit` : 'cleared';
       statusEl.style.color = '#065F46';
       setTimeout(() => { statusEl.style.color = ''; }, 2000);
     }
